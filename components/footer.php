@@ -84,9 +84,14 @@
     document.querySelectorAll('[data-setbg]').forEach(element => {
     const imagePath = element.getAttribute('data-setbg');
     element.style.backgroundImage = `url(${imagePath})`;
-    
-    
 });
+
+
+    
+
+
+    
+
 </script>
 
 </html>

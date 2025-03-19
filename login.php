@@ -1,14 +1,19 @@
 <?php
-session_start();
+
+
 include 'php/db_connection.php';
+
+// Login
+
+session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
     try {
-        // Prepare the SQL statement
-        $stmt = $pdo->prepare("SELECT user_id, password_hash, user_type FROM Users WHERE email = :email");
+        // Prepare the SQL statement to fetch user details
+        $stmt = $pdo->prepare("SELECT user_id, password_hash, user_type, full_name FROM Users WHERE email = :email");
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 
@@ -17,9 +22,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Verify password
             if (password_verify($password, $user['password_hash'])) {
+                // Store user details in the session
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['user_type'] = $user['user_type'];
+                $_SESSION['full_name'] = $user['full_name']; // Store full name in session
 
+                // Redirect based on user type
                 if ($user['user_type'] == 'admin') {
                     header("Location: admin_dashboard.php");
                 } elseif ($user['user_type'] == 'employee') {
@@ -38,6 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -58,5 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p>Don't have an account? <a href="signup.php">Sign Up</a></p>
         </form>
     </div>
+
+    
 </body>
 </html>

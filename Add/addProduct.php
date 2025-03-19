@@ -2,7 +2,6 @@
 include("../php/db_connection.php");
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,8 +36,13 @@ include("../php/db_connection.php");
             ?>
         </select>
         <br><br>
+        <!-- New Warranty Period Field -->
+        <label for="warranty_period">Warranty Period (in months):</label>
+        <input type="number" name="warranty_period" id="warranty_period" min="0" required>
+        <br><br>
         <label for="image">Product Image:</label>
-        <input type="file" name="image" id="image" accept="image/*" required>
+        <input type="file" name="image" id="image" accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff" required>
+        
         <br><br>
         <button type="submit">Add Product</button>
     </form>
