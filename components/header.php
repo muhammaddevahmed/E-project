@@ -50,12 +50,18 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
             <a href="#"><img src="img/logo.png" alt=""></a>
         </div>
         <div class="humberger__menu__cart">
-            <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
-            </ul>
-            <div class="header__cart__price">item: <span>$150.00</span></div>
-        </div>
+    <ul>
+        <li>
+            <a href="#">
+                <i class="fa fa-shopping-bag"></i>
+                <span id="cart-item-count">3</span> <!-- Add ID for item count -->
+            </a>
+        </li>
+    </ul>
+    <div class="header__cart__price">
+        item: <span id="cart-total-price">$150.00</span> <!-- Add ID for total price -->
+    </div>
+</div>
         <div class="humberger__menu__widget">
             <div class="header__top__right__language">
                 <img src="img/language.png" alt="">
@@ -77,7 +83,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
                 <li class="active"><a href="./index.php">Home</a></li>
-                <li><a href="./shop.php">Shop</a></li>
+                <li><a href="./shop-grid.php">Shop</a></li>
                 <li><a href="#">Pages</a>
                     <ul class="header__menu__dropdown">
                         <li><a href="./shop-details.php">Shop Details</a></li>
@@ -176,16 +182,23 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                 </div>
                 <div class="col-lg-3">
                     <div class="header__cart">
-                        <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
-                        </ul>
-                        <div class="header__cart__price">item: <span>$150.00</span></div>
-                    </div>
-                </div>
+                    <ul>
+        <li>
+            <a href="#">
+                <i class="fa fa-shopping-bag"></i>
+                <span id="cart-item-count">3</span> <!-- Add ID for item count -->
+            </a>
+        </li>
+    </ul>
+    <div class="header__cart__price">
+        item: <span id="cart-total-price">$150.00</span> <!-- Add ID for total price -->
+    </div>
+
             </div>
             <div class="humberger__open">
                 <i class="fa fa-bars"></i>
             </div>
         </div>
  </header>
+
+ 

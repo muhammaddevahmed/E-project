@@ -66,10 +66,10 @@ include("components/header.php");
                     <div class="sidebar__item">
                         <h4>Categories</h4>
                         <ul>
-                            <li><a href="shop.php">All Categories</a></li>
+                            <li><a href="shop-grid.php">All Categories</a></li>
                             <?php foreach ($categories as $category): ?>
                                 <li>
-                                    <a href="shop.php?category_id=<?php echo $category['category_id']; ?>">
+                                    <a href="shop-grid.php?category_id=<?php echo $category['category_id']; ?>">
                                         <?php echo htmlspecialchars($category['category_name']); ?>
                                     </a>
                                 </li>
@@ -159,13 +159,13 @@ include("components/header.php");
                 </div>
                 <div class="product__pagination">
                     <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <a href="shop.php?page=<?php echo $i; ?>&sort=<?php echo $sort; ?>&category_id=<?php echo $category_id; ?>" 
+                        <a href="shop-grid.php?page=<?php echo $i; ?>&sort=<?php echo $sort; ?>&category_id=<?php echo $category_id; ?>" 
                            class="<?php echo ($page == $i) ? 'active' : ''; ?>">
                             <?php echo $i; ?>
                         </a>
                     <?php endfor; ?>
                     <?php if ($page < $total_pages): ?>
-                        <a href="shop.php?page=<?php echo $page + 1; ?>&sort=<?php echo $sort; ?>&category_id=<?php echo $category_id; ?>">
+                        <a href="shop-grid.php?page=<?php echo $page + 1; ?>&sort=<?php echo $sort; ?>&category_id=<?php echo $category_id; ?>">
                             <i class="fa fa-long-arrow-right"></i>
                         </a>
                     <?php endif; ?>

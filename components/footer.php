@@ -80,10 +80,41 @@
 
 
 </body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     document.querySelectorAll('[data-setbg]').forEach(element => {
     const imagePath = element.getAttribute('data-setbg');
     element.style.backgroundImage = `url(${imagePath})`;
+});
+
+
+
+$(document).ready(function() {
+    // Listen for input in the search field
+    $('#searchInput').on('input', function() {
+        var search_query = $(this).val();
+
+        // Send AJAX request to fetch search results
+        if (search_query.length >= 2) { // Only search if 2 or more characters are entered
+            $.ajax({
+                url: 'search.php', // PHP file to handle the search
+                type: 'GET',
+                data: { search_query: search_query },
+                success: function(response) {
+                    // Display the search results
+                    $('#searchResults').html(response);
+                }
+            });
+        } else {
+            // Clear results if the search query is too short
+            $('#searchResults').html('');
+        }
+    });
+
+    // Prevent form submission if JavaScript is enabled
+    $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+    });
 });
 
 

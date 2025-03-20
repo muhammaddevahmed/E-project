@@ -135,4 +135,8 @@ $stmt_total->execute();
 $total_products = $stmt_total->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_products / $limit); // Total pages
 
+
+
+
+
 ?>

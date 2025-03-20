@@ -2,6 +2,7 @@
 include("components/header.php");
 
 
+
 ?>
 
 <style>
@@ -18,81 +19,68 @@ include("components/header.php");
         height: 250px; /* Adjust as needed */
     }
 </style>
-
-    <!-- Hero Section Begin -->
-    <section class="hero mt-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="hero__categories">
-                        <div class="hero__categories__all">
-                            <i class="fa fa-bars"></i>
-                            <span>All departments</span>
+<!-- Hero Section Begin -->
+<section class="hero mt-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="hero__categories">
+                    <div class="hero__categories__all">
+                        <i class="fa fa-bars"></i>
+                        <span>All Categories</span>
+                    </div>
+                    <ul>
+                        <?php foreach ($categories as $category): ?>
+                            <li><a href="#"><?php echo htmlspecialchars($category['category_name']); ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-9">
+                <div class="hero__search">
+                    <div class="hero__search__form">
+                        <form action="#" method="GET" id="searchForm">
+                            <div class="hero__search__categories">
+                                All Categories
+                                <span class="arrow_carrot-down"></span>
+                            </div>
+                            <input type="text" name="search_query" id="searchInput" placeholder="What do you need?">
+                            <button type="submit" class="site-btn">SEARCH</button>
+                        </form>
+                        <!-- Search Results Container -->
+                        <div id="searchResults" class="search-results-container"></div>
+                    </div>
+                    <div class="hero__search__phone">
+                        <div class="hero__search__phone__icon">
+                            <i class="fa fa-phone"></i>
                         </div>
-                        <ul>
-                            <li><a href="#">Fresh Meat</a></li>
-                            <li><a href="#">Vegetables</a></li>
-                            <li><a href="#">Fruit & Nut Gifts</a></li>
-                            <li><a href="#">Fresh Berries</a></li>
-                            <li><a href="#">Ocean Foods</a></li>
-                            <li><a href="#">Butter & Eggs</a></li>
-                            <li><a href="#">Fastfood</a></li>
-                            <li><a href="#">Fresh Onion</a></li>
-                            <li><a href="#">Papayaya & Crisps</a></li>
-                            <li><a href="#">Oatmeal</a></li>
-                            <li><a href="#">Fresh Bananas</a></li>
-                        </ul>
+                        <div class="hero__search__phone__text">
+                            <h5>+65 11.188.888</h5>
+                            <span>support 24/7 time</span>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-9">
-                    <div class="hero__search">
-                        <div class="hero__search__form">
-                            <form action="#">
-                                <div class="hero__search__categories">
-                                    All Categories
-                                    <span class="arrow_carrot-down"></span>
-                                </div>
-                                <input type="text" placeholder="What do yo u need?">
-                                <button type="submit" class="site-btn">SEARCH</button>
-                            </form>
-                        </div>
-                        <div class="hero__search__phone">
-                            <div class="hero__search__phone__icon">
-                                <i class="fa fa-phone"></i>
-                            </div>
-                            <div class="hero__search__phone__text">
-                                <h5>+65 11.188.888</h5>
-                                <span>support 24/7 time</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="hero__item set-bg" data-setbg="images/Banner.png">
-                    <div class="hero__text" style=" color: #F5E1C8; /* Light Beige */
-    font-weight: bold;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);">
-    <span style=" color: #F5E1C8; /* Light Beige */
-    font-weight: bold;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); ">Gifts and stationery shop</span>
-    <h2 style=" color: #F5E1C8; /* Light Beige */
-    font-weight: bold;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);">Shop Now <br />100% Original items</h2>
-    <p style=" color: #F5E1C8; /* Light Beige */
-    font-weight: bold;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);">Free Pickup and Delivery Available</p>
-    <a href="#" class="primary-btn">SHOP NOW</a>
-</div>
-
+                <div class="hero__item set-bg" data-setbg="images/Banner.png">
+                    <div class="hero__text" style="color: #F5E1C8; font-weight: bold; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);">
+                        <span>Gifts and stationery shop</span>
+                        <h2>Shop Now <br />100% Original items</h2>
+                        <p>Free Pickup and Delivery Available</p>
+                        <a href="shop-grid.php" class="primary-btn">SHOP NOW</a>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
- <!-- Hero Section End  -->
+    </div>
+</section>
+<!-- Hero Section End -->
 
 <!-- Categories Section Begin -->
 <section class="categories">
     <div class="container">
         <div class="row">
+        <div class="section-title">
+                    <h2>Categories</h2>
+                </div>
             <div class="categories__slider owl-carousel">
                 <?php foreach ($categories as $category): ?>
                     <?php 
