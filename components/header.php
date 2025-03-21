@@ -30,6 +30,8 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="css/style.css" type="text/css">
+    
+    
    
  
 

@@ -1,22 +1,14 @@
 <?php
-// Include database connection
-include("php/db_connection.php");
+session_start(); // Start session
 
-// Start the session (if using session-based cart)
-session_start();
-
-// Check if cart_id is provided
-if (isset($_GET['cart_id']) && !empty($_GET['cart_id'])) {
-    $cart_id = $_GET['cart_id'];
-
-    // Delete the item from the cart
-    $sql = "DELETE FROM Cart WHERE cart_id = :cart_id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':cart_id', $cart_id, PDO::PARAM_INT);
-    $stmt->execute();
+// Handle removing an item from the cart
+if (isset($_GET['remove'])) {
+    $product_id = $_GET['remove'];
+    if (isset($_SESSION['cart'][$product_id])) {
+        unset($_SESSION['cart'][$product_id]);
+        $_SESSION['message'] = "Product removed from cart successfully!";
+    }
+    header("Location: shoping-cart.php");
+    exit();
 }
-
-// Redirect back to the cart page
-header("Location: shoping-cart.php");
-exit();
 ?>

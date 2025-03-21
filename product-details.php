@@ -93,7 +93,7 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
                 <div class="product__details__text">
                     <!-- Dynamically display the product name -->
                     <h3><?php echo $product_name; ?></h3>
-                    
+
                     <div class="product__details__rating">
                         <?php
     $full_stars = floor($avg_rating);
@@ -113,24 +113,25 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
                     <div class="product__details__price">$<?php echo $price; ?></div>
                     <!-- Dynamically display the product description -->
                     <p><?php echo $description; ?></p>
-                    <div class="product__details__quantity">
-                        <div class="quantity">
-                            <div class="pro-qty">
-                                <input type="text" value="1">
-                            </div>
-                        </div>
-                    </div>
+
                     <!-- Add to Cart Form -->
-<!-- Add to Cart Form -->
-<form action="add_to_cart.php" method="POST" style="display: inline;">
-    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
-    <input type="hidden" name="quantity" value="1"> <!-- Default quantity is 1 -->
-    <button type="submit" class="primary-btn">ADD TO CART</button>
-</form>
+                    <!-- Add to Cart Form -->
+                    <!-- Add to Cart Form -->
+                    <form action="add_to_cart.php" method="POST" style="display: inline;">
+                        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+                        <input type="hidden" name="product_name" value="<?php echo $product_name; ?>">
+                        <input type="hidden" name="price" value="<?php echo $price; ?>">
+                        <input type="hidden" name="image_path" value="<?php echo $image_path; ?>">
+                        <input type="hidden" name="quantity" value="1"> <!-- Default quantity is 1 -->
+                        <button type="submit" class="primary-btn">ADD TO CART</button>
+                    </form>
+
+
                     <ul>
                         <!-- Dynamically display availability -->
                         <li><b>Availability</b>
-                            <span><?php echo ($stock_quantity > 0) ? 'In Stock' : 'Out of Stock'; ?></span></li>
+                            <span><?php echo ($stock_quantity > 0) ? 'In Stock' : 'Out of Stock'; ?></span>
+                        </li>
                         <!-- Dynamically display warranty period -->
                         <li><b>Warranty</b> <span><?php echo $warranty_period; ?> months</span></li>
                         <li><b>Share on</b>
@@ -156,10 +157,10 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
                                 aria-selected="false">Information</a>
                         </li>
                         <li class="nav-item">
-    <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab" aria-selected="false">
-        Reviews <span>(<?php echo $total_reviews; ?>)</span>
-    </a>
-</li>
+                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab" aria-selected="false">
+                                Reviews <span>(<?php echo $total_reviews; ?>)</span>
+                            </a>
+                        </li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="tabs-1" role="tabpanel">
