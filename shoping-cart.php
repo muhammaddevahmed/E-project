@@ -147,7 +147,9 @@ $total = $subtotal; // Assuming no tax or shipping for now
                         <li>Subtotal <span id="subtotal">$<?php echo number_format($subtotal, 2); ?></span></li>
                         <li>Total <span id="total">$<?php echo number_format($total, 2); ?></span></li>
                     </ul>
-                    <a href="#" class="primary-btn">PROCEED TO CHECKOUT</a>
+        
+<a href="checkout.php" class="primary-btn">PROCEED TO CHECKOUT</a>
+
                 </div>
             </div>
         </div>

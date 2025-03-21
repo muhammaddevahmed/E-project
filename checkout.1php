@@ -1,0 +1,226 @@
+<?php
+
+include("components/header.php");
+
+
+
+
+// Calculate subtotal and total
+$subtotal = 0;
+if (isset($_SESSION['cart'])) { // Fixed: Added missing closing parenthesis
+    foreach ($_SESSION['cart'] as $id => $item) {
+        if (isset($item['price']) && isset($item['quantity'])) {
+            $subtotal += $item['price'] * $item['quantity'];
+        }
+    }
+}
+$total = $subtotal; // Assuming no tax or shipping for now
+?>
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb__text">
+                    <h2>Checkout</h2>
+                    <div class="breadcrumb__option">
+                        <a href="./index.html">Home</a>
+                        <span>Checkout</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- Checkout Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h6><span class="icon_tag_alt"></span> Have a coupon? <a href="#">Click here</a> to enter your code</h6>
+            </div>
+        </div>
+        <div class="checkout__form">
+            <h4>Billing Details</h4>
+            <form action="#">
+                <div class="row">
+                    <div class="col-lg-8 col-md-6">
+                    <div class="row">
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Fist Name<span>*</span></p>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Last Name<span>*</span></p>
+                                    <input type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="checkout__input">
+                            <p>Country<span>*</span></p>
+                            <input type="text">
+                        </div>
+                        <div class="checkout__input">
+                            <p>Address<span>*</span></p>
+                            <input type="text" placeholder="Street Address" class="checkout__input__add">
+                            <input type="text" placeholder="Apartment, suite, unite ect (optinal)">
+                        </div>
+                        <div class="checkout__input">
+                            <p>Town/City<span>*</span></p>
+                            <input type="text">
+                        </div>
+                        <div class="checkout__input">
+                            <p>Country/State<span>*</span></p>
+                            <input type="text">
+                        </div>
+                        <div class="checkout__input">
+                            <p>Postcode / ZIP<span>*</span></p>
+                            <input type="text">
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Phone<span>*</span></p>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Email<span>*</span></p>
+                                    <input type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="checkout__input__checkbox">
+                            <label for="acc">
+                                Create an account?
+                                <input type="checkbox" id="acc">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <p>Create an account by entering the information below. If you are a returning customer
+                            please login at the top of the page</p>
+                        <div class="checkout__input">
+                            <p>Account Password<span>*</span></p>
+                            <input type="text">
+                        </div>
+                        <div class="checkout__input__checkbox">
+                            <label for="diff-acc">
+                                Ship to a different address?
+                                <input type="checkbox" id="diff-acc">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="checkout__input">
+                            <p>Order notes<span>*</span></p>
+                            <input type="text" placeholder="Notes about your order, e.g. special notes for delivery.">
+                        </div>
+                    </div>
+
+                   
+                    <div class="col-lg-4 col-md-6">
+                        <div class="checkout__order">
+                            <h4>Your Order</h4>
+                            <div class="checkout__order__products">Products <span>Total</span></div>
+                            <ul>
+                                <?php if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])): ?>
+                                    <?php foreach ($_SESSION['cart'] as $product_id => $item): ?>
+                                        <?php if (isset($item['product_name']) && isset($item['price']) && isset($item['quantity'])): ?>
+                                            <li>
+                                                <?php echo $item['product_name']; ?> (Qty: <?php echo $item['quantity']; ?>)
+                                                <span>$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
+                                            </li>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <li>Your cart is empty.</li>
+                                <?php endif; ?>
+                            </ul>
+                            <div class="checkout__order__subtotal">Subtotal <span>$<?php echo number_format($subtotal, 2); ?></span></div>
+                            <div class="checkout__order__total">Total <span>$<?php echo number_format($total, 2); ?></span></div>
+
+                            <!-- Payment Methods (unchanged) -->
+                            <div class="checkout__payment__methods">
+                                <h5>Payment Methods</h5>
+                                <div class="checkout__input__checkbox">
+                                    <label for="cash-on-delivery">
+                                        <i class="fa fa-money-bill-wave"></i> Cash on Delivery
+                                        <input type="radio" id="cash-on-delivery" name="payment_method" value="cash_on_delivery">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="checkout__input__checkbox">
+                                    <label for="check-payment">
+                                        <i class="fa fa-money-check"></i> Check Payment
+                                        <input type="radio" id="check-payment" name="payment_method" value="check_payment">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="checkout__input__checkbox">
+                                    <label for="credit-card">
+                                        <i class="fa fa-credit-card"></i> Credit/Debit Card
+                                        <input type="radio" id="credit-card" name="payment_method" value="credit_card">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="checkout__input__checkbox">
+                                    <label for="paypal">
+                                        <i class="fa fa-paypal"></i> PayPal
+                                        <input type="radio" id="paypal" name="payment_method" value="paypal">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Payment Forms (unchanged) -->
+                            <div id="cash-on-delivery-message" class="payment-form" style="display: none;">
+                                <p>Pay with cash when your order is delivered.</p>
+                            </div>
+                            <div id="check-payment-form" class="payment-form" style="display: none;">
+                                <div class="checkout__input">
+                                    <p>Check Number<span>*</span></p>
+                                    <input type="text" name="check_number" placeholder="Enter check number">
+                                </div>
+                                <div class="checkout__input">
+                                    <p>Bank Name<span>*</span></p>
+                                    <input type="text" name="bank_name" placeholder="Enter bank name">
+                                </div>
+                            </div>
+                            <div id="card-payment-form" class="payment-form" style="display: none;">
+                                <div class="checkout__input">
+                                    <p>Card Number<span>*</span></p>
+                                    <input type="text" name="card_number" placeholder="1234 5678 9012 3456">
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="checkout__input">
+                                            <p>Expiration Date<span>*</span></p>
+                                            <input type="text" name="expiry_date" placeholder="MM/YY">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="checkout__input">
+                                            <p>CVV<span>*</span></p>
+                                            <input type="text" name="cvv" placeholder="123">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="site-btn">PLACE ORDER</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<!-- Checkout Section End -->
+
+<?php include("components/footer.php"); ?>

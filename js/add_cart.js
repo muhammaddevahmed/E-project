@@ -1,3 +1,8 @@
+
+
+
+
+
 document.querySelectorAll('.qty-btn').forEach(button => {
     button.addEventListener('click', function() {
         const id = this.getAttribute('data-id');
@@ -13,15 +18,28 @@ document.querySelectorAll('.qty-btn').forEach(button => {
         input.value = quantity;
 
         // Update Total Price
-        const price = parseFloat(document.querySelector(`.price[data-id='${id}']`).getAttribute(
-            'data-price'));
-        document.querySelector(`.total-price[data-id='${id}']`).textContent =
-            `$${(price * quantity).toFixed(2)}`;
+        const price = parseFloat(document.querySelector(`.price[data-id='${id}']`).getAttribute('data-price'));
+        const totalPrice = (price * quantity).toFixed(2);
+        document.querySelector(`.total-price[data-id='${id}']`).textContent = `$${totalPrice}`;
 
-        // Update Subtotal and Total
-        updateTotals();
+        // Send updated cart data to PHP
+        updateCartInSession(id, quantity);
     });
 });
+
+// Function to send data to PHP using AJAX
+function updateCartInSession(productId, quantity) {
+    fetch('update_cart.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `id=${productId}&quantity=${quantity}`
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log(data); // Debugging
+        updateTotals();
+    });
+}
 
 function updateTotals() {
     let subtotal = 0;
@@ -32,3 +50,5 @@ function updateTotals() {
     document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
     document.getElementById('total').textContent = `$${subtotal.toFixed(2)}`;
 }
+
+
