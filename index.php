@@ -31,7 +31,7 @@ include("components/header.php");
                     </div>
                     <ul>
                         <?php foreach ($categories as $category): ?>
-                            <li><a href="#"><?php echo htmlspecialchars($category['category_name']); ?></a></li>
+                            <li><a href="shop-grid.php"><?php echo htmlspecialchars($category['category_name']); ?></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>

@@ -99,7 +99,7 @@ include("components/header.php");
                         <div class="col-lg-4 col-md-5">
                             <div class="filter__sort">
                                 <span>Sort By</span>
-                                <select onchange="window.location.href = 'shop.php?sort=' + this.value + '&category_id=<?php echo $category_id; ?>'">
+                                <select onchange="window.location.href = 'shop-grid.php?sort=' + this.value + '&category_id=<?php echo $category_id; ?>'">
                                     <option value="default" <?php echo ($sort === 'default') ? 'selected' : ''; ?>>Default</option>
                                     <option value="price_asc" <?php echo ($sort === 'price_asc') ? 'selected' : ''; ?>>Price: Low to High</option>
                                     <option value="price_desc" <?php echo ($sort === 'price_desc') ? 'selected' : ''; ?>>Price: High to Low</option>

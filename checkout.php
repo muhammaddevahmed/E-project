@@ -1,8 +1,13 @@
 <?php
 
-
 include("components/header.php");
-include 'php/db_connection.php';
+
+
+// Ensure the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    echo "<script>alert('Please Login First!'); window.location.href='login.php';</script>";
+    exit();
+}
 
 // Retrieve user information from the session
 $userId = $_SESSION['user_id'];
@@ -66,15 +71,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute();
         }
 
+        // Insert payment data into the payments table
+        $paymentSql = "INSERT INTO payments (
+             payment_method, amount, payment_status, 
+            first_name, last_name, country, address, city, state, postcode, 
+            phone, email, order_notes, card_number, expiry_date, cvv, check_number, bank_name
+        ) VALUES (
+             :payment_method, :amount, 'pending', 
+            :first_name, :last_name, :country, :address, :city, :state, :postcode, 
+            :phone, :email, :order_notes, :card_number, :expiry_date, :cvv, :check_number, :bank_name
+        )";
+
+        $paymentStmt = $pdo->prepare($paymentSql);
+
+        // Bind payment parameters
+
+        $paymentStmt->bindParam(':payment_method', $paymentMethod);
+        $paymentStmt->bindParam(':amount', $total);
+        $paymentStmt->bindParam(':first_name', $firstName);
+        $paymentStmt->bindParam(':last_name', $lastName);
+        $paymentStmt->bindParam(':country', $country);
+        $paymentStmt->bindParam(':address', $address);
+        $paymentStmt->bindParam(':city', $city);
+        $paymentStmt->bindParam(':state', $state);
+        $paymentStmt->bindParam(':postcode', $postcode);
+        $paymentStmt->bindParam(':phone', $phone);
+        $paymentStmt->bindParam(':email', $email);
+        $paymentStmt->bindParam(':order_notes', $orderNotes);
+
+        // Additional payment details based on the payment method
+        if ($paymentMethod === 'credit_card') {
+            $cardNumber = htmlspecialchars($_POST['card_number']);
+            $expiryDate = htmlspecialchars($_POST['expiry_date']);
+            $cvv = htmlspecialchars($_POST['cvv']);
+            $paymentStmt->bindParam(':card_number', $cardNumber);
+            $paymentStmt->bindParam(':expiry_date', $expiryDate);
+            $paymentStmt->bindParam(':cvv', $cvv);
+            $paymentStmt->bindValue(':check_number', null);
+            $paymentStmt->bindValue(':bank_name', null);
+        } elseif ($paymentMethod === 'check_payment') {
+            $checkNumber = htmlspecialchars($_POST['check_number']);
+            $bankName = htmlspecialchars($_POST['bank_name']);
+            $paymentStmt->bindValue(':card_number', null);
+            $paymentStmt->bindValue(':expiry_date', null);
+            $paymentStmt->bindValue(':cvv', null);
+            $paymentStmt->bindParam(':check_number', $checkNumber);
+            $paymentStmt->bindParam(':bank_name', $bankName);
+        } else {
+            // For cash_on_delivery and other methods, set payment details to null
+            $paymentStmt->bindValue(':card_number', null);
+            $paymentStmt->bindValue(':expiry_date', null);
+            $paymentStmt->bindValue(':cvv', null);
+            $paymentStmt->bindValue(':check_number', null);
+            $paymentStmt->bindValue(':bank_name', null);
+        }
+
+        // Execute the payment statement
+        $paymentStmt->execute();
+
         // Clear the cart after the order is placed
         unset($_SESSION['cart']);
 
-            // Show a JavaScript alert
-    echo "<script>alert('Your order has been placed. Thank you for shopping with us!');</script>";
+        // Show a JavaScript alert
+        echo "<script>alert('Your order has been placed. Thank you for shopping with us!');</script>";
 
-
-
-        
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage(); // Debug
     }
@@ -90,6 +150,7 @@ if (isset($_SESSION['cart'])) {
     }
 }
 $total = $subtotal; // Assuming no tax or shipping for now
+
 ?>
 
     
@@ -146,7 +207,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                             <div class="checkout__input">
                                 <p>Address<span>*</span></p>
                                 <input type="text" name="address" placeholder="Street Address" class="checkout__input__add" required>
-                                <input type="text" name="apartment" placeholder="Apartment, suite, unit etc (optional)">
+                                
                             </div>
                             <div class="checkout__input">
                                 <p>Town/City<span>*</span></p>
