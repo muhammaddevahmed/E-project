@@ -18,6 +18,7 @@ include("components/header.php");
     .categories__item.set-bg {
         height: 250px; /* Adjust as needed */
     }
+    
 </style>
 <!-- Hero Section Begin -->
 <section class="hero mt-4">
@@ -326,7 +327,7 @@ include("components/header.php");
                             <div class="latest-prdouct__slider__item">
                                 <a href="#" class="latest-product__item">
                                     <div class="latest-product__item__pic">
-                                        <img src="https://i.pinimg.com/736x/b2/d7/1c/b2d71cb5508ea427aca58a6240a48a96.jpgh" alt="">
+                                        <img src="https://media.cgtrader.com/variants/2RAYDyXip1xMzozTypH21XYT/508c09fe26e63b93baec6d888aa2950650a509b5e04f2f03a4f2af52a04363ea/pencils-3d-model-max-obj-fbx-mtl.jpg" alt="">
                                     </div>
                                     <div class="latest-product__item__text">
                                         <h6>Pencils</h6>

@@ -1,3 +1,4 @@
+
 <?php
 include 'php/db_connection.php';
 include 'php/queries.php';
@@ -16,7 +17,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ogani | Template</title>
+    <title>The Crafty Corner</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
@@ -30,6 +31,17 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="css/style.css" type="text/css">
+    <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
+
+    <style>
+    .header__menu ul li a {
+        font-size: 18px; /* Adjust the font size as needed */
+    }
+
+    .header__menu__dropdown li a {
+        font-size: 16px; /* Adjust the dropdown font size as needed */
+    }
+</style>
     
     
    
@@ -53,16 +65,36 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
         </div>
         <div class="humberger__menu__cart">
     <ul>
-        <li>
-            <a href="#">
-                <i class="fa fa-shopping-bag"></i>
-                <span id="cart-item-count">3</span> <!-- Add ID for item count -->
-            </a>
-        </li>
+    <li>
+    <a href="shoping-cart.php">
+        <i class="fa fa-shopping-bag"></i>
+        <span id="cart-item-count">
+            <?php
+            $count = 0;
+            if(isset($_SESSION['cart'])){
+                $count = count($_SESSION['cart']);
+            }
+            echo $count;
+            ?>
+        </span> 
+    </a>
+</li>
     </ul>
     <div class="header__cart__price">
-        item: <span id="cart-total-price">$150.00</span> <!-- Add ID for total price -->
-    </div>
+    Subtotal: <span id="cart-subtotal-price">
+        <?php
+        $subtotal = 0; // Initialize subtotal
+        if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+            foreach ($_SESSION['cart'] as $item) {
+                if (isset($item['price']) && isset($item['quantity'])) {
+                    $subtotal += $item['price'] * $item['quantity']; // Calculate subtotal
+                }
+            }
+        }
+        echo '$' . number_format($subtotal, 2); // Format and display subtotal
+        ?>
+    </span>
+</div>
 </div>
         <div class="humberger__menu__widget">
             <div class="header__top__right__language">
@@ -161,7 +193,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
             <div class="row">
                 <div class="col-lg-3">
                     <div class="header__logo">
-                        <a href="./index.php"><img src="img/logo.png" alt=""></a>
+                        <a href="./index.php"><img src="images/logo.png" alt=""></a>
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -185,16 +217,40 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                 <div class="col-lg-3">
                     <div class="header__cart">
                     <ul>
+      
+
         <li>
-            <a href="#">
-                <i class="fa fa-shopping-bag"></i>
-                <span id="cart-item-count">3</span> <!-- Add ID for item count -->
-            </a>
-        </li>
+    <a href="shoping-cart.php">
+        <i class="fa fa-shopping-bag"></i>
+        <span id="cart-item-count">
+            <?php
+            $count = 0;
+            if(isset($_SESSION['cart'])){
+                $count = count($_SESSION['cart']);
+            }
+            echo $count;
+            ?>
+        </span> 
+    </a>
+</li>
     </ul>
+    
     <div class="header__cart__price">
-        item: <span id="cart-total-price">$150.00</span> <!-- Add ID for total price -->
-    </div>
+    Subtotal: <span id="cart-subtotal-price">
+        <?php
+        $subtotal = 0; // Initialize subtotal
+        if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+            foreach ($_SESSION['cart'] as $item) {
+                if (isset($item['price']) && isset($item['quantity'])) {
+                    $subtotal += $item['price'] * $item['quantity']; // Calculate subtotal
+                }
+            }
+        }
+        echo '$' . number_format($subtotal, 2); // Format and display subtotal
+        ?>
+    </span>
+</div>
+
 
             </div>
             <div class="humberger__open">
