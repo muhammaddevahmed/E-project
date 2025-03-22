@@ -1,12 +1,9 @@
 <?php
+session_start(); // Must be at the very top, before any output
 
+include 'php/db_connection.php'; // Include your database connection file
 
-include 'php/db_connection.php';
-
-// Login
-
-session_start();
-
+// Login logic
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -25,7 +22,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Store user details in the session
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['user_type'] = $user['user_type'];
-                $_SESSION['full_name'] = $user['full_name']; // Store full name in session
+                $_SESSION['full_name'] = $user['full_name']; 
+              
+
+                // Debug: Print session ID and variables
+                echo "Session ID: " . session_id() . "<br>";
+                echo "<pre>";
+                print_r($_SESSION);
+                echo "</pre>";
 
                 // Redirect based on user type
                 if ($user['user_type'] == 'admin') {
@@ -33,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 } elseif ($user['user_type'] == 'employee') {
                     header("Location: employee_dashboard.php");
                 } else {
-                    header("Location: index.php");
+                    header("Location: index.php"); // Redirect to checkout.php for customers
                 }
                 exit();
             } else {
@@ -46,7 +50,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -67,7 +70,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p>Don't have an account? <a href="signup.php">Sign Up</a></p>
         </form>
     </div>
-
-    
 </body>
 </html>

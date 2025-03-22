@@ -1,98 +1,89 @@
 <?php
-session_start(); // Start the session
+
+
 include("components/header.php");
+include 'php/db_connection.php';
 
-
+// Retrieve user information from the session
+$userId = $_SESSION['user_id'];
+$username = $_SESSION['full_name'];
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    echo "Form submitted!<br>"; // Debugging message
-    print_r($_POST); // Debugging: Display form data
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Collect and sanitize form data
+    $firstName = htmlspecialchars($_POST['first_name']);
+    $lastName = htmlspecialchars($_POST['last_name']);
+    $country = htmlspecialchars($_POST['country']);
+    $address = htmlspecialchars($_POST['address']);
+    $city = htmlspecialchars($_POST['city']);
+    $state = htmlspecialchars($_POST['state']);
+    $postcode = htmlspecialchars($_POST['postcode']);
+    $phone = htmlspecialchars($_POST['phone']);
+    $email = htmlspecialchars($_POST['email']);
+    $paymentMethod = htmlspecialchars($_POST['payment_method']);
+    $orderNotes = htmlspecialchars($_POST['order_notes']);
 
-    // Retrieve form data
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $country = $_POST['country'];
-    $address = $_POST['address'];
-    $city = $_POST['city'];
-    $state = $_POST['state'];
-    $postcode = $_POST['postcode'];
-    $phone = $_POST['phone'];
-    $email = $_POST['email'];
-    $payment_method = $_POST['payment_method'];
-    $order_notes = $_POST['order_notes'];
+    // Generate a unique order ID
+    $orderId = uniqid();
 
-    // Calculate subtotal and total
+    // Calculate the total amount from the cart
     $subtotal = 0;
     if (isset($_SESSION['cart'])) {
-        foreach ($_SESSION['cart'] as $item) {
+        foreach ($_SESSION['cart'] as $id => $item) {
             if (isset($item['price']) && isset($item['quantity'])) {
                 $subtotal += $item['price'] * $item['quantity'];
             }
         }
     }
-    $total = $subtotal; // Assuming no tax or shipping for now
+    $total = $subtotal;
 
-    // Insert order details into the database
-    include("php/db_connection.php"); // Include your database connection file
+    // Insert the order into the database
+    $sql = "INSERT INTO orders (order_id, delivery_type, product_id, order_number, u_name, u_email, p_name, p_price, p_qty, date_time, status, u_id)
+            VALUES (:order_id, :delivery_type, :product_id, :order_number, :u_name, :u_email, :p_name, :p_price, :p_qty, NOW(), 'pending', :u_id)";
 
-    // Generate a unique 8-digit order number
-    $order_number = str_pad(mt_rand(1, 99999999), 8, '0', STR_PAD_LEFT);
+    try {
+        $stmt = $pdo->prepare($sql);
 
-    // Insert into the `order` table
-    $stmt = $conn->prepare("INSERT INTO `orders` (
-        order_id, delivery_type, product_id, order_number, u_name, u_email, p_name, p_price, p_qty, date_time, status, u_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)");
+        // Loop through the cart items and insert each product as a separate order
+        foreach ($_SESSION['cart'] as $product_id => $item) {
+            $productName = $item['product_name'];
+            $productPrice = $item['price'];
+            $productQty = $item['quantity'];
 
-    foreach ($_SESSION['cart'] as $product_id => $item) {
-        // Delivery type (1 digit)
-        $delivery_type = '1'; // Example: '1' for standard delivery
+            // Bind parameters
+            $stmt->bindParam(':order_id', $orderId);
+            $stmt->bindParam(':delivery_type', $paymentMethod);
+            $stmt->bindParam(':product_id', $product_id);
+            $stmt->bindParam(':order_number', $orderId);
+            $stmt->bindParam(':u_name', $username);
+            $stmt->bindParam(':u_email', $email);
+            $stmt->bindParam(':p_name', $productName);
+            $stmt->bindParam(':p_price', $productPrice);
+            $stmt->bindParam(':p_qty', $productQty);
+            $stmt->bindParam(':u_id', $userId);
 
-        // Generate 16-digit order ID
-        $order_id = $delivery_type . str_pad($product_id, 7, '0', STR_PAD_LEFT) . $order_number;
-
-        // User details
-        $u_name = "$first_name $last_name";
-        $u_email = $email;
-        $p_name = $item['product_name'];
-        $p_price = $item['price'];
-        $p_qty = $item['quantity'];
-        $status = 'pending'; // Default status
-        $u_id = $_SESSION['user_id']; // Logged-in user ID
-
-        // Bind parameters and execute the query
-        $stmt->bind_param(
-            "sssssssiisi",
-            $order_id,
-            $delivery_type,
-            $product_id,
-            $order_number,
-            $u_name,
-            $u_email,
-            $p_name,
-            $p_price,
-            $p_qty,
-            $status,
-            $u_id
-        );
-
-        if (!$stmt->execute()) {
-            die("Error inserting order: " . $stmt->error);
+            // Execute the statement
+            $stmt->execute();
         }
+
+        // Clear the cart after the order is placed
+        unset($_SESSION['cart']);
+
+            // Show a JavaScript alert
+    echo "<script>alert('Your order has been placed. Thank you for shopping with us!');</script>";
+
+
+
+        
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage(); // Debug
     }
-
-    // Clear the cart after placing the order
-    unset($_SESSION['cart']);
-
-    // Redirect to a thank-you page or order confirmation page
-    header("Location: order_confirmation.php");
-    exit();
 }
 
 // Calculate subtotal and total for display
 $subtotal = 0;
 if (isset($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $item) {
+    foreach ($_SESSION['cart'] as $id => $item) {
         if (isset($item['price']) && isset($item['quantity'])) {
             $subtotal += $item['price'] * $item['quantity'];
         }
@@ -101,36 +92,8 @@ if (isset($_SESSION['cart'])) {
 $total = $subtotal; // Assuming no tax or shipping for now
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
-    <style>
-        .payment-form {
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #e5e5e5;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            width: 40%;
-        }
-        .payment-form p {
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 15px;
-        }
-        .payment-form input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #e5e5e5;
-            border-radius: 3px;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
+    
+
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
         <div class="container">
@@ -183,14 +146,14 @@ $total = $subtotal; // Assuming no tax or shipping for now
                             <div class="checkout__input">
                                 <p>Address<span>*</span></p>
                                 <input type="text" name="address" placeholder="Street Address" class="checkout__input__add" required>
-                                <input type="text" name="apartment" placeholder="Apartment, suite, unit (optional)">
+                                <input type="text" name="apartment" placeholder="Apartment, suite, unit etc (optional)">
                             </div>
                             <div class="checkout__input">
                                 <p>Town/City<span>*</span></p>
                                 <input type="text" name="city" required>
                             </div>
                             <div class="checkout__input">
-                                <p>State<span>*</span></p>
+                                <p>Country/State<span>*</span></p>
                                 <input type="text" name="state" required>
                             </div>
                             <div class="checkout__input">
@@ -207,15 +170,17 @@ $total = $subtotal; // Assuming no tax or shipping for now
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Email<span>*</span></p>
-                                        <input type="email" name="email" required>
+                                        <input type="text" name="email" required>
                                     </div>
                                 </div>
                             </div>
+                           
                             <div class="checkout__input">
                                 <p>Order notes<span>*</span></p>
                                 <input type="text" name="order_notes" placeholder="Notes about your order, e.g. special notes for delivery.">
                             </div>
                         </div>
+
                         <div class="col-lg-4 col-md-6">
                             <div class="checkout__order">
                                 <h4>Your Order</h4>
@@ -270,6 +235,41 @@ $total = $subtotal; // Assuming no tax or shipping for now
                                     </div>
                                 </div>
 
+                                <!-- Payment Forms -->
+                                <div id="cash-on-delivery-message" class="payment-form" style="display: none;">
+                                    <p>Pay with cash when your order is delivered.</p>
+                                </div>
+                                <div id="check-payment-form" class="payment-form" style="display: none;">
+                                    <div class="checkout__input">
+                                        <p>Check Number<span>*</span></p>
+                                        <input type="text" name="check_number" placeholder="Enter check number">
+                                    </div>
+                                    <div class="checkout__input">
+                                        <p>Bank Name<span>*</span></p>
+                                        <input type="text" name="bank_name" placeholder="Enter bank name">
+                                    </div>
+                                </div>
+                                <div id="card-payment-form" class="payment-form" style="display: none;">
+                                    <div class="checkout__input">
+                                        <p>Card Number<span>*</span></p>
+                                        <input type="text" name="card_number" placeholder="1234 5678 9012 3456">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="checkout__input">
+                                                <p>Expiration Date<span>*</span></p>
+                                                <input type="text" name="expiry_date" placeholder="MM/YY">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="checkout__input">
+                                                <p>CVV<span>*</span></p>
+                                                <input type="text" name="cvv" placeholder="123">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="site-btn">PLACE ORDER</button>
                             </div>
                         </div>
@@ -281,5 +281,22 @@ $total = $subtotal; // Assuming no tax or shipping for now
     <!-- Checkout Section End -->
 
     <?php include("components/footer.php"); ?>
-</body>
-</html>
+
+    <script>
+        // Show/hide payment forms based on selected payment method
+        document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
+            input.addEventListener('change', function() {
+                document.querySelectorAll('.payment-form').forEach((form) => {
+                    form.style.display = 'none';
+                });
+
+                if (this.value === 'cash_on_delivery') {
+                    document.getElementById('cash-on-delivery-message').style.display = 'block';
+                } else if (this.value === 'check_payment') {
+                    document.getElementById('check-payment-form').style.display = 'block';
+                } else if (this.value === 'credit_card') {
+                    document.getElementById('card-payment-form').style.display = 'block';
+                }
+            });
+        });
+    </script>

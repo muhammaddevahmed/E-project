@@ -38,6 +38,8 @@
 </style>
 <?php
 include("components/header.php");
+
+
 // Handle updating the cart quantities
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_cart'])) {
     foreach ($_POST['quantity'] as $product_id => $quantity) {
