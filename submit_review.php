@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         // Redirect back to the product page
+        
         header("Location: product-details.php?id=$product_id");
         exit();
     } else {

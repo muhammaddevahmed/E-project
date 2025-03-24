@@ -35,7 +35,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
 
     <style>
     .header__menu ul li a {
-        font-size: 18px; /* Adjust the font size as needed */
+        font-size: 16px; /* Adjust the font size as needed */
     }
 
     .header__menu__dropdown li a {
@@ -126,7 +126,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                         
                     </ul>
                 </li>
-                <li><a href="./blog.php">Blog</a></li>
+                <li><a href="./returns.php">Returns</a></li>
                 <li><a href="./contact.php">Contact</a></li>
             </ul>
         </nav>
@@ -139,7 +139,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
         </div>
         <div class="humberger__menu__contact">
             <ul>
-                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
+                <li><i class="fa fa-envelope"></i></li>
                 <li>Free Shipping for all Order of $99</li>
             </ul>
         </div>
@@ -209,7 +209,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                                     
                                 </ul>
                             </li>
-                            <li><a href="./blog.php">Blog</a></li>
+                            <li><a href="./returns.php">Returns</a></li>
                             <li><a href="./contact.php">Contact</a></li>
                         </ul>
                     </nav>

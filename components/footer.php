@@ -9,9 +9,9 @@
                             <a href="./index.html"><img src="images/logo.png" alt=""></a>
                         </div>
                         <ul>
-                            <li>Address: 60-49 Road 11378 New York</li>
-                            <li>Phone: +65 11.188.888</li>
-                            <li>Email: hello@colorlib.com</li>
+                            <li>Address: Aptech: Shahra-e-Faisal</li>
+                            <li>Phone: +92 3442681140</li>
+                            <li>Email: thecraftycorner@gmail.com</li>
                         </ul>
                     </div>
                 </div>

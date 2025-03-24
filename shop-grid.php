@@ -141,11 +141,7 @@ include("components/header.php");
                             <div class="product__item">
                                 <div class="product__item__pic set-bg" data-setbg="<?php echo $image_path; ?>" 
                                     style="background-image: url('<?php echo $image_path; ?>');">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
+                                    
                                 </div>
                                 <div class="product__item__text">
                                     <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">

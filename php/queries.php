@@ -9,7 +9,7 @@ $sql = "SELECT * FROM Products";
 $stmt = $pdo->query($sql);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Signup
+
 
 
 
