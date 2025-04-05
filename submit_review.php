@@ -23,8 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bindParam(':review_text', $review_text, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-        // Redirect back to the product page
+        // Set success message in session
+        session_start();
+        $_SESSION['review_submitted'] = true;
         
+        // Redirect back to the product page
         header("Location: product-details.php?id=$product_id");
         exit();
     } else {
