@@ -1,5 +1,5 @@
 <?php
-session_start(); // Must be at the very top, before any output
+session_start(); 
 
 include 'php/db_connection.php'; // Include your database connection file
 
@@ -54,21 +54,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Crafty Corner</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
 </head>
+
 <body>
-    <div class="form-container">
-        <h2>Login</h2>
-        <form method="POST">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-            <p>Don't have an account? <a href="signup.php">Sign Up</a></p>
-        </form>
-    </div>
+  <div class="form-container">
+    <h2>Login</h2>
+    <form method="POST">
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+      <p>Don't have an account? <a href="signup.php">Sign Up</a></p>
+      <p><a href="index.php">Return to Home Page</a></p> <!-- Added link to index page -->
+    </form>
+  </div>
 </body>
+
 </html>

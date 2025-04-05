@@ -1,8 +1,6 @@
 <?php
 include 'php/db_connection.php'; 
 
-
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if required fields are set
     if (!isset($_POST['username']) || !isset($_POST['full_name']) || !isset($_POST['email']) || !isset($_POST['password'])) {
@@ -19,9 +17,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $address = isset($_POST['address']) ? $_POST['address'] : ''; // Optional field
     $user_type = 'customer'; // Default role
 
-    // ✅ REGEX VALIDATION
-    if (!preg_match("/^[a-zA-Z0-9_]{5,20}$/", $username)) {
-        echo "<script>alert('Username must be 5-20 characters and contain only letters, numbers, and underscores.');</script>";
+    // ✅ IMPROVED REGEX VALIDATION
+    if (!preg_match("/^[a-zA-Z][a-zA-Z0-9_]{4,19}$/", $username)) {
+        echo "<script>alert('Username must be 5-20 characters, start with a letter, and contain only letters, numbers, and underscores.');</script>";
         exit();
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -40,16 +38,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
     try {
-        // ✅ CHECK IF EMAIL ALREADY EXISTS
+        // ✅ CHECK IF EMAIL ALREADY EXISTS (ONLY EMAIL CHECK)
         $checkStmt = $pdo->prepare("SELECT user_id FROM Users WHERE email = :email");
         $checkStmt->bindValue(':email', $email);
         $checkStmt->execute();
-
+    
         if ($checkStmt->rowCount() > 0) {
-            echo "<script>alert('Error: Email already exists.');</script>";
+            echo "<script>
+                alert('Error: This email is already registered. Please use a different email.');
+                window.location.assign('signup.php');
+            </script>";
             exit();
         }
-
+    
         // ✅ INSERT USER IF EMAIL IS UNIQUE
         $stmt = $pdo->prepare("INSERT INTO Users (username, password_hash, full_name, email, phone, user_type, address) 
                                VALUES (:username, :password, :full_name, :email, :phone, :user_type, :address)");
@@ -71,64 +72,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
     }
 }
-
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Crafty Corner</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
 </head>
+
 <body>
-    <div class="form-container">
-        <h2>Sign Up</h2>
-        <form method="POST" onsubmit="return validateForm()">
-            <input type="text" name="username" id="username" placeholder="Username" required>
-            <input type="text" name="full_name" placeholder="Full Name" required>
-            <input type="email" name="email" id="email" placeholder="Email" required>
-            <input type="text" name="phone" id="phone" placeholder="Phone">
-            <input type="password" name="password" id="password" placeholder="Password" required>
-            <textarea name="address" placeholder="Address"></textarea>
-            <button type="submit">Sign Up</button>
-            <p>Already have an account? <a href="login.php">Login</a></p>
-        </form>
-    </div>
+  <div class="form-container">
+    <h2>Sign Up</h2>
+    <form method="POST" onsubmit="return validateForm()">
+      <input type="text" name="username" id="username" placeholder="Username (5-20 chars, start with letter)" required>
+      <input type="text" name="full_name" placeholder="Full Name" required>
+      <input type="email" name="email" id="email" placeholder="Email" required>
+      <input type="text" name="phone" id="phone" placeholder="Phone (optional)">
+      <input type="password" name="password" id="password" placeholder="Password (6+ chars with letter & number)"
+        required>
+      <textarea name="address" placeholder="Address (optional)"></textarea>
+      <button type="submit">Sign Up</button>
+      <p>Already have an account? <a href="login.php">Login</a></p>
+      <p><a href="index.php">Return to Home Page</a></p>
+    </form>
+  </div>
 
-    <script>
-        function validateForm() {
-            const username = document.getElementById("username").value;
-            const email = document.getElementById("email").value;
-            const phone = document.getElementById("phone").value;
-            const password = document.getElementById("password").value;
+  <script>
+  function validateForm() {
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("phone").value;
+    const password = document.getElementById("password").value;
 
-            const usernameRegex = /^[a-zA-Z0-9_]{5,20}$/;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const phoneRegex = /^\+?[0-9]{7,15}$/;
-            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
+    // Improved username regex: must start with letter, then letters, numbers or underscores
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{4,19}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+?[0-9]{7,15}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
 
-            if (!usernameRegex.test(username)) {
-                alert("Username must be 5-20 characters long and contain only letters, numbers, and underscores.");
-                return false;
-            }
-            if (!emailRegex.test(email)) {
-                alert("Invalid email format.");
-                return false;
-            }
-            if (phone && !phoneRegex.test(phone)) {
-                alert("Phone number must be 7-15 digits and can start with +.");
-                return false;
-            }
-            if (!passwordRegex.test(password)) {
-                alert("Password must be at least 6 characters, with at least one letter and one number.");
-                return false;
-            }
-            return true;
-        }
-    </script>
+    if (!usernameRegex.test(username)) {
+      alert(
+        "Username must be:\n- 5-20 characters long\n- Start with a letter\n- Contain only letters, numbers, and underscores"
+      );
+      return false;
+    }
+    if (!emailRegex.test(email)) {
+      alert("Invalid email format.");
+      return false;
+    }
+    if (phone && !phoneRegex.test(phone)) {
+      alert("Phone number must be 7-15 digits and can start with +.");
+      return false;
+    }
+    if (!passwordRegex.test(password)) {
+      alert("Password must be at least 6 characters with at least one letter and one number.");
+      return false;
+    }
+    return true;
+  }
+  </script>
 </body>
+
 </html>
