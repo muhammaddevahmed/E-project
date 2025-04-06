@@ -29,9 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Set a success message and redirect to the cart page
-    $_SESSION['message'] = "Product added to cart successfully!";
-    header("Location: shoping-cart.php");
-    exit();
+    // $_SESSION['message'] = "Product added to cart successfully!";
+    // header("Location: shop-grid.php");
+    // exit();
+    echo "<script>
+    alert('Product added to cart successfully!');
+    window.location.href = 'shop-grid.php';
+</script>";
+exit();
 }
 
 

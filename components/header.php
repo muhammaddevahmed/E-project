@@ -111,13 +111,14 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
       <ul>
         <li class="active"><a href="./index.php">Home</a></li>
         <li><a href="./shop-grid.php">Shop</a></li>
-        <li><a href="#">Pages</a>
+        <!-- <li><a href="#">Pages</a>
           <ul class="header__menu__dropdown">
             <li><a href="./returns.php">Returns</a></li>
             <li><a href="./shoping-cart.php">Shoping Cart</a></li>
             <li><a href="./checkout.php">Check Out</a></li>
           </ul>
-        </li>
+        </li> -->
+        <li class="active"><a href="./about.php">About Us</a></li>
         <li><a href="./returns.php">Returns</a></li>
         <li><a href="./contact.php">Contact</a></li>
       </ul>
@@ -195,13 +196,14 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
             <ul>
               <li class="active"><a href="./index.php">Home</a></li>
               <li><a href="./shop-grid.php">Shop</a></li>
-              <li><a href="#">Pages</a>
+              <!-- <li><a href="#">Pages</a>
                 <ul class="header__menu__dropdown">
                   <li><a href="./returns.php">Returns</a></li>
                   <li><a href="./shoping-cart.php">Shoping Cart</a></li>
                   <li><a href="./checkout.php">Check Out</a></li>
                 </ul>
-              </li>
+              </li> -->
+              <li><a href="./about.php">About</a></li>
               <li><a href="./returns.php">Returns</a></li>
               <li><a href="./contact.php">Contact</a></li>
             </ul>

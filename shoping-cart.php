@@ -31,10 +31,6 @@
   font-size: 16px;
 }
 
-
-
-
-
 .qty-input {
   width: 50px;
   text-align: center;
@@ -47,7 +43,6 @@
 </style>
 <?php
 include("components/header.php");
-
 
 // Handle updating the cart quantities
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_cart'])) {
@@ -63,7 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_cart'])) {
 
 // Calculate the subtotal and total
 $subtotal = 0;
+$cart_empty = true; // Initialize as empty
+
 if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+    $cart_empty = false; // Cart has items
     foreach ($_SESSION['cart'] as $item) {
         if (isset($item['price']) && isset($item['quantity'])) {
             $subtotal += $item['price'] * $item['quantity'];
@@ -71,8 +69,6 @@ if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
     }
 }
 $total = $subtotal; // Assuming no tax or shipping for now
-
-
 ?>
 
 <section class="shoping-cart spad">
@@ -97,7 +93,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                 </tr>
               </thead>
               <tbody>
-                <?php if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])): ?>
+                <?php if (!$cart_empty): ?>
                 <?php foreach ($_SESSION['cart'] as $product_id => $item): ?>
                 <?php if (isset($item['product_name']) && isset($item['price']) && isset($item['quantity'])): ?>
                 <tr>
@@ -151,7 +147,12 @@ $total = $subtotal; // Assuming no tax or shipping for now
             <li>Total <span id="total">$<?php echo number_format($total, 2); ?></span></li>
           </ul>
 
+          <?php if (!$cart_empty): ?>
           <a href="checkout.php" class="primary-btn">PROCEED TO CHECKOUT</a>
+          <?php else: ?>
+          <a href="javascript:void(0)" class="primary-btn"
+            onclick="alert('Your cart is empty. Please add items before checkout.');">PROCEED TO CHECKOUT</a>
+          <?php endif; ?>
 
         </div>
       </div>

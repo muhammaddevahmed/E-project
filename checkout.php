@@ -56,42 +56,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $total = $subtotal;
 
-        // Insert the order into the database
-        $sql = "INSERT INTO orders (order_id, delivery_type, product_id, order_number, u_name, u_email, p_name, p_price, p_qty, date_time, status, u_id)
-                VALUES (:order_id, :delivery_type, :product_id, :order_number, :u_name, :u_email, :p_name, :p_price, :p_qty, NOW(), 'pending', :u_id)";
-
         try {
-            $stmt = $pdo->prepare($sql);
+            // Begin transaction
+            $pdo->beginTransaction();
 
-            // Loop through the cart items and insert each product as a separate order
-            foreach ($_SESSION['cart'] as $product_id => $item) {
-                $productName = $item['product_name'];
-                $productPrice = $item['price'];
-                $productQty = $item['quantity'];
-
-                // Bind parameters
-                $stmt->bindParam(':order_id', $orderId);
-                $stmt->bindParam(':delivery_type', $paymentMethod);
-                $stmt->bindParam(':product_id', $product_id);
-                $stmt->bindParam(':order_number', $orderId);
-                $stmt->bindParam(':u_name', $username);
-                $stmt->bindParam(':u_email', $email);
-                $stmt->bindParam(':p_name', $productName);
-                $stmt->bindParam(':p_price', $productPrice);
-                $stmt->bindParam(':p_qty', $productQty);
-                $stmt->bindParam(':u_id', $userId);
-
-                // Execute the statement
-                $stmt->execute();
-            }
-
-            // Insert payment data into the payments table
+            // Insert payment data first to get payment_id
             $paymentSql = "INSERT INTO payments (
-                 payment_method, amount, payment_status, 
+                payment_method, amount, payment_status, 
                 first_name, last_name, country, address, city, state, postcode, 
                 phone, email, order_notes, card_number, expiry_date, cvv, check_number, bank_name
             ) VALUES (
-                 :payment_method, :amount, 'pending', 
+                :payment_method, :amount, 'pending', 
                 :first_name, :last_name, :country, :address, :city, :state, :postcode, 
                 :phone, :email, :order_notes, :card_number, :expiry_date, :cvv, :check_number, :bank_name
             )";
@@ -135,39 +110,85 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Execute the payment statement
             $paymentStmt->execute();
+            $payment_id = $pdo->lastInsertId();
 
-            // Clear the cart after the order is placed
+            // Insert the orders
+            $sql = "INSERT INTO orders (
+                order_id, delivery_type, product_id, order_number, 
+                u_name, u_email, p_name, p_price, p_qty, 
+                date_time, status, u_id, payment_id
+            ) VALUES (
+                :order_id, :delivery_type, :product_id, :order_number, 
+                :u_name, :u_email, :p_name, :p_price, :p_qty, 
+                NOW(), 'pending', :u_id, :payment_id
+            )";
+
+            $stmt = $pdo->prepare($sql);
+
+            foreach ($_SESSION['cart'] as $product_id => $item) {
+                $productName = $item['product_name'];
+                $productPrice = $item['price'];
+                $productQty = $item['quantity'];
+
+                $stmt->bindParam(':order_id', $orderId);
+                $stmt->bindParam(':delivery_type', $paymentMethod);
+                $stmt->bindParam(':product_id', $product_id);
+                $stmt->bindParam(':order_number', $orderId);
+                $stmt->bindParam(':u_name', $username);
+                $stmt->bindParam(':u_email', $email);
+                $stmt->bindParam(':p_name', $productName);
+                $stmt->bindParam(':p_price', $productPrice);
+                $stmt->bindParam(':p_qty', $productQty);
+                $stmt->bindParam(':u_id', $userId);
+                $stmt->bindParam(':payment_id', $payment_id);
+
+                $stmt->execute();
+            }
+
+            // Commit the transaction
+            $pdo->commit();
+
+            // Clear the cart after successful order
             unset($_SESSION['cart']);
 
-            // Show a JavaScript alert
-            echo "<script>alert('Your order has been placed. Thank you for shopping with us!'); window.location.href='index.php';</script>";
+            // Redirect to confirmation page
+            echo "<script>
+                alert('Your order has been placed. Thank you for shopping with us!');
+                window.location.href='index.php';
+            </script>";
             exit();
 
         } catch (PDOException $e) {
+            // Rollback the transaction on error
+            $pdo->rollBack();
             $errors['database'] = "Error processing your order: " . $e->getMessage();
+            
+            // Log detailed error for debugging
+            error_log("Order processing error for user $userId: " . $e->getMessage());
+            echo "<script>alert('Error processing your order. Please try again.');</script>";
         }
     }
 }
 
 // Helper function to validate input
 function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
-  // Check if the field exists in POST and get trimmed value
-  $value = isset($_POST[$fieldName]) ? trim($_POST[$fieldName]) : '';
-  
-  // Check if the field is empty
-  if ($value === '') {
-      $errors[$fieldName] = "This field is required";
-      return '';
-  }
-  
-  // Validate against pattern if provided
-  if ($pattern !== null && !preg_match($pattern, $value)) {
-      $errors[$fieldName] = $errorMessage;
-      return '';
-  }
-  
-  // Return sanitized value
-  return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    // Check if the field exists in POST and get trimmed value
+    $value = isset($_POST[$fieldName]) ? trim($_POST[$fieldName]) : '';
+    
+    // Check if the field is empty
+    if ($value === '') {
+        $errors[$fieldName] = "This field is required";
+        return '';
+    }
+    
+    // Validate against pattern if provided
+    if ($pattern !== null && !preg_match($pattern, $value)) {
+        $errors[$fieldName] = $errorMessage;
+        return '';
+    }
+    
+    // Return sanitized value
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
 // Calculate subtotal and total for display
@@ -181,6 +202,8 @@ if (isset($_SESSION['cart'])) {
 }
 $total = $subtotal; // Assuming no tax or shipping for now
 ?>
+
+
 
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
