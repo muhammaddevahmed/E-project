@@ -119,6 +119,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $paymentStmt->execute();
             $payment_id = $pdo->lastInsertId();
 
+            foreach ($_SESSION['cart'] as $product_id => $item) {
+              $quantity = $item['quantity'];
+              
+              // Check if enough stock is available
+              $stockCheck = $pdo->prepare("SELECT stock_quantity FROM products WHERE product_id = ?");
+              $stockCheck->execute([$product_id]);
+              $currentStock = $stockCheck->fetchColumn();
+              
+              if ($currentStock < $quantity) {
+                  throw new PDOException("Not enough stock available for product ID: $product_id");
+              }
+              
+              // Update the stock quantity
+              $updateStock = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
+              $updateStock->execute([$quantity, $product_id]);
+          }
+
             // Insert the orders
             $sql = "INSERT INTO orders (
                 order_id, delivery_type, product_id, order_number, 
@@ -474,8 +491,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
 </section>
 <!-- Checkout Section End -->
 
-<?php include("components/footer.php"); ?>
-<script>
+<?php include("components/footer.php"); ?><script>
 // Show/hide payment forms based on selected payment method
 document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
   input.addEventListener('change', function() {
@@ -499,9 +515,59 @@ document.addEventListener('DOMContentLoaded', function() {
   if (selectedPayment) {
     selectedPayment.dispatchEvent(new Event('change'));
   }
+  checkCartStatus();
+
+  // Add form submission handler
+  document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    validateAndSubmit();
+  });
 });
 
-// New function to handle form submission
+// Function to check cart status and disable button if empty
+function checkCartStatus() {
+  const placeOrderBtn = document.querySelector('.site-btn');
+  <?php if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])): ?>
+  placeOrderBtn.disabled = true;
+  placeOrderBtn.title = "Your cart is empty. Please add products before checkout.";
+  placeOrderBtn.style.opacity = "0.7";
+  placeOrderBtn.style.cursor = "not-allowed";
+  <?php else: ?>
+  placeOrderBtn.disabled = false;
+  placeOrderBtn.title = "";
+  placeOrderBtn.style.opacity = "1";
+  placeOrderBtn.style.cursor = "pointer";
+  <?php endif; ?>
+}
+
+// Helper function to display error messages
+function showError(fieldName, message) {
+  let errorElement = document.querySelector(`[name="${fieldName}"] + .text-danger`);
+
+  if (!errorElement) {
+    const inputElement = document.querySelector(`[name="${fieldName}"]`);
+    if (inputElement) {
+      errorElement = document.createElement('small');
+      errorElement.className = 'text-danger error-message';
+      inputElement.parentNode.appendChild(errorElement);
+    }
+  }
+
+  if (errorElement) {
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+  }
+
+  if (fieldName === 'payment_method') {
+    const paymentError = document.querySelector('.checkout__payment__methods .text-danger');
+    if (paymentError) {
+      paymentError.textContent = message;
+      paymentError.style.display = 'block';
+    }
+  }
+}
+
+// Main form validation and submission function
 function validateAndSubmit() {
   // Clear previous error messages
   document.querySelectorAll('.error-message').forEach(el => el.remove());
@@ -510,7 +576,6 @@ function validateAndSubmit() {
   // Validate all fields
   let isValid = true;
 
-  // Check if cart is empty
   <?php if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])): ?>
   showError('cart', 'Your cart is empty. Please add products before checkout.');
   isValid = false;
@@ -621,63 +686,13 @@ function validateAndSubmit() {
 
   // If validation passed, submit the form
   if (isValid) {
+    // Show loading state
+    const submitBtn = document.querySelector('.site-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Processing... <i class="fa fa-spinner fa-spin"></i>';
+
+    // Directly submit the form if all validations pass
     document.getElementById('checkoutForm').submit();
   }
 }
-
-// Helper function to display error messages
-function showError(fieldName, message) {
-  // Try to find existing error element
-  let errorElement = document.querySelector(`[name="${fieldName}"] + .text-danger`);
-
-  if (!errorElement) {
-    // If no existing error element, create one
-    const inputElement = document.querySelector(`[name="${fieldName}"]`);
-    if (inputElement) {
-      errorElement = document.createElement('small');
-      errorElement.className = 'text-danger error-message';
-      inputElement.parentNode.appendChild(errorElement);
-    }
-  }
-
-  if (errorElement) {
-    errorElement.textContent = message;
-    errorElement.style.display = 'block';
-  }
-
-  // For payment method radio buttons
-  if (fieldName === 'payment_method') {
-    const paymentError = document.querySelector('.checkout__payment__methods .text-danger');
-    if (paymentError) {
-      paymentError.textContent = message;
-      paymentError.style.display = 'block';
-    }
-  }
-}
-// Function to check cart status and disable button if empty
-function checkCartStatus() {
-  // Get the place order button
-  const placeOrderBtn = document.querySelector('.site-btn');
-
-  // Check if cart is empty (using PHP session variable)
-  <?php if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])): ?>
-  // Disable the button
-  placeOrderBtn.disabled = true;
-  // Optionally add a tooltip or change style
-  placeOrderBtn.title = "Your cart is empty. Please add products before checkout.";
-  placeOrderBtn.style.opacity = "0.7";
-  placeOrderBtn.style.cursor = "not-allowed";
-  <?php else: ?>
-  // Enable the button
-  placeOrderBtn.disabled = false;
-  placeOrderBtn.title = "";
-  placeOrderBtn.style.opacity = "1";
-  placeOrderBtn.style.cursor = "pointer";
-  <?php endif; ?>
-}
-
-// Call the function when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-  checkCartStatus();
-});
 </script>

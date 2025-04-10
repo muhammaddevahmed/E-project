@@ -162,24 +162,26 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
           <p><?php echo $description; ?></p>
 
 
-          <!-- Add to Cart Form -->
-          <form action="add_to_cart.php" method="POST" style="display: inline;">
-            <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
-            <input type="hidden" name="product_name" value="<?php echo $product_name; ?>">
-            <input type="hidden" name="price" value="<?php echo $price; ?>">
-            <input type="hidden" name="image_path" value="<?php echo $image_path; ?>">
+          <!-- Replace the Add to Cart form section with this code -->
+          <div class="quantity-control">
+            <?php if ($stock_quantity > 0): ?>
+            <form action="add_to_cart.php" method="POST" style="display: inline;">
+              <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+              <input type="hidden" name="product_name" value="<?php echo $product_name; ?>">
+              <input type="hidden" name="price" value="<?php echo $price; ?>">
+              <input type="hidden" name="image_path" value="<?php echo $image_path; ?>">
 
-            <div class="quantity-control">
               <button type="submit" class="primary-btn">ADD TO CART</button>
               <button type="button" class="qty-btn1 dec">-</button>
-              <input type="text" name="quantity" class="qty-input" value="1">
+              <input type="text" name="quantity" class="qty-input" value="1" min="1"
+                max="<?php echo $stock_quantity; ?>">
               <button type="button" class="qty-btn inc">+</button>
-
-            </div>
-
-
-          </form>
-
+            </form>
+            <?php else: ?>
+            <button class="primary-btn" disabled style="background-color:rgb(228, 49, 49); cursor: not-allowed;">OUT OF
+              STOCK</button>
+            <?php endif; ?>
+          </div>
 
           <ul>
             <!-- Dynamically display availability -->
