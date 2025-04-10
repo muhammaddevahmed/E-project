@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:8111
--- Generation Time: Apr 05, 2025 at 09:52 PM
+-- Generation Time: Apr 10, 2025 at 02:26 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -79,6 +79,13 @@ CREATE TABLE `feedback` (
   `submitted_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `feedback`
+--
+
+INSERT INTO `feedback` (`feedback_id`, `name`, `email`, `user_id`, `feedback_text`, `rating`, `submitted_at`) VALUES
+(5, 'Muhammad Ahmed ', 'ahmed@gmail.com', 12, 'good', 5, '2025-04-07 18:31:29');
+
 -- --------------------------------------------------------
 
 --
@@ -97,24 +104,16 @@ CREATE TABLE `orders` (
   `p_qty` int(11) NOT NULL,
   `date_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `status` varchar(200) NOT NULL DEFAULT 'pending',
-  `u_id` int(11) DEFAULT NULL
+  `u_id` int(11) DEFAULT NULL,
+  `payment_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`order_id`, `delivery_type`, `product_id`, `order_number`, `u_name`, `u_email`, `p_name`, `p_price`, `p_qty`, `date_time`, `status`, `u_id`) VALUES
-('c-1300002-67ee1f', 'c', '1300002', '67ee1fc0', 'Muhammad Ahmed', 'm.ahmed.uh72@gmail.com', 'Magic Doll', 20, 2, '2025-04-03 05:42:24', 'pending', 12),
-('c-1400001-67ee1f', 'c', '1400001', '67ee1fc0', 'Muhammad Ahmed', 'm.ahmed.uh72@gmail.com', 'SmartPack Bag', 40, 3, '2025-04-03 05:42:24', 'pending', 12),
-('c-1500003-67ee21', 'c', '1500003', '67ee21d1', 'Muhammad Ahmed', 'ahmed@gmail.com', 'ProCricket Kit', 100, 2, '2025-04-03 05:51:13', 'pending', 12),
-('c-1500004-67f172', 'c', '1500004', '67f17202', 'Muhammad Ahmed', 'ahmed@gmail.com', 'Football', 80, 3, '2025-04-05 18:10:10', 'pending', 12),
-('c-1500006-67f173', 'c', '1500006', '67f173c2', 'Muhammad Ahmed', 'ahmed@gmail.com', 'PowerBlade Hockey Stick', 60, 1, '2025-04-05 18:17:38', 'pending', 12),
-('c-1600003-67f0b9', 'c', '1600003', '67f0b939', 'Muhammad Ahmed', 'ahmed@gmail.com', 'QuickCalc Calculator', 20, 2, '2025-04-05 05:01:45', 'pending', 12),
-('c-1600004-67f16f', 'c', '1600004', '67f16f98', 'Muhammad Ahmed', 'ahmed@gmail.com', 'InkFlow Pens', 10, 2, '2025-04-05 17:59:52', 'pending', 12),
-('c-1600006-67f0b1', 'c', '1600006', '67f0b156', 'Muhammad Ahmed', 'kinza@gmail.com', 'CreativeHue Color Box', 25, 2, '2025-04-05 04:28:06', 'pending', 12),
-('p-1500002-67ee20', 'p', '1500002', '67ee2052', 'Shariq Khan', 'shariq@gmail.com', 'Pakistan Cricket Jearsy', 70, 3, '2025-04-03 05:44:50', 'pending', 13),
-('p-1600001-67ee20', 'p', '1600001', '67ee2052', 'Shariq Khan', 'shariq@gmail.com', 'NoteMaster Notebook', 10, 4, '2025-04-03 05:44:50', 'pending', 13);
+INSERT INTO `orders` (`order_id`, `delivery_type`, `product_id`, `order_number`, `u_name`, `u_email`, `p_name`, `p_price`, `p_qty`, `date_time`, `status`, `u_id`, `payment_id`) VALUES
+('p-1600002-67f79c', 'p', '1600002', '67f79c65', 'Muhammad Ahmed', 'ahmed@gmail.com', 'GeoMaster Geometry Box', 30, 1, '2025-04-10 10:24:37', 'pending', 12, 27);
 
 --
 -- Triggers `orders`
@@ -160,13 +159,9 @@ CREATE TABLE `payments` (
 --
 
 INSERT INTO `payments` (`payment_id`, `payment_method`, `amount`, `payment_status`, `payment_date`, `first_name`, `last_name`, `country`, `address`, `city`, `state`, `postcode`, `phone`, `email`, `order_notes`, `card_number`, `expiry_date`, `cvv`, `check_number`, `bank_name`) VALUES
-(7, 'cash_on_delivery', 160.00, 'pending', '2025-04-03 05:42:24', 'Muhammad ', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'Karachi', 'Pakistan/Sindh', '23466', '+923442681140', 'm.ahmed.uh72@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL),
-(8, 'paypal', 250.00, 'pending', '2025-04-03 05:44:50', 'Shariq', 'Khan', 'pakistan', 'qjksdllsd', 'Rawalpindi', 'SD', '4667', '344-2681140', 'shariq@gmail.com', 'sjsdkjksd', NULL, NULL, NULL, NULL, NULL),
-(9, 'cash_on_delivery', 200.00, 'pending', '2025-04-03 05:51:13', 'Muhammad ', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'Karachi', 'Pakistan/Sindh', '24455', '+923442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL),
-(12, 'cash_on_delivery', 40.00, 'pending', '2025-04-05 05:01:45', 'Muhammad', 'Ahmed', '.', '.', 'karachi', 'pakistan', '.', '03442681140', 'ahmed@gmail.com', '.', NULL, NULL, NULL, NULL, NULL),
-(13, 'cash_on_delivery', 20.00, 'pending', '2025-04-05 17:59:52', 'Muhammad', 'Ahmed', 'Pakistan', 'House', 'Karachi', 'Sindh', '4667', '03442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL),
-(14, 'cash_on_delivery', 240.00, 'pending', '2025-04-05 18:10:10', 'Muhammad', 'Ahmed', 'Pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'karachi', 'Pakistan', '364837', '+923442681140', 'ahmed@gmail.com', '.hi', NULL, NULL, NULL, NULL, NULL),
-(15, 'credit_card', 60.00, 'pending', '2025-04-05 18:17:38', 'Muhammad', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'Karachi', 'SD', '24455', '+923442681140', 'ahmed@gmail.com', 'hi', '362783289349439490', '01/25', '123', NULL, NULL);
+(25, 'paypal', 40.00, 'pending', '2025-04-10 10:04:26', 'Muhammad', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'Karachi', 'SD', '4667', '+923442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL),
+(26, 'paypal', 70.00, 'pending', '2025-04-10 10:08:29', 'Muhammad', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'Karachi', 'Sindh', '24455', '+923442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL),
+(27, 'paypal', 30.00, 'pending', '2025-04-10 10:24:37', 'Muhammad', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'Karachi', 'SD', '24455', '+923442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -278,7 +273,9 @@ INSERT INTO `reviews` (`review_id`, `product_id`, `user_name`, `rating`, `review
 (16, '1600002', 'ali', 2, 'Excellent', '2025-04-05 18:38:07'),
 (17, '1300001', 'Ahmed', 4, 'new', '2025-04-05 18:49:31'),
 (18, '1600006', 'khan', 5, 'good', '2025-04-05 18:58:50'),
-(19, '1400009', 'latif', 5, 'good', '2025-04-05 18:59:39');
+(19, '1400009', 'latif', 5, 'good', '2025-04-05 18:59:39'),
+(20, '1500005', 'Ahmed', 4, 'good', '2025-04-07 18:29:54'),
+(21, '1600005', 'latif', 5, 'Excellent', '2025-04-09 05:24:55');
 
 -- --------------------------------------------------------
 
@@ -319,7 +316,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `password_hash`, `full_name`, `email`, `phone`, `user_type`, `address`, `created_at`) VALUES
 (12, 'ahmed3', '$2y$10$dDKNeuM5zz74XoHhLUg3nO9kpcafOReKHwaYjY9rJxa7WcSnrIsDq', 'Muhammad Ahmed', 'ahmed@gmail.com', '+923442681140', 'customer', 'Rawalpindi', '2025-04-03 05:40:21'),
-(13, 'Shariq1', '$2y$10$TGfhG.s6vfD9Pp5JTH.Yn.xx5yTqKfkrTkIvqPLFWaWGQwh/iGFjW', 'Shariq Khan', 'shariq@gmail.com', '+9237843950954', 'customer', 'Karachi', '2025-04-03 05:43:34');
+(15, 'ahmed12', '$2y$10$YRTe7hwPacLVGAdPfUwnOuiEfBWfq8oDVbnYaixr3.iZl4EwcSo7.', ' Ahmed Khan', 'm.ahmed.uh72@gmail.com', '+923442681140', 'customer', 'Karachi', '2025-04-06 19:35:43'),
+(16, 'kinza', '$2y$10$t2JtB/emCCJZoQUkV6a0COfpgXd7vydhgEJPt4UhUGrl7JxuXFpnG', 'kinza khan', 'kinza@gmail.com', '', 'customer', 'Karachi', '2025-04-10 04:24:03');
 
 --
 -- Indexes for dumped tables
@@ -349,7 +347,8 @@ ALTER TABLE `feedback`
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
-  ADD PRIMARY KEY (`order_id`);
+  ADD PRIMARY KEY (`order_id`),
+  ADD KEY `fk_orders_payments` (`payment_id`);
 
 --
 -- Indexes for table `payments`
@@ -415,25 +414,25 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `feedback_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `feedback_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `returns`
 --
 ALTER TABLE `returns`
-  MODIFY `return_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `return_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `stock_updates`
@@ -445,7 +444,7 @@ ALTER TABLE `stock_updates`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Constraints for dumped tables
@@ -462,6 +461,12 @@ ALTER TABLE `employees`
 --
 ALTER TABLE `feedback`
   ADD CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `fk_orders_payments` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`payment_id`);
 
 --
 -- Constraints for table `products`
