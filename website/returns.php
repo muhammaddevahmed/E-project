@@ -85,6 +85,62 @@
     padding: 12px;
   }
 }
+
+.returns-status {
+  padding: 60px 0;
+  background-color: #fff;
+}
+
+.section-title h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+  border-collapse: collapse;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  vertical-align: top;
+  border: 1px solid #dee2e6;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.font-weight-bold {
+  font-weight: 700 !important;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  padding: 15px;
+  border-radius: 4px;
+}
 </style>
 
 <?php
@@ -234,6 +290,80 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </div>
 </section>
 <!-- Returns Section End -->
+
+<!-- Add this section after your form to display return status -->
+<section class="returns-status spad">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="section-title">
+          <h2>Your Return Status</h2>
+        </div>
+
+        <?php
+        // Fetch all return requests for this user
+        $returnsQuery = "SELECT r.*, p.product_name, o.date_time 
+                        FROM returns r
+                        JOIN products p ON r.product_id = p.product_id
+                        JOIN orders o ON r.order_id = o.order_id
+                        WHERE o.u_id = :user_id
+                        ORDER BY r.return_date DESC";
+        $returnsStmt = $pdo->prepare($returnsQuery);
+        $returnsStmt->bindParam(':user_id', $user_id);
+        $returnsStmt->execute();
+        
+        if ($returnsStmt->rowCount() > 0): ?>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Return ID</th>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Date Requested</th>
+                <th>Status</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php while ($return = $returnsStmt->fetch(PDO::FETCH_ASSOC)): 
+                  // Determine status color
+                  $statusClass = '';
+                  switch ($return['return_status']) {
+                    case 'approved':
+                      $statusClass = 'text-success';
+                      $statusText = 'Approved';
+                      break;
+                    case 'rejected':
+                      $statusClass = 'text-danger';
+                      $statusText = 'Rejected';
+                      break;
+                    default:
+                      $statusClass = 'text-warning';
+                      $statusText = 'Pending';
+                  }
+                ?>
+              <tr>
+                <td><?= htmlspecialchars($return['return_id']) ?></td>
+                <td><?= htmlspecialchars(substr($return['order_id'], -6)) ?></td>
+                <td><?= htmlspecialchars($return['product_name']) ?></td>
+                <td><?= date('M j, Y', strtotime($return['return_date'])) ?></td>
+                <td class="<?= $statusClass ?> font-weight-bold"><?= $statusText ?></td>
+                <td><?= nl2br(htmlspecialchars($return['reason'])) ?></td>
+              </tr>
+              <?php endwhile; ?>
+            </tbody>
+          </table>
+        </div>
+        <?php else: ?>
+        <div class="alert alert-info">You haven't submitted any return requests yet.</div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 
 <?php
 include("components/footer.php");
