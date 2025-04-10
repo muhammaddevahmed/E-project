@@ -1,3 +1,10 @@
+<style>
+.site-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #cccccc;
+}
+</style>
 <?php
 include("components/header.php");
 
@@ -467,7 +474,8 @@ $total = $subtotal; // Assuming no tax or shipping for now
 </section>
 <!-- Checkout Section End -->
 
-<?php include("components/footer.php"); ?><script>
+<?php include("components/footer.php"); ?>
+<script>
 // Show/hide payment forms based on selected payment method
 document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
   input.addEventListener('change', function() {
@@ -646,4 +654,30 @@ function showError(fieldName, message) {
     }
   }
 }
+// Function to check cart status and disable button if empty
+function checkCartStatus() {
+  // Get the place order button
+  const placeOrderBtn = document.querySelector('.site-btn');
+
+  // Check if cart is empty (using PHP session variable)
+  <?php if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])): ?>
+  // Disable the button
+  placeOrderBtn.disabled = true;
+  // Optionally add a tooltip or change style
+  placeOrderBtn.title = "Your cart is empty. Please add products before checkout.";
+  placeOrderBtn.style.opacity = "0.7";
+  placeOrderBtn.style.cursor = "not-allowed";
+  <?php else: ?>
+  // Enable the button
+  placeOrderBtn.disabled = false;
+  placeOrderBtn.title = "";
+  placeOrderBtn.style.opacity = "1";
+  placeOrderBtn.style.cursor = "pointer";
+  <?php endif; ?>
+}
+
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+  checkCartStatus();
+});
 </script>

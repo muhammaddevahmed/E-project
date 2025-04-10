@@ -38,6 +38,10 @@
   padding: 3px;
   border-radius: 3px;
 }
+
+.btnNew {
+  background-color: #7fad39
+}
 </style>
 
 <?php
@@ -317,7 +321,7 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
             <label for="review_text">Review</label>
             <textarea class="form-control" id="review_text" name="review_text" rows="5" required></textarea>
           </div>
-          <button type="submit" class="btn btn-primary">Submit Review</button>
+          <button type="submit" class="btn btn-success">Submit Review</button>
         </form>
       </div>
     </div>
@@ -326,7 +330,7 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
 
 <!-- Center the button using Bootstrap -->
 <div class="d-flex justify-content-center mb-4">
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal">
+  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#reviewModal">
     Leave a Review
   </button>
 </div>

@@ -66,6 +66,8 @@ if (empty($products)) {
     background-color: #f5f5f5;
   }
 
+
+
   .invoice-container {
     max-width: 800px;
     margin: 30px auto;
@@ -80,6 +82,7 @@ if (empty($products)) {
     margin-bottom: 40px;
     padding-bottom: 20px;
     border-bottom: 1px solid #e0e0e0;
+    color: #6a9a2b
   }
 
   .logo {
@@ -101,7 +104,7 @@ if (empty($products)) {
   }
 
   .invoice-title .number {
-    color: #666;
+    color: #7fad39;
     font-size: 14px;
     font-weight: 400;
   }
@@ -241,7 +244,7 @@ if (empty($products)) {
   }
 
   .print-btn {
-    background: #000;
+    background: #7fad39;
     color: white;
     border: none;
     padding: 12px 25px;
@@ -255,7 +258,7 @@ if (empty($products)) {
   }
 
   .print-btn:hover {
-    background: #333;
+    background: #6a9a2b;
   }
 
   .logo {
@@ -297,9 +300,9 @@ if (empty($products)) {
     <div class="header">
       <div class="logo">
         <img src="images/logo.png" alt="The Crafty Corner Logo" style="height: 70px; margin-right: 10px;">
-        <span>INVOICE</span>
+        <span class="name">INVOICE</span>
       </div>
-      <div class="invoice-title">
+      <div class=" invoice-title">
         <h1>#<?= htmlspecialchars($invoice['payment_id']) ?></h1>
         <div class="number">Issued: <?= date('F j, Y', strtotime($invoice['payment_date'])) ?></div>
       </div>

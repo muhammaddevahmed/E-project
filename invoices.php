@@ -1,200 +1,5 @@
-<style>
-:root {
-  --primary-color: #4361ee;
-  --secondary-color: #3f37c9;
-  --light-color: #f8f9fa;
-  --dark-color: #212529;
-  --success-color: #4bb543;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-  background-color: #f5f7fa;
-  color: var(--dark-color);
-  padding: 20px;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-h1 {
-  color: var(--primary-color);
-  margin-bottom: 20px;
-}
-
-.invoice-card {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 25px;
-  margin-bottom: 25px;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.invoice-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.invoice-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
-}
-
-.invoice-id {
-  font-weight: bold;
-  color: var(--primary-color);
-  font-size: 1.2rem;
-}
-
-.invoice-status {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.status-pending {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-completed {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-failed {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.invoice-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.detail-group h3 {
-  font-size: 1rem;
-  color: #6c757d;
-  margin-bottom: 8px;
-}
-
-.detail-group p {
-  font-size: 1.05rem;
-}
-
-.invoice-amount {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary-color);
-  text-align: right;
-}
-
-.invoice-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
-}
-
-.btn {
-  padding: 8px 16px;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  margin-top: 30px
-}
-
-.btn-primary:hover {
-  background-color: var(--secondary-color);
-}
-
-.btn-outline {
-  background-color: transparent;
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
-}
-
-.btn-outline:hover {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 50px 20px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.empty-state i {
-  font-size: 3rem;
-  color: #6c757d;
-  margin-bottom: 20px;
-}
-
-.empty-state h2 {
-  color: #6c757d;
-  margin-bottom: 15px;
-}
-
-@media (max-width: 768px) {
-  .invoice-details {
-    grid-template-columns: 1fr;
-  }
-
-  .invoice-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .invoice-amount {
-    text-align: left;
-    margin-top: 10px;
-  }
-}
-</style>
-
 <?php
-include 'php/db_connection.php';
-include 'php/queries.php';
-session_start();
-
+include("components/header.php");
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -210,85 +15,84 @@ $stmt->execute();
 $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<script src="https://cdn.tailwindcss.com"></script>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Crafty Corner</title>
-  <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
-</head>
+<div class="bg-[#f5f7fa] text-[#212529] p-5">
+  <div class="max-w-6xl mx-auto">
+    <?php if (empty($invoices)): ?>
+    <div class="text-center py-12 px-5 bg-white rounded-lg shadow-md">
+      <i class="fas fa-file-invoice text-5xl text-gray-500 mb-5"></i>
+      <h2 class="text-2xl text-gray-500 mb-4">No Invoices Found</h2>
+      <p class="mb-6">You haven't made any purchases yet.</p>
+      <a href="shop-grid.php"
+        class="bg-[#7fad39] text-white px-4 py-2 rounded no-underline font-medium hover:bg-[#6e9c2a] transition-colors mt-8 inline-block">
+        Start Shopping
+      </a>
+    </div>
+    <?php else: ?>
+    <?php foreach ($invoices as $invoice): ?>
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all hover:translate-y-[-5px] hover:shadow-lg">
+      <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-200">
+        <div>
+          <span class="font-bold text-[#7fad39] text-xl">Invoice #<?= htmlspecialchars($invoice['payment_id']) ?></span>
+          <span> • <?= date('F j, Y', strtotime($invoice['payment_date'])) ?></span>
+        </div>
+        <span class="px-3 py-1 rounded-full text-sm font-medium 
+          <?= $invoice['payment_status'] === 'pending' ? 'bg-[#fff3cd] text-[#856404]' : '' ?>
+          <?= $invoice['payment_status'] === 'completed' ? 'bg-[#d4edda] text-[#155724]' : '' ?>
+          <?= $invoice['payment_status'] === 'failed' ? 'bg-[#f8d7da] text-[#721c24]' : '' ?>">
+          <?= ucfirst(htmlspecialchars($invoice['payment_status'])) ?>
+        </span>
+      </div>
 
-<div class="container">
-  <div class="header">
-    <h1>My Invoices</h1>
-    <a href="profile.php" class="btn btn-outline">
-      <i class="fas fa-arrow-left"></i> Back to Profile
-    </a>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+        <div>
+          <h3 class="text-gray-500 text-base mb-2">Payment Method</h3>
+          <p class="text-lg"><?= htmlspecialchars($invoice['payment_method']) ?></p>
+        </div>
+        <div>
+          <h3 class="text-gray-500 text-base mb-2">Billing Address</h3>
+          <p>
+            <?= htmlspecialchars($invoice['first_name']) ?> <?= htmlspecialchars($invoice['last_name']) ?><br>
+            <?= htmlspecialchars($invoice['address']) ?><br>
+            <?= htmlspecialchars($invoice['city']) ?>, <?= htmlspecialchars($invoice['state']) ?>
+            <?= htmlspecialchars($invoice['postcode']) ?><br>
+            <?= htmlspecialchars($invoice['country']) ?>
+          </p>
+        </div>
+        <div>
+          <h3 class="text-gray-500 text-base mb-2">Contact Information</h3>
+          <p>
+            <?= htmlspecialchars($invoice['email']) ?><br>
+            <?= htmlspecialchars($invoice['phone']) ?>
+          </p>
+        </div>
+      </div>
+
+      <div class="text-right text-2xl font-bold text-[#7fad39]">
+        Total: $<?= number_format($invoice['amount'], 2) ?>
+      </div>
+
+      <div class="flex justify-between items-center mt-5 pt-4 border-t border-gray-200">
+        <div>
+          <?php if (!empty($invoice['order_notes'])): ?>
+          <p><strong>Notes:</strong> <?= htmlspecialchars($invoice['order_notes']) ?></p>
+          <?php endif; ?>
+        </div>
+        <div>
+          <a href="invoice_print.php?id=<?= $invoice['payment_id'] ?>"
+            class="bg-[#7fad39] text-white px-4 py-2 rounded no-underline font-medium hover:bg-[#6e9c2a] transition-colors"
+            target="_blank">
+            <i class="fas fa-print"></i> Print Invoice
+          </a>
+        </div>
+      </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
   </div>
-
-  <?php if (empty($invoices)): ?>
-  <div class="empty-state">
-    <i class="fas fa-file-invoice"></i>
-    <h2>No Invoices Found</h2>
-    <p>You haven't made any purchases yet.</p> <br>
-    <a href="shop-grid.php" class="btn btn-primary">Start Shopping</a>
-  </div>
-  <?php else: ?>
-  <?php foreach ($invoices as $invoice): ?>
-  <div class="invoice-card">
-    <div class="invoice-header">
-      <div>
-        <span class="invoice-id">Invoice #<?= htmlspecialchars($invoice['payment_id']) ?></span>
-        <span> • <?= date('F j, Y', strtotime($invoice['payment_date'])) ?></span>
-      </div>
-      <span class="invoice-status status-<?= htmlspecialchars($invoice['payment_status']) ?>">
-        <?= ucfirst(htmlspecialchars($invoice['payment_status'])) ?>
-      </span>
-    </div>
-
-    <div class="invoice-details">
-      <div class="detail-group">
-        <h3>Payment Method</h3>
-        <p><?= htmlspecialchars($invoice['payment_method']) ?></p>
-      </div>
-      <div class="detail-group">
-        <h3>Billing Address</h3>
-        <p>
-          <?= htmlspecialchars($invoice['first_name']) ?> <?= htmlspecialchars($invoice['last_name']) ?><br>
-          <?= htmlspecialchars($invoice['address']) ?><br>
-          <?= htmlspecialchars($invoice['city']) ?>, <?= htmlspecialchars($invoice['state']) ?>
-          <?= htmlspecialchars($invoice['postcode']) ?><br>
-          <?= htmlspecialchars($invoice['country']) ?>
-        </p>
-      </div>
-      <div class="detail-group">
-        <h3>Contact Information</h3>
-        <p>
-          <?= htmlspecialchars($invoice['email']) ?><br>
-          <?= htmlspecialchars($invoice['phone']) ?>
-        </p>
-      </div>
-    </div>
-
-    <div class="invoice-amount">
-      Total: $<?= number_format($invoice['amount'], 2) ?>
-    </div>
-
-    <div class="invoice-footer">
-      <div>
-        <?php if (!empty($invoice['order_notes'])): ?>
-        <p><strong>Notes:</strong> <?= htmlspecialchars($invoice['order_notes']) ?></p>
-        <?php endif; ?>
-      </div>
-      <div>
-        <a href="invoice_print.php?id=<?= $invoice['payment_id'] ?>" class="btn btn-primary" target="_blank">
-          <i class="fas fa-print"></i> Print Invoice
-        </a>
-      </div>
-    </div>
-  </div>
-  <?php endforeach; ?>
-  <?php endif; ?>
 </div>
+
+<?php
+include("components/footer.php");
+?>

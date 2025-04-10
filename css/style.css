@@ -408,7 +408,7 @@ ol {
 }
 
 .header__logo {
-	padding: 15px 0;
+	padding: 12px 0;
 }
 
 .header__logo a {
@@ -478,7 +478,7 @@ ol {
 }
 
 .header__menu ul li a {
-	font-size: 14px;
+	font-size: 18px;
 	color: #252525;
 	text-transform: uppercase;
 	font-weight: 700;
