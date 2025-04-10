@@ -51,26 +51,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Edit Category Form -->
 <div class="container-fluid pt-4 px-4">
-    <div class="row bg-light rounded mx-0">
-        <div class="col-md-12">
-            <h3>Edit Category</h3>
+  <div class="row bg-light rounded mx-0">
+    <div class="col-md-12">
+      <h3>Edit Category</h3>
 
-            <form method="POST" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="category_name" class="form-label">Category Name</label>
-                    <input type="text" class="form-control" id="category_name" name="category_name" value="<?php echo $category['category_name']; ?>" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="image" class="form-label">Category Image</label>
-                    <input type="file" class="form-control" id="image" name="image">
-                    <small class="form-text text-muted">Current image: <img src="<?php echo $catImageAdd . $category['image_path']; ?>" width="100" alt="Current Image"></small>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Update Category</button>
-            </form>
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="category_name" class="form-label">Category Name</label>
+          <input type="text" class="form-control" id="category_name" name="category_name"
+            value="<?php echo $category['category_name']; ?>" required>
         </div>
+
+        <div class="mb-3">
+          <label for="image" class="form-label">Category Image</label>
+          <input type="file" class="form-control" id="image" name="image">
+          <small class="form-text text-muted">Current image: <img
+              src="<?php echo $catImageAdd . $category['image_path']; ?>" width="100" alt="Current Image"></small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Category</button>
+      </form>
     </div>
+  </div>
 </div>
 
 <?php

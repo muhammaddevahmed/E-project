@@ -33,9 +33,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 // Redirect based on user type
                 if ($user['user_type'] == 'admin') {
-                    header("Location: admin_dashboard.php");
+                    header("Location: ../edashboard/html/index.php");
+
                 } elseif ($user['user_type'] == 'employee') {
-                    header("Location: employee_dashboard.php");
+                    header("Location: ../edashboard/html/index.php");
+
                 } else {
                     header("Location: index.php"); // Redirect to checkout.php for customers
                 }
