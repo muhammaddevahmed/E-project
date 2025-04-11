@@ -187,6 +187,19 @@ if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee')
             </a>
           </li>
 
+          <!-- ---------------------------------- -->
+
+          <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Delivery</span>
+          </li>
+          <!-- Add Product -->
+          <li class="menu-item">
+            <a href="delivery_report.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-collection"></i>
+              <div data-i18n="Basic">Delivery Status</div>
+            </a>
+          </li>
+
           <!-- -------------- -->
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Orders</span>

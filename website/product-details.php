@@ -42,6 +42,34 @@
 .btnNew {
   background-color: #7fad39
 }
+
+.product__details__pic__item {
+  width: 440px;
+  /* Ensure the image takes full width of its container */
+  height: 450px;
+  /* Increase the height for a larger image */
+  border: 2px solid #ccc;
+  /* Add a light gray border */
+  border-radius: 10px;
+  /* Add rounded corners */
+  background-size: cover;
+  /* Ensure the image covers the container */
+  background-position: center;
+  /* Center the image */
+  margin-bottom: 15px;
+  /* Add some spacing below the image */
+}
+
+.product__details__pic__item--large {
+  max-width: 100%;
+  /* Ensure the image doesn't exceed the container width */
+  height: 100%;
+  /* Make the image fill the container height */
+  object-fit: cover;
+  /* Ensure the image scales properly */
+  border-radius: 10px;
+  /* Match the border radius of the container */
+}
 </style>
 
 <?php

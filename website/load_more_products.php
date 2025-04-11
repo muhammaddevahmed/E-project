@@ -2,7 +2,7 @@
 include("php/db_connection.php"); // Include your database connection
 
 $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
-$limit = 10; // Number of products to load per request
+$limit = 9; // Number of products to load per request
 
 $stmt = $pdo->prepare("SELECT products.*, categories.category_name 
                        FROM products 

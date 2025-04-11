@@ -38,6 +38,19 @@ include("components/header.php");
   }
 
 }
+
+.btn-primary,
+.site-btn {
+  background-color: #7fad39;
+  color: #FFFFFF;
+  border: none;
+}
+
+.featured__item__pic,
+.latest-product__item__pic {
+  border: 4px solid #ccc;
+  border-radius: 10px;
+}
 </style>
 <!-- Hero Section Begin -->
 <section class="hero mt-4">
@@ -426,7 +439,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 document.addEventListener("DOMContentLoaded", function() {
-  let offset = 10; // Start after the first 10 products
+  let offset = 9; // Start after the first 9 products
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   const productContainer = document.getElementById("productContainer");
 
@@ -438,7 +451,7 @@ document.addEventListener("DOMContentLoaded", function() {
         productContainer.insertAdjacentHTML("beforeend", data);
 
         // Increment the offset
-        offset += 10;
+        offset += 9;
 
         // If no more products are returned, hide the button
         if (data.trim() === "") {

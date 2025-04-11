@@ -84,6 +84,24 @@ unset($product); // break reference
 
 ?>
 
+<style>
+.product__item__pic {
+  width: 100%;
+  /* Ensure the image takes full width of its container */
+
+  border: 4px solid #ccc;
+  /* Add a light gray border */
+  border-radius: 10px;
+  /* Add rounded corners */
+  background-size: cover;
+  /* Ensure the image covers the container */
+  background-position: center;
+  /* Center the image */
+  margin-bottom: 15px;
+  /* Add some spacing below the image */
+}
+</style>
+
 
 
 <!-- Hero Section Begin -->
