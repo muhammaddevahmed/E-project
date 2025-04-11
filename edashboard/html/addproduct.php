@@ -69,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_type !== 'employee') {
     }
 }
 ?>
-
 <div class="container-fluid pt-4 px-4">
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
@@ -81,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_type !== 'employee') {
       </div>
       <?php endif; ?>
 
-      <form method="POST" enctype="multipart/form-data">
+      <form id="addProductForm" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="product_name" class="form-label">Product Name</label>
           <input type="text" class="form-control" id="product_name" name="product_name" required
@@ -136,6 +135,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_type !== 'employee') {
     </div>
   </div>
 </div>
-<?php
-include("components/footer.php");
-?>
+
+<script>
+document.getElementById('addProductForm').addEventListener('submit', function(event) {
+  // Get all input fields
+  const productName = document.getElementById('product_name').value.trim();
+  const price = document.getElementById('price').value.trim();
+  const stockQuantity = document.getElementById('stock_quantity').value.trim();
+  const warrantyPeriod = document.getElementById('warranty_period').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const categoryId = document.getElementById('category_id').value.trim();
+  const image = document.getElementById('image').value.trim();
+
+  // Check if any field is empty
+  if (!productName || !price || !stockQuantity || !warrantyPeriod || !description || !categoryId || !image) {
+    alert('Please fill in all required fields.');
+    event.preventDefault(); // Prevent form submission
+  }
+});
+</script>

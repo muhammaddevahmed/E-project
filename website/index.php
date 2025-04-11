@@ -144,8 +144,6 @@ include("components/header.php");
     </div>
   </div>
 </section>
-
-<!-- Featured Section Begin -->
 <section class="featured spad">
   <div class="container">
     <div class="row">
@@ -153,33 +151,21 @@ include("components/header.php");
         <div class="section-title">
           <h2>Featured Products</h2>
         </div>
-        <div class="featured__controls">
-          <ul>
-            <li class="active" data-filter="*">All</li>
-            <?php
-            $stmt = $pdo->query("SELECT DISTINCT category_name FROM categories");
-            while ($category = $stmt->fetch(PDO::FETCH_ASSOC)):
-              $category_class = strtolower(str_replace(' ', '-', $category['category_name']));
-            ?>
-            <li data-filter=".<?php echo $category_class; ?>">
-              <?php echo htmlspecialchars($category['category_name']); ?>
-            </li>
-            <?php endwhile; ?>
-          </ul>
-        </div>
       </div>
     </div>
 
-    <div class="row featured__filter">
+    <div class="row featured__filter" id="productContainer">
       <?php
+      // Fetch the first 10 products
       $stmt = $pdo->query("SELECT products.*, categories.category_name 
                           FROM products 
-                          JOIN categories ON products.category_id = categories.category_id");
+                          JOIN categories ON products.category_id = categories.category_id
+                          LIMIT 10");
       while ($product = $stmt->fetch(PDO::FETCH_ASSOC)):
         $category_class = strtolower(str_replace(' ', '-', $product['category_name']));
         
-        // Implement the same image path logic
-        $web_root = 'http://localhost/EProject/'; // Adjust to your local URL
+        // Image path logic
+        $web_root = 'http://localhost/EProject/';
         $actual_storage = 'edashboard/html/images/products/';
         $default_image = $web_root . 'edashboard/html/images/default-product.jpg';
         
@@ -207,10 +193,14 @@ include("components/header.php");
       </div>
       <?php endwhile; ?>
     </div>
+
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <button id="loadMoreBtn" class="btn btn-primary mt-4">Show More</button>
+      </div>
+    </div>
   </div>
 </section>
-<!-- Featured Section End -->
-
 
 <!-- Banner Begin -->
 <div class="banner mt-4">
@@ -431,6 +421,31 @@ document.addEventListener("DOMContentLoaded", function() {
       document.querySelectorAll('.featured__controls ul li').forEach(el => el.classList.remove('active'));
       this.classList.add('active');
     });
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  let offset = 10; // Start after the first 10 products
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+  const productContainer = document.getElementById("productContainer");
+
+  loadMoreBtn.addEventListener("click", function() {
+    fetch(`load_more_products.php?offset=${offset}`)
+      .then(response => response.text())
+      .then(data => {
+        // Append the new products to the container
+        productContainer.insertAdjacentHTML("beforeend", data);
+
+        // Increment the offset
+        offset += 10;
+
+        // If no more products are returned, hide the button
+        if (data.trim() === "") {
+          loadMoreBtn.style.display = "none";
+        }
+      })
+      .catch(error => console.error("Error loading more products:", error));
   });
 });
 </script>
