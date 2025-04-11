@@ -101,6 +101,18 @@ if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee')
           <!-- ------------------------ -->
 
           <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Income</span>
+          </li>
+
+          <!-- Wallet -->
+          <li class="menu-item">
+            <a href="wallet.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-wallet"></i>
+              <div data-i18n="Basic">Wallet</div>
+            </a>
+          </li>
+
+          <li class="menu-header small text-uppercase">
             <span class="menu-header-text">CATEGORIES</span>
           </li>
 
@@ -122,6 +134,15 @@ if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee')
           <!-- ----------------------------------- -->
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">PRODUCT</span>
+
+          </li>
+
+          <!-- Add Product -->
+          <li class="menu-item">
+            <a href="allproducts.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-collection"></i>
+              <div data-i18n="Basic">All Products</div>
+            </a>
           </li>
           <!-- Add Product -->
           <li class="menu-item">
@@ -130,13 +151,7 @@ if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee')
               <div data-i18n="Basic">Add Product</div>
             </a>
           </li>
-          <!-- Add Product -->
-          <li class="menu-item">
-            <a href="allproducts.php" class="menu-link">
-              <i class="menu-icon tf-icons bx bx-collection"></i>
-              <div data-i18n="Basic">ALL Product</div>
-            </a>
-          </li>
+
           <!-- ---------------------------------- -->
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">EMPLOYEES DETAIL</span>
