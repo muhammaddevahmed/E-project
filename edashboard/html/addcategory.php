@@ -1,9 +1,12 @@
 <?php
 include("components/header.php");
 
+// Check user type
+$user_type = $_SESSION['user_type'] ?? '';
+
 try {
-    // Handle form submission
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['addCategory'])) {
+    // Handle form submission only if the user is not an employee
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['addCategory']) && $user_type !== 'employee') {
         $category_name = $_POST['catName'] ?? '';
         
         // Validate input
@@ -35,8 +38,6 @@ try {
             if ($file_size > 5000000) { // 5MB limit
                 throw new Exception("File is too large. Maximum size is 5MB.");
             }
-            
-           
             
             // Move uploaded file
             if (move_uploaded_file($file_tmp, $target_file)) {
@@ -75,6 +76,12 @@ try {
     <div class="col-md-12">
       <h3>Add a New Category</h3>
 
+      <?php if ($user_type === 'employee'): ?>
+      <div class="alert alert-warning" role="alert">
+        You do not have permission to add categories. All fields are disabled.
+      </div>
+      <?php endif; ?>
+
       <?php if (isset($success)): ?>
       <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
       <?php endif; ?>
@@ -86,11 +93,13 @@ try {
       <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="catName" class="form-label">Category Name</label>
-          <input type="text" class="form-control" name="catName" id="catName" required>
+          <input type="text" class="form-control" name="catName" id="catName" required
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
         </div>
         <div class="mb-3">
           <label for="catImage" class="form-label">Image</label>
-          <input type="file" name="catImage" class="form-control" id="catImage" accept="image/*" required>
+          <input type="file" name="catImage" class="form-control" id="catImage" accept="image/*" required
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
           <small class="text-muted">All image formats are supported (Max 5MB)</small>
 
           <?php if (isset($uploaded_image)): ?>
@@ -102,7 +111,8 @@ try {
           <?php endif; ?>
         </div>
 
-        <button type="submit" name="addCategory" class="btn btn-primary">Add Category</button>
+        <button type="submit" name="addCategory" class="btn btn-primary"
+          <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Add Category</button>
       </form>
     </div>
   </div>

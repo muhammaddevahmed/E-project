@@ -1,26 +1,32 @@
 <?php
 include("components/header.php");
 
-// Handle product deletion
+// Check user type
+$user_type = $_SESSION['user_type'] ?? '';
+
+// Handle product deletion (only if the user is not an employee)
 if (isset($_POST['deleteProduct'])) {
-    $product_id = $_POST['product_id'];
-    
-    // Get product data first
-    $stmt = $pdo->prepare("SELECT image_path FROM products WHERE product_id = ?");
-    $stmt->execute([$product_id]);
-    $product = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    // Delete image file if exists
-    if ($product && !empty($product['image_path']) && file_exists($product['image_path'])) {
-        unlink($product['image_path']);
+    if ($user_type !== 'employee') {
+        $product_id = $_POST['product_id'];
+        
+        // Get product data first
+        $stmt = $pdo->prepare("SELECT image_path FROM products WHERE product_id = ?");
+        $stmt->execute([$product_id]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Delete image file if exists
+        if ($product && !empty($product['image_path']) && file_exists($product['image_path'])) {
+            unlink($product['image_path']);
+        }
+        
+        // Delete product from database
+        $stmt = $pdo->prepare("DELETE FROM products WHERE product_id = ?");
+        $stmt->execute([$product_id]);
+        
+        $success = "Product deleted successfully!";
+    } else {
+        $error = "You do not have permission to delete products.";
     }
-    
-    // Delete product from database
-    $stmt = $pdo->prepare("DELETE FROM products WHERE product_id = ?");
-    $stmt->execute([$product_id]);
-    
-    header("Location: allproducts.php");
-    exit();
 }
 
 // Get all products with category names
@@ -33,11 +39,33 @@ $products = $pdo->query("
 ?>
 
 <div class="container-fluid pt-4 px-4">
+  <?php if (isset($success)): ?>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <?= htmlspecialchars($success) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  <?php endif; ?>
+
+  <?php if (isset($error)): ?>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <?= htmlspecialchars($error) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  <?php endif; ?>
+
+  <?php if ($user_type === 'employee'): ?>
+  <div class="alert alert-warning" role="alert">
+    You do not have permission to edit or delete products. All actions are disabled.
+  </div>
+  <?php endif; ?>
+
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>All Products</h3>
+        <?php if ($user_type !== 'employee'): ?>
         <a href="addproduct.php" class="btn btn-primary">Add New Product</a>
+        <?php endif; ?>
       </div>
 
       <table class="table table-striped">
@@ -75,9 +103,13 @@ $products = $pdo->query("
             <td>
               <div class="d-flex gap-2">
                 <a href="editproduct.php?id=<?php echo $product['product_id']; ?>"
-                  class="btn btn-sm btn-outline-primary">Edit</a>
+                  class="btn btn-sm btn-outline-primary"
+                  <?php echo ($user_type === 'employee') ? 'onclick="return false;" style="pointer-events: none;"' : ''; ?>>
+                  Edit
+                </a>
                 <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                  data-bs-target="#deleteModal<?php echo $product['product_id']; ?>">
+                  data-bs-target="#deleteModal<?php echo $product['product_id']; ?>"
+                  <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
                   Delete
                 </button>
               </div>
@@ -101,7 +133,8 @@ $products = $pdo->query("
                   <form method="POST">
                     <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="deleteProduct" class="btn btn-danger">Delete</button>
+                    <button type="submit" name="deleteProduct" class="btn btn-danger"
+                      <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Delete</button>
                   </form>
                 </div>
               </div>

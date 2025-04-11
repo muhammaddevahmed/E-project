@@ -1,10 +1,14 @@
 <?php
 include("components/header.php");
 
+// Check if the user is logged in and get user type
+$user_type = $_SESSION['user_type'] ?? '';
+
+// Fetch categories
 $query = $pdo->query("SELECT * FROM categories");
 $categories = $query->fetchAll(PDO::FETCH_ASSOC);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_type !== 'employee') {
     $product_name = $_POST['product_name'];
     $description = $_POST['description'];
     $price = $_POST['price'];
@@ -70,35 +74,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
       <h3>Add New Product</h3>
+
+      <?php if ($user_type === 'employee'): ?>
+      <div class="alert alert-warning" role="alert">
+        You do not have permission to add products. All fields are disabled.
+      </div>
+      <?php endif; ?>
+
       <form method="POST" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="product_name" class="form-label">Product Name</label>
-          <input type="text" class="form-control" id="product_name" name="product_name" required>
+          <input type="text" class="form-control" id="product_name" name="product_name" required
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
         </div>
 
         <div class="mb-3">
           <label for="price" class="form-label">Price</label>
-          <input type="number" class="form-control" id="price" name="price" required>
+          <input type="number" class="form-control" id="price" name="price" required
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
         </div>
 
         <div class="mb-3">
           <label for="stock_quantity" class="form-label">Quantity</label>
-          <input type="number" class="form-control" id="stock_quantity" name="stock_quantity" required>
+          <input type="number" class="form-control" id="stock_quantity" name="stock_quantity" required
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
         </div>
 
         <div class="mb-3">
           <label for="warranty_period" class="form-label">Warranty Period (in months)</label>
-          <input type="number" class="form-control" id="warranty_period" name="warranty_period" required>
+          <input type="number" class="form-control" id="warranty_period" name="warranty_period" required
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
         </div>
 
         <div class="mb-3">
           <label for="description" class="form-label">Description</label>
-          <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+          <textarea class="form-control" id="description" name="description" rows="3" required
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>></textarea>
         </div>
 
         <div class="mb-3">
           <label for="category_id" class="form-label">Category</label>
-          <select class="form-select" id="category_id" name="category_id" required>
+          <select class="form-select" id="category_id" name="category_id" required
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
             <option value="">Select Category</option>
             <?php foreach ($categories as $category) { ?>
             <option value="<?php echo $category['category_id']; ?>"><?php echo $category['category_name']; ?></option>
@@ -108,16 +125,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="mb-3">
           <label for="image" class="form-label">Product Image</label>
-          <input type="file" class="form-control" id="image" name="image">
+          <input type="file" class="form-control" id="image" name="image"
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
           <small class="form-text text-muted">Allowed file types: JPG, JPEG, PNG, GIF, WEBP, BMP, TIFF.</small>
         </div>
 
-        <button type="submit" class="btn btn-primary">Add Product</button>
+        <button type="submit" class="btn btn-primary" <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Add
+          Product</button>
       </form>
     </div>
   </div>
 </div>
-
 <?php
 include("components/footer.php");
 ?>

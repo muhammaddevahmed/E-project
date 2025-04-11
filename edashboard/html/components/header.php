@@ -1,18 +1,20 @@
 <?php
-include("php/query.php");
 session_start();
+include("php/query.php");
+
+
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type'])) {
     // Redirect to login page if not logged in
-    header("Location: ../../website/login.php");
+    echo "<script>location.assign('../../website/login.php');</script>";
     exit();
 }
 
 // Restrict access based on user_type
 if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee') {
     // Redirect to login page or an error page if the user is not admin or employee
-    header("Location: ../../website/login.php");
+    echo "<script>location.assign('../../website/login.php');</script>";
     exit();
 }
 ?>

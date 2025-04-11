@@ -104,17 +104,18 @@ button {
 button:hover {
   background-color: #45a049;
 }
-</style>
-
-<?php
+</style><?php
 include("components/header.php");
+
+// Check user type
+$user_type = $_SESSION['user_type'] ?? '';
 
 // Initialize variables
 $message = '';
 $error = '';
 
-// Handle stock update form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_stock'])) {
+// Handle stock update form submission (only if the user is not an employee)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_stock']) && $user_type !== 'employee') {
     try {
         $pdo->beginTransaction();
         
@@ -176,6 +177,10 @@ try {
 }
 ?>
 
+<style>
+/* Add your existing styles here */
+</style>
+
 <body>
   <h1>Stock Management</h1>
 
@@ -185,6 +190,11 @@ try {
   <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
   <?php endif; ?>
 
+  <?php if ($user_type === 'employee'): ?>
+  <div class="alert alert-warning">
+    You do not have permission to update stock. All actions are disabled.
+  </div>
+  <?php endif; ?>
 
   <table>
     <thead>
@@ -216,7 +226,7 @@ try {
     <form method="POST">
       <div class="form-group">
         <label for="product_id">Select Product:</label>
-        <select name="product_id" id="product_id" required>
+        <select name="product_id" id="product_id" required <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
           <option value="">-- Select Product --</option>
           <?php foreach ($products as $product): ?>
           <option value="<?php echo htmlspecialchars($product['product_id']); ?>">
@@ -229,16 +239,19 @@ try {
 
       <div class="form-group">
         <label for="change_in_quantity">Quantity Change:</label>
-        <input type="number" name="change_in_quantity" id="change_in_quantity" required>
+        <input type="number" name="change_in_quantity" id="change_in_quantity" required
+          <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
         <small>Positive number to add stock, negative to remove</small>
       </div>
 
       <div class="form-group">
         <label for="update_reason">Reason for Update:</label>
-        <textarea name="update_reason" id="update_reason" rows="3" required></textarea>
+        <textarea name="update_reason" id="update_reason" rows="3" required
+          <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>></textarea>
       </div>
 
-      <button type="submit" name="update_stock">Update Stock</button>
+      <button type="submit" name="update_stock" <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Update
+        Stock</button>
     </form>
   </div>
 
