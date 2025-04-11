@@ -1,6 +1,86 @@
 <?php
 include("components/header.php");
 
+// Image path configuration
+$web_root = 'http://localhost/EProject/'; // Adjust to your local URL
+$actual_storage = 'edashboard/html/images/products/';
+$default_image = $web_root . 'edashboard/html/images/default-product.jpg';
+
+// Get sorting parameter or set default
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'default';
+$category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : 0;
+
+// Pagination setup
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = 9;
+$offset = ($page - 1) * $limit;
+
+// Build base query
+$query = "SELECT SQL_CALC_FOUND_ROWS p.* FROM products p";
+$conditions = [];
+$params = [];
+
+// Category filter
+if ($category_id > 0) {
+    $conditions[] = "p.category_id = :category_id";
+    $params[':category_id'] = $category_id;
+}
+
+// Add WHERE clause if needed
+if (!empty($conditions)) {
+    $query .= " WHERE " . implode(" AND ", $conditions);
+}
+
+// Sorting
+switch ($sort) {
+    case 'price_asc':
+        $query .= " ORDER BY p.price ASC";
+        break;
+    case 'price_desc':
+        $query .= " ORDER BY p.price DESC";
+        break;
+    case 'name_asc':
+        $query .= " ORDER BY p.product_name ASC";
+        break;
+    case 'name_desc':
+        $query .= " ORDER BY p.product_name DESC";
+        break;
+    default:
+        $query .= " ORDER BY p.created_at DESC";
+        break;
+}
+
+// Pagination
+$query .= " LIMIT :limit OFFSET :offset";
+$params[':limit'] = $limit;
+$params[':offset'] = $offset;
+
+// Prepare and execute
+$stmt = $pdo->prepare($query);
+
+// Bind parameters
+foreach ($params as $key => $value) {
+    $param_type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
+    $stmt->bindValue($key, $value, $param_type);
+}
+
+$stmt->execute();
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get total product count
+$total_products = $pdo->query("SELECT FOUND_ROWS()")->fetchColumn();
+$total_pages = ceil($total_products / $limit);
+
+// Image path fallback
+foreach ($products as &$product) {
+    $image_path = $actual_storage . $product['image_path'];
+    $full_image_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $image_path;
+
+    $product['final_image_path'] = file_exists($full_image_path)
+        ? $web_root . $image_path
+        : $default_image;
+}
+unset($product); // break reference
 
 ?>
 
@@ -132,24 +212,31 @@ include("components/header.php");
         <div class="row">
           <?php foreach ($products as $product): ?>
           <?php
-                        // Fetch category name for the product
-                        $category_name = '';
-                        foreach ($categories as $category) {
-                            if ($category['category_id'] == $product['category_id']) {
-                                $category_name = $category['category_name'];
-                                break;
-                            }
-                        }
+        // Fetch category name for the product
+        $category_name = '';
+        foreach ($categories as $category) {
+            if ($category['category_id'] == $product['category_id']) {
+                $category_name = $category['category_name'];
+                break;
+            }
+        }
 
-                        // Default image if missing
-                        $image_path = !empty($product['image_path']) ? htmlspecialchars($product['image_path']) : 'default.jpg';
-                        ?>
+        // Process product image path
+        $filename = basename($product['image_path']);
+        $relative_path = $actual_storage . $filename;
+        $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+        $image_url = $web_root . $relative_path;
+        
+        if (empty($product['image_path']) || !file_exists($absolute_path)) {
+            $image_url = $default_image;
+        }
+    ?>
 
           <div class="col-lg-4 col-md-6 col-sm-6">
             <div class="product__item">
-              <div class="product__item__pic set-bg" data-setbg="<?php echo $image_path; ?>"
-                style="background-image: url('<?php echo $image_path; ?>');">
-
+              <div class="product__item__pic set-bg" data-setbg="<?php echo $image_url; ?>"
+                style="background-image: url('<?php echo $image_url; ?>');">
+                <!-- You can add hover effects or other elements here -->
               </div>
               <div class="product__item__text">
                 <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">

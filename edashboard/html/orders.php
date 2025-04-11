@@ -77,6 +77,7 @@ tr:hover {
   font-size: 14px;
   cursor: pointer;
   border: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .btn-accept {
@@ -84,14 +85,27 @@ tr:hover {
   color: white;
 }
 
+.btn-accept:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
 .btn-decline {
   background-color: #f44336;
   color: white;
 }
 
+.btn-decline:hover {
+  background-color: #e53935;
+  transform: scale(1.05);
+  color: white;
+}
+
 .btn:disabled {
   background-color: #cccccc;
+  color: #666666;
   cursor: not-allowed;
+  color: white;
 }
 </style>
 <?php

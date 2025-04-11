@@ -8,11 +8,20 @@
 <?php
 include("components/header.php");
 
+
 // Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('Please Login First!'); window.location.href='login.php';</script>";
-    exit();
+  echo "<script>alert('Please Login First!'); window.location.href='login.php';</script>";
+  exit();
 }
+
+// Check database connection
+if (!isset($pdo)) {
+  die("Database connection error");
+}
+
+// Set PDO error mode to exception
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Retrieve user information from the session
 $userId = $_SESSION['user_id'];
@@ -21,12 +30,11 @@ $username = $_SESSION['full_name'];
 // Initialize error array
 $errors = [];
 
-// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Check if cart is empty
-    if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
-        $errors['cart'] = "Your cart is empty. Please add products before checkout.";
-    }
+  // Check if cart is empty
+  if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+      $errors['cart'] = "Your cart is empty. Please add products before checkout.";
+  }
     
     // Validate and sanitize form data
     $firstName = validateInput('first_name', "/^[a-zA-Z ]{2,50}$/", "First name should contain only letters and spaces (2-50 characters)", $errors);
@@ -50,12 +58,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $checkNumber = validateInput('check_number', "/^[a-zA-Z0-9]{5,20}$/", "Check number should be 5-20 alphanumeric characters", $errors);
         $bankName = validateInput('bank_name', "/^[a-zA-Z ]{2,50}$/", "Bank name should contain only letters and spaces (2-50 characters)", $errors);
     }
-    
-    // If no errors, process the order
-    if (empty($errors)) {
-        // Generate a unique order ID
-        $orderId = uniqid();
-
+      // If no errors, process the order
+      if (empty($errors)) {
+        // Generate a more unique order ID
+        $orderId = 'ORD' . date('YmdHis') . mt_rand(1000, 9999);
+        
         // Calculate the total amount from the cart
         $subtotal = 0;
         foreach ($_SESSION['cart'] as $id => $item) {
@@ -67,7 +74,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Begin transaction
             $pdo->beginTransaction();
 
-            // Insert payment data first to get payment_id
+            // 1. First check stock availability for all products
+            foreach ($_SESSION['cart'] as $product_id => $item) {
+                $quantity = $item['quantity'];
+                
+                $stockCheck = $pdo->prepare("SELECT stock_quantity FROM products WHERE product_id = ? FOR UPDATE");
+                $stockCheck->execute([$product_id]);
+                $currentStock = $stockCheck->fetchColumn();
+                
+                if ($currentStock === false) {
+                    throw new PDOException("Product not found: $product_id");
+                }
+                
+                if ($currentStock < $quantity) {
+                    throw new PDOException("Not enough stock available for product ID: $product_id (Available: $currentStock, Requested: $quantity)");
+                }
+            }
+
+            // 2. Insert payment data first to get payment_id
             $paymentSql = "INSERT INTO payments (
                 payment_method, amount, payment_status, 
                 first_name, last_name, country, address, city, state, postcode, 
@@ -79,6 +103,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             )";
 
             $paymentStmt = $pdo->prepare($paymentSql);
+            if (!$paymentStmt) {
+                throw new PDOException("Payment prepare failed: " . implode(" ", $pdo->errorInfo()));
+            }
 
             // Bind payment parameters
             $paymentStmt->bindParam(':payment_method', $paymentMethod);
@@ -119,110 +146,121 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $paymentStmt->execute();
             $payment_id = $pdo->lastInsertId();
 
-            foreach ($_SESSION['cart'] as $product_id => $item) {
-              $quantity = $item['quantity'];
-              
-              // Check if enough stock is available
-              $stockCheck = $pdo->prepare("SELECT stock_quantity FROM products WHERE product_id = ?");
-              $stockCheck->execute([$product_id]);
-              $currentStock = $stockCheck->fetchColumn();
-              
-              if ($currentStock < $quantity) {
-                  throw new PDOException("Not enough stock available for product ID: $product_id");
-              }
-              
-              // Update the stock quantity
-              $updateStock = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
-              $updateStock->execute([$quantity, $product_id]);
+            // Execute the payment statement
+            if (!$paymentStmt->execute()) {
+              throw new PDOException("Payment execute failed: " . implode(" ", $paymentStmt->errorInfo()));
+          }
+          $payment_id = $pdo->lastInsertId();
+
+          // 3. Prepare order statement
+          $orderSql = "INSERT INTO orders (
+              order_id, delivery_type, product_id, order_number, 
+              u_name, u_email, p_name, p_price, p_qty, 
+              date_time, status, u_id, payment_id
+          ) VALUES (
+              :order_id, :delivery_type, :product_id, :order_number, 
+              :u_name, :u_email, :p_name, :p_price, :p_qty, 
+              NOW(), 'pending', :u_id, :payment_id
+          )";
+
+          $orderStmt = $pdo->prepare($orderSql);
+          if (!$orderStmt) {
+              throw new PDOException("Order prepare failed: " . implode(" ", $pdo->errorInfo()));
           }
 
-            // Insert the orders
-            $sql = "INSERT INTO orders (
-                order_id, delivery_type, product_id, order_number, 
-                u_name, u_email, p_name, p_price, p_qty, 
-                date_time, status, u_id, payment_id
-            ) VALUES (
-                :order_id, :delivery_type, :product_id, :order_number, 
-                :u_name, :u_email, :p_name, :p_price, :p_qty, 
-                NOW(), 'pending', :u_id, :payment_id
-            )";
+          // Process each item in cart
+          foreach ($_SESSION['cart'] as $product_id => $item) {
+              $productName = $item['product_name'];
+              $productPrice = $item['price'];
+              $productQty = $item['quantity'];
 
-            $stmt = $pdo->prepare($sql);
+              // Bind order parameters
+              $orderStmt->bindParam(':order_id', $orderId);
+              $orderStmt->bindParam(':delivery_type', $paymentMethod);
+              $orderStmt->bindParam(':product_id', $product_id);
+              $orderStmt->bindParam(':order_number', $orderId);
+              $orderStmt->bindParam(':u_name', $username);
+              $orderStmt->bindParam(':u_email', $email);
+              $orderStmt->bindParam(':p_name', $productName);
+              $orderStmt->bindParam(':p_price', $productPrice);
+              $orderStmt->bindParam(':p_qty', $productQty);
+              $orderStmt->bindParam(':u_id', $userId);
+              $orderStmt->bindParam(':payment_id', $payment_id);
 
-            foreach ($_SESSION['cart'] as $product_id => $item) {
-                $productName = $item['product_name'];
-                $productPrice = $item['price'];
-                $productQty = $item['quantity'];
+              // Execute order insertion
+              if (!$orderStmt->execute()) {
+                  throw new PDOException("Order execute failed: " . implode(" ", $orderStmt->errorInfo()));
+              }
 
-                $stmt->bindParam(':order_id', $orderId);
-                $stmt->bindParam(':delivery_type', $paymentMethod);
-                $stmt->bindParam(':product_id', $product_id);
-                $stmt->bindParam(':order_number', $orderId);
-                $stmt->bindParam(':u_name', $username);
-                $stmt->bindParam(':u_email', $email);
-                $stmt->bindParam(':p_name', $productName);
-                $stmt->bindParam(':p_price', $productPrice);
-                $stmt->bindParam(':p_qty', $productQty);
-                $stmt->bindParam(':u_id', $userId);
-                $stmt->bindParam(':payment_id', $payment_id);
+              // Update product stock
+              $updateStock = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
+              if (!$updateStock->execute([$productQty, $product_id])) {
+                  throw new PDOException("Stock update failed: " . implode(" ", $updateStock->errorInfo()));
+              }
+          }
 
-                $stmt->execute();
-            }
+          // Commit the transaction
+          $pdo->commit();
 
-            // Commit the transaction
-            $pdo->commit();
+          // Clear the cart after successful order
+          unset($_SESSION['cart']);
 
-            // Clear the cart after successful order
-            unset($_SESSION['cart']);
+          // Set success session variables
+          $_SESSION['order_success'] = true;
+          $_SESSION['order_id'] = $orderId;
+          $_SESSION['payment_id'] = $payment_id;
 
-            // Redirect to confirmation page
-            echo "<script>
-                alert('Your order has been placed. Thank you for shopping with us!');
-                window.location.href='index.php';
-            </script>";
-            exit();
+          // Redirect to confirmation page
+          header("Location: order_confirmation.php");
+          exit();
 
-        } catch (PDOException $e) {
-            // Rollback the transaction on error
-            $pdo->rollBack();
-            $errors['database'] = "Error processing your order: " . $e->getMessage();
-            
-            // Log detailed error for debugging
-            error_log("Order processing error for user $userId: " . $e->getMessage());
-            echo "<script>alert('Error processing your order. You are trying to buy more products then stock');</script>";
-        }
-    }
+      } catch (PDOException $e) {
+          // Rollback the transaction on error
+          if ($pdo->inTransaction()) {
+              $pdo->rollBack();
+          }
+          
+          // Log detailed error for debugging
+          error_log("Order processing error for user $userId: " . $e->getMessage());
+          
+          // Show detailed error message for debugging (remove in production)
+          $errors['database'] = "Error processing your order: " . $e->getMessage();
+          echo "<script>alert('Error processing your order: " . addslashes($e->getMessage()) . "');</script>";
+      }
+  }
 }
+
+
 
 // Helper function to validate input
 function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
-    // Check if the field exists in POST and get trimmed value
-    $value = isset($_POST[$fieldName]) ? trim($_POST[$fieldName]) : '';
-    
-    // Check if the field is empty
-    if ($value === '') {
-        $errors[$fieldName] = "This field is required";
-        return '';
-    }
-    
-    // Validate against pattern if provided
-    if ($pattern !== null && !preg_match($pattern, $value)) {
-        $errors[$fieldName] = $errorMessage;
-        return '';
-    }
-    
-    // Return sanitized value
-    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+// Check if the field exists in POST and get trimmed value
+$value = isset($_POST[$fieldName]) ? trim($_POST[$fieldName]) : '';
+
+// Check if the field is empty
+if ($value === '') {
+$errors[$fieldName] = "This field is required";
+return '';
+}
+
+// Validate against pattern if provided
+if ($pattern !== null && !preg_match($pattern, $value)) {
+$errors[$fieldName] = $errorMessage;
+return '';
+}
+
+// Return sanitized value
+return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
 // Calculate subtotal and total for display
 $subtotal = 0;
 if (isset($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $id => $item) {
-        if (isset($item['price']) && isset($item['quantity'])) {
-            $subtotal += $item['price'] * $item['quantity'];
-        }
-    }
+foreach ($_SESSION['cart'] as $id => $item) {
+if (isset($item['price']) && isset($item['quantity'])) {
+$subtotal += $item['price'] * $item['quantity'];
+}
+}
 }
 $total = $subtotal; // Assuming no tax or shipping for now
 ?>

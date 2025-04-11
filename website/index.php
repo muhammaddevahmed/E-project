@@ -94,32 +94,56 @@ include("components/header.php");
   </div>
 </section>
 <!-- Hero Section End -->
-<!-- Categories Section Begin -->
 <section class="categories">
   <div class="container">
     <div class="row">
       <div class="section-title">
         <h2>Categories</h2>
       </div>
+
+      <?php if (!empty($categories)): ?>
       <div class="categories__slider owl-carousel">
         <?php foreach ($categories as $category): ?>
-        <?php 
-                    // Default image if missing
-                    $image_path = !empty($category['image_path']) ? htmlspecialchars($category['image_path']) : 'default.jpg';
-                ?>
+        <?php
+            // 1. Define the correct base paths
+            $web_root = 'http://localhost/EProject/'; // Adjust if your local URL is different
+            $actual_storage = 'edashboard/html/images/categories/';
+            $default_image = $web_root . 'edashboard/html/images/default-category.jpg';
+            
+            // 2. Extract filename from database path
+            $filename = basename($category['image_path']);
+            
+            // 3. Create the correct paths
+            $relative_path = $actual_storage . $filename;
+            $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+            $image_url = $web_root . $relative_path;
+            
+            // 4. Verify the file exists
+            if (!file_exists($absolute_path)) {
+                $image_url = $default_image;
+            }
+            ?>
+
         <div class="col-lg-3">
-          <div class="categories__item set-bg" data-setbg="<?php echo $image_path; ?>"
-            style="background-image: url('<?php echo $image_path; ?>');">
-            <br>
-            <h5><a href="shop-grid.php"><?php echo htmlspecialchars($category['category_name']); ?></a></h5>
+          <div class="categories__item set-bg" data-setbg="<?php echo $image_url; ?>"
+            style="background-image: url('<?php echo $image_url; ?>')">
+            <h5>
+              <a href="shop-grid.php?category=<?php echo htmlspecialchars($category['category_id']); ?>">
+                <?php echo htmlspecialchars($category['category_name']); ?>
+              </a>
+            </h5>
           </div>
         </div>
         <?php endforeach; ?>
       </div>
+      <?php else: ?>
+      <div class="col-12">
+        <div class="alert alert-warning">No categories found.</div>
+      </div>
+      <?php endif; ?>
     </div>
   </div>
 </section>
-<!-- Categories Section End -->
 
 <!-- Featured Section Begin -->
 <section class="featured spad">
@@ -133,11 +157,10 @@ include("components/header.php");
           <ul>
             <li class="active" data-filter="*">All</li>
             <?php
-                        // Fetch categories from the database
-                        $stmt = $pdo->query("SELECT DISTINCT category_name FROM categories");
-                        while ($category = $stmt->fetch(PDO::FETCH_ASSOC)):
-                            $category_class = strtolower(str_replace(' ', '-', $category['category_name']));
-                        ?>
+            $stmt = $pdo->query("SELECT DISTINCT category_name FROM categories");
+            while ($category = $stmt->fetch(PDO::FETCH_ASSOC)):
+              $category_class = strtolower(str_replace(' ', '-', $category['category_name']));
+            ?>
             <li data-filter=".<?php echo $category_class; ?>">
               <?php echo htmlspecialchars($category['category_name']); ?>
             </li>
@@ -149,18 +172,30 @@ include("components/header.php");
 
     <div class="row featured__filter">
       <?php
-            // Fetch products with category names
-            $stmt = $pdo->query("SELECT products.*, categories.category_name 
-                                 FROM products 
-                                 JOIN categories ON products.category_id = categories.category_id");
-            while ($product = $stmt->fetch(PDO::FETCH_ASSOC)):
-                $category_class = strtolower(str_replace(' ', '-', $product['category_name']));
-                $image_path = !empty($product['image_path']) ? htmlspecialchars($product['image_path']) : 'default.jpg';
-            ?>
+      $stmt = $pdo->query("SELECT products.*, categories.category_name 
+                          FROM products 
+                          JOIN categories ON products.category_id = categories.category_id");
+      while ($product = $stmt->fetch(PDO::FETCH_ASSOC)):
+        $category_class = strtolower(str_replace(' ', '-', $product['category_name']));
+        
+        // Implement the same image path logic
+        $web_root = 'http://localhost/EProject/'; // Adjust to your local URL
+        $actual_storage = 'edashboard/html/images/products/';
+        $default_image = $web_root . 'edashboard/html/images/default-product.jpg';
+        
+        $filename = basename($product['image_path']);
+        $relative_path = $actual_storage . $filename;
+        $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+        $image_url = $web_root . $relative_path;
+        
+        if (empty($product['image_path']) || !file_exists($absolute_path)) {
+          $image_url = $default_image;
+        }
+      ?>
       <div class="col-lg-4 col-md-6 col-sm-12 mix <?php echo $category_class; ?>" style="padding: 15px;">
         <div class="featured__item">
-          <div class="featured__item__pic set-bg" data-setbg="<?php echo $image_path; ?>"
-            style="background-image: url('<?php echo $image_path; ?>');">
+          <div class="featured__item__pic set-bg" data-setbg="<?php echo $image_url; ?>"
+            style="background-image: url('<?php echo $image_url; ?>');">
           </div>
           <div class="featured__item__text">
             <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">
@@ -201,29 +236,42 @@ include("components/header.php");
   <div class="container">
     <div class="row">
 
-      <!-- Latest Product Section Begin -->
-
+      <!-- Latest Products -->
       <div class="col-lg-4 col-md-6">
         <div class="latest-product__text">
           <h4>Latest Products</h4>
           <div class="latest-product__slider owl-carousel">
             <?php
-                        // Fetch the last 6 products from database
-                        $query = "SELECT * FROM products ORDER BY created_at DESC LIMIT 6";
-                        $stmt = $pdo->query($query);
-                        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                        
-                        // Split products into two groups for the carousel
-                        $productChunks = array_chunk($products, 3);
-                        ?>
+            // Fetch the last 6 products from database
+            $query = "SELECT * FROM products ORDER BY created_at DESC LIMIT 6";
+            $stmt = $pdo->query($query);
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Image path configuration
+            $web_root = 'http://localhost/EProject/'; // Adjust to your local URL
+            $actual_storage = 'edashboard/html/images/products/';
+            $default_image = $web_root . 'edashboard/html/images/default-product.jpg';
+            
+            // Split products into two groups for the carousel
+            $productChunks = array_chunk($products, 3);
+            ?>
 
             <?php foreach ($productChunks as $chunk): ?>
             <div class="latest-prdouct__slider__item">
-              <?php foreach ($chunk as $product): ?>
+              <?php foreach ($chunk as $product): 
+                // Implement image path logic
+                $filename = basename($product['image_path']);
+                $relative_path = $actual_storage . $filename;
+                $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+                $image_url = $web_root . $relative_path;
+                
+                if (empty($product['image_path']) || !file_exists($absolute_path)) {
+                  $image_url = $default_image;
+                }
+              ?>
               <a href="product-details.php?id=<?php echo $product['product_id']; ?>" class="latest-product__item">
                 <div class="latest-product__item__pic">
-                  <img src="<?php echo htmlspecialchars($product['image_path']); ?>"
-                    alt="<?php echo htmlspecialchars($product['product_name']); ?>">
+                  <img src="<?php echo $image_url; ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>">
                 </div>
                 <div class="latest-product__item__text">
                   <h6><?php echo htmlspecialchars($product['product_name']); ?></h6>
@@ -237,9 +285,7 @@ include("components/header.php");
         </div>
       </div>
 
-
-      <!-- Latest Product Section End -->
-
+      <!-- Top Rated Products -->
       <div class="col-lg-4 col-md-6">
         <div class="latest-product__text">
           <h4>Top Rated Products</h4>
@@ -266,9 +312,19 @@ include("components/header.php");
                 foreach ($productChunks as $chunk) {
                     echo '<div class="latest-prdouct__slider__item">';
                     foreach ($chunk as $product) {
+                        // Implement image path logic
+                        $filename = basename($product['image_path']);
+                        $relative_path = $actual_storage . $filename;
+                        $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+                        $image_url = $web_root . $relative_path;
+                        
+                        if (empty($product['image_path']) || !file_exists($absolute_path)) {
+                          $image_url = $default_image;
+                        }
+                        
                         echo '<a href="product-details.php?id=' . $product['product_id'] . '" class="latest-product__item">';
                         echo '    <div class="latest-product__item__pic">';
-                        echo '        <img src="' . htmlspecialchars($product['image_path']) . '" alt="' . htmlspecialchars($product['product_name']) . '">';
+                        echo '        <img src="' . $image_url . '" alt="' . htmlspecialchars($product['product_name']) . '">';
                         echo '    </div>';
                         echo '    <div class="latest-product__item__text">';
                         echo '        <h6>' . htmlspecialchars($product['product_name']) . '</h6>';
@@ -288,10 +344,11 @@ include("components/header.php");
         </div>
       </div>
 
+      <!-- Recent Review Products -->
       <div class="col-lg-4 col-md-6">
         <div class="latest-product__text">
           <h4>Recent Review Products</h4>
-          <div class=" latest-product__slider owl-carousel">
+          <div class="latest-product__slider owl-carousel">
             <?php
             // Query to get the last 6 products that have been reviewed
             $query = "SELECT p.*, r.rating, r.review_text, r.created_at as review_date
@@ -321,9 +378,19 @@ include("components/header.php");
                 foreach ($productChunks as $chunk) {
                     echo '<div class="latest-prdouct__slider__item">';
                     foreach ($chunk as $product) {
+                        // Implement image path logic
+                        $filename = basename($product['image_path']);
+                        $relative_path = $actual_storage . $filename;
+                        $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+                        $image_url = $web_root . $relative_path;
+                        
+                        if (empty($product['image_path']) || !file_exists($absolute_path)) {
+                          $image_url = $default_image;
+                        }
+                        
                         echo '<a href="product-details.php?id=' . $product['product_id'] . '" class="latest-product__item">';
                         echo '    <div class="latest-product__item__pic">';
-                        echo '        <img src="' . htmlspecialchars($product['image_path']) . '" alt="' . htmlspecialchars($product['product_name']) . '">';
+                        echo '        <img src="' . $image_url . '" alt="' . htmlspecialchars($product['product_name']) . '">';
                         echo '    </div>';
                         echo '    <div class="latest-product__item__text">';
                         echo '        <h6>' . htmlspecialchars($product['product_name']) . '</h6>';
@@ -346,7 +413,6 @@ include("components/header.php");
   </div>
 </section>
 <!-- Latest Product Section End -->
-
 
 <?php
 

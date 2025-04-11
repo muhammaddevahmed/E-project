@@ -48,6 +48,11 @@
 // Include database connection
 include("components/header.php");
 
+// Image path configuration
+$web_root = 'http://localhost/EProject/'; // Adjust to your local URL
+$actual_storage = 'edashboard/html/images/products/';
+$default_image = $web_root . 'edashboard/html/images/default-product.jpg';
+
 // Check if product ID is provided in the URL
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $product_id = $_GET['id'];
@@ -60,11 +65,20 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($product) {
+        // Process product image path
+        $filename = basename($product['image_path']);
+        $relative_path = $actual_storage . $filename;
+        $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+        $image_url = $web_root . $relative_path;
+        
+        if (empty($product['image_path']) || !file_exists($absolute_path)) {
+            $image_url = $default_image;
+        }
+        
         // Product found, assign details to variables
         $product_name = htmlspecialchars($product['product_name']);
         $description = htmlspecialchars($product['description']);
         $price = number_format($product['price'], 2);
-        $image_path = htmlspecialchars($product['image_path']);
         $stock_quantity = $product['stock_quantity'];
         $warranty_period = $product['warranty_period'];
     } else {
@@ -128,10 +142,13 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
     <div class="row">
       <div class="col-lg-6 col-md-6">
         <div class="product__details__pic">
-          <div class="product__details__pic__item">
-            <!-- Dynamically display the product image -->
-            <img class="product__details__pic__item--large" src="<?php echo $image_path; ?>"
-              alt="<?php echo $product_name; ?>">
+          <div class="col-lg-6 col-md-6">
+            <div class="product__details__pic">
+              <div class="product__details__pic__item">
+                <img class="product__details__pic__item--large" src="<?php echo $image_url; ?>"
+                  alt="<?php echo $product_name; ?>">
+              </div>
+            </div>
           </div>
           <!-- Add more images if needed -->
         </div>
@@ -169,7 +186,7 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
               <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
               <input type="hidden" name="product_name" value="<?php echo $product_name; ?>">
               <input type="hidden" name="price" value="<?php echo $price; ?>">
-              <input type="hidden" name="image_path" value="<?php echo $image_path; ?>">
+              <input type="hidden" name="image_path" value="<?php echo $image_url; ?>">
 
               <button type="submit" class="primary-btn">ADD TO CART</button>
               <button type="button" class="qty-btn1 dec">-</button>
