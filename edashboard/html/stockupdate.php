@@ -4,11 +4,15 @@ body {
   margin: 20px;
 }
 
-h1 {
-  color: #2c3e50;
-  margin-bottom: 30px;
+
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
   text-align: center;
 }
+
 
 
 h2 {
@@ -177,84 +181,82 @@ try {
 }
 ?>
 
-<style>
-/* Add your existing styles here */
-</style>
 
-<body>
-  <h1>Stock Management</h1>
 
-  <?php if (!empty($message)): ?>
-  <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
-  <?php elseif (!empty($error)): ?>
-  <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
-  <?php endif; ?>
 
-  <?php if ($user_type === 'employee'): ?>
-  <div class="alert alert-warning">
-    You do not have permission to update stock. All actions are disabled.
-  </div>
-  <?php endif; ?>
+<h1 class="heading">Stock Management</h1>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Product ID</th>
-        <th>Product Name</th>
-        <th>Current Price</th>
-        <th>Quantity</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($products as $product): ?>
-      <tr>
-        <td><?php echo htmlspecialchars($product['product_id']); ?></td>
-        <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-        <td>$<?php echo number_format($product['price'], 2); ?></td>
-        <td><?php echo htmlspecialchars($product['stock_quantity']); ?></td>
-        <td class="status-<?php echo strtolower(str_replace(' ', '-', $product['stock_status'])); ?>">
-          <?php echo htmlspecialchars($product['stock_status']); ?>
-        </td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
+<?php if (!empty($message)): ?>
+<div class=" alert alert-success"><?php echo htmlspecialchars($message); ?></div>
+<?php elseif (!empty($error)): ?>
+<div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
+<?php endif; ?>
 
-  <div class="stock-form">
-    <h2>Update Stock</h2>
-    <form method="POST">
-      <div class="form-group">
-        <label for="product_id">Select Product:</label>
-        <select name="product_id" id="product_id" required <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
-          <option value="">-- Select Product --</option>
-          <?php foreach ($products as $product): ?>
-          <option value="<?php echo htmlspecialchars($product['product_id']); ?>">
-            <?php echo htmlspecialchars($product['product_name']); ?>
-            (Current: <?php echo htmlspecialchars($product['stock_quantity']); ?>)
-          </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
+<?php if ($user_type === 'employee'): ?>
+<div class="alert alert-warning">
+  You do not have permission to update stock. All actions are disabled.
+</div>
+<?php endif; ?>
 
-      <div class="form-group">
-        <label for="change_in_quantity">Quantity Change:</label>
-        <input type="number" name="change_in_quantity" id="change_in_quantity" required
-          <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
-        <small>Positive number to add stock, negative to remove</small>
-      </div>
+<table>
+  <thead>
+    <tr>
+      <th>Product ID</th>
+      <th>Product Name</th>
+      <th>Current Price</th>
+      <th>Quantity</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php foreach ($products as $product): ?>
+    <tr>
+      <td><?php echo htmlspecialchars($product['product_id']); ?></td>
+      <td><?php echo htmlspecialchars($product['product_name']); ?></td>
+      <td>Rs <?php echo number_format($product['price'], 2); ?></td>
+      <td><?php echo htmlspecialchars($product['stock_quantity']); ?></td>
+      <td class="status-<?php echo strtolower(str_replace(' ', '-', $product['stock_status'])); ?>">
+        <?php echo htmlspecialchars($product['stock_status']); ?>
+      </td>
+    </tr>
+    <?php endforeach; ?>
+  </tbody>
+</table>
 
-      <div class="form-group">
-        <label for="update_reason">Reason for Update:</label>
-        <textarea name="update_reason" id="update_reason" rows="3" required
-          <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>></textarea>
-      </div>
+<div class="stock-form">
+  <h2>Update Stock</h2>
+  <form method="POST">
+    <div class="form-group">
+      <label for="product_id">Select Product:</label>
+      <select name="product_id" id="product_id" required <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
+        <option value="">-- Select Product --</option>
+        <?php foreach ($products as $product): ?>
+        <option value="<?php echo htmlspecialchars($product['product_id']); ?>">
+          <?php echo htmlspecialchars($product['product_name']); ?>
+          (Current: <?php echo htmlspecialchars($product['stock_quantity']); ?>)
+        </option>
+        <?php endforeach; ?>
+      </select>
+    </div>
 
-      <button type="submit" name="update_stock" <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Update
-        Stock</button>
-    </form>
-  </div>
+    <div class="form-group">
+      <label for="change_in_quantity">Quantity Change:</label>
+      <input type="number" name="change_in_quantity" id="change_in_quantity" required
+        <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
+      <small>Positive number to add stock, negative to remove</small>
+    </div>
 
-  <?php
+    <div class="form-group">
+      <label for="update_reason">Reason for Update:</label>
+      <textarea name="update_reason" id="update_reason" rows="3" required
+        <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>></textarea>
+    </div>
+
+    <button type="submit" name="update_stock" <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Update
+      Stock</button>
+  </form>
+</div>
+
+<?php
 include("components/footer.php");
   ?>

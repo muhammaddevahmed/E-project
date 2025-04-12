@@ -16,6 +16,15 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
     echo "<script>alert('Payment status updated successfully!');</script>";
 }
 ?>
+<style>
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+</style>
 
 <!-- Invoice Management Start -->
 <div class="container-fluid pt-4 px-4">
@@ -27,8 +36,8 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
 
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
-      <h3>Payment Invoices</h3>
-      <div class="table-responsive">
+      <h3 class="heading">Payment Invoices</h3>
+      <div class=" table-responsive">
         <table class="table table-striped">
           <thead class="table-dark">
             <tr>
@@ -68,7 +77,7 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
                 <small><?php echo htmlspecialchars($payment['email']) ?></small>
               </td>
               <td><?php echo htmlspecialchars($payment['payment_method']) ?></td>
-              <td>$<?php echo number_format($payment['amount'], 2) ?></td>
+              <td>Rs <?php echo number_format($payment['amount'], 2) ?></td>
               <td>
                 <span class="badge <?php echo $status_class ?>">
                   <?php echo ucfirst($payment['payment_status']) ?>

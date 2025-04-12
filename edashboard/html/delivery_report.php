@@ -19,6 +19,13 @@ $orders = $stmt->fetchAll();
   border-collapse: collapse;
   margin-top: 20px;
   }
+  .heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
+  text-align: center;
+  }
 
   th,
   td {
@@ -131,7 +138,7 @@ $orders = $stmt->fetchAll();
   }
   </style>
 
-  <h1>Delivery Report</h1>
+  <h1 class="heading">Delivery Report</h1>
 
   <?php if (isset($_GET['success'])): ?>
   <div class="success-message">Delivery information updated successfully!</div>
@@ -218,6 +225,10 @@ $orders = $stmt->fetchAll();
       </form>
     </div>
   </div>
+
+  <?php
+include("components/footer.php");
+?>
   <script>
   function openModal(orderId) {
     console.log('Opening modal for order:', orderId);

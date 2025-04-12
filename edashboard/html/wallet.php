@@ -76,13 +76,23 @@ try {
   }
 
   .balance-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #7fad39;
+    /* Updated background color */
     color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
   .income-card {
-    background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+    background: #7fad39;
+    /* Updated background color */
     color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
   .payment-method {
@@ -120,12 +130,20 @@ try {
   .status-failed {
     color: #dc3545;
   }
+
+  .heading {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #7fad39;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
   </style>
 </head>
 
 <body>
   <div class="container-fluid py-4">
-    <h2 class="mb-4">Wallet Dashboard</h2>
+    <h2 class="heading">Wallet Dashboard</h2>
 
     <?php if(isset($error_msg)): ?>
     <div class="alert alert-danger"><?= htmlspecialchars($error_msg) ?></div>
@@ -136,13 +154,13 @@ try {
       <div class="col-md-6">
         <div class="dashboard-card balance-card">
           <h5>Total Balance</h5>
-          <h2>$<?= number_format($total_balance, 2) ?></h2>
+          <h2>Rs <?= number_format($total_balance, 2) ?></h2>
         </div>
       </div>
       <div class="col-md-6">
         <div class="dashboard-card income-card">
           <h5>Today's Income</h5>
-          <h2>$<?= number_format($today_income, 2) ?></h2>
+          <h2>Rs <?= number_format($today_income, 2) ?></h2>
         </div>
       </div>
     </div>
@@ -155,7 +173,7 @@ try {
           <?php foreach ($payment_methods as $method): ?>
           <div class="payment-method">
             <span><?= htmlspecialchars($method['payment_method']) ?></span>
-            <span>$<?= number_format($method['total'], 2) ?></span>
+            <span>Rs <?= number_format($method['total'], 2) ?></span>
           </div>
           <div class="progress">
             <div class="progress-bar" style="width: <?= ($method['total'] / $total_balance) * 100 ?>%"></div>
@@ -194,7 +212,7 @@ try {
               <td>#<?= htmlspecialchars($payment['payment_id']) ?></td>
               <td><?= htmlspecialchars($payment['first_name'] . ' ' . $payment['last_name']) ?></td>
               <td><?= htmlspecialchars($payment['payment_method']) ?></td>
-              <td>$<?= number_format($payment['amount'], 2) ?></td>
+              <td>Rs <?= number_format($payment['amount'], 2) ?></td>
               <td class="status-<?= htmlspecialchars($payment['payment_status']) ?>">
                 <?= ucfirst(htmlspecialchars($payment['payment_status'])) ?>
               </td>

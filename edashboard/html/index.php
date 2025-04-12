@@ -36,7 +36,7 @@
                       You've completed <span class="fw-bold">72%</span> of today's sales target.
                       Check your new art supplies in stock.
                     </p>
-                    <a href="javascript:;" class="btn btn-sm btn-outline-primary">View Inventory</a>
+                    <a href="allproducts.php" class="btn btn-sm btn-outline-primary">View Inventory</a>
                   </div>
                 </div>
                 <div class="col-sm-5 text-center text-sm-left">
@@ -99,7 +99,7 @@
                   </div>
                 </div>
                 <span class="fw-semibold d-block mb-1">Total Revenue</span>
-                <h3 class="card-title mb-2">$8,457</h3>
+                <h3 class="card-title mb-2">Rs 8,457</h3>
                 <small class="text-success fw-semibold">
                   <i class="bx bx-up-arrow-alt"></i> +22.63%
                 </small>
@@ -123,7 +123,7 @@
                       <div class="card-body">
                         <h5 class="card-title">Watercolor Set</h5>
                         <p class="card-text">24-color professional watercolor palette</p>
-                        <span class="fw-bold">$24.99</span>
+                        <span class="fw-bold">Rs 500</span>
                       </div>
                     </div>
                   </div>
@@ -135,7 +135,7 @@
                       <div class="card-body">
                         <h5 class="card-title">Premium Sketchbook</h5>
                         <p class="card-text">120gsm acid-free paper, 50 sheets</p>
-                        <span class="fw-bold">$18.50</span>
+                        <span class="fw-bold">Rs 200</span>
                       </div>
                     </div>
                   </div>
@@ -147,7 +147,7 @@
                       <div class="card-body">
                         <h5 class="card-title">Calligraphy Pen Set</h5>
                         <p class="card-text">5 nibs with ink and practice guide</p>
-                        <span class="fw-bold">$32.99</span>
+                        <span class="fw-bold">Rs 100</span>
                       </div>
                     </div>
                   </div>

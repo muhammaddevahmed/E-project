@@ -44,6 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
 }
 ?>
 
+<style>
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+</style>
+
 <!-- Employee Data Entry Form -->
 <div class="container-fluid pt-4 px-4">
   <?php if (isset($success)): ?>
@@ -68,13 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
 
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
-      <h3>Add New Employee</h3>
+      <h3 class="heading">Add New Employee</h3>
       <form method="POST" class="needs-validation" novalidate>
         <div class="row g-3">
           <!-- Personal Information -->
           <div class="col-md-6">
             <div class="card mb-4">
-              <div class="card-header bg-primary text-white">
+              <div class="card-header" style="background-color: #7fad39; color: white;">
                 <h5>Personal Information</h5>
               </div>
               <div class="card-body">
@@ -110,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
           <!-- Account Information -->
           <div class="col-md-6">
             <div class="card mb-4">
-              <div class="card-header bg-primary text-white">
+              <div class="card-header" style="background-color: #7fad39; color: white;">
                 <h5>Account Information</h5>
               </div>
               <div class="card-body">
@@ -154,10 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
         </div>
 
         <div class="text-end">
-          <button type="submit" class="btn btn-primary" <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Add
-            Employee</button>
-          <button type="reset" class="btn btn-secondary"
-            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Reset</button>
+          <button type="submit" class="btn" style="background-color: #7fad39; color: white;"
+            <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Add Employee</button>
         </div>
       </form>
     </div>

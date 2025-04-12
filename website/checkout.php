@@ -372,7 +372,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                 <?php if (isset($item['product_name']) && isset($item['price']) && isset($item['quantity'])): ?>
                 <li>
                   <?php echo $item['product_name']; ?> (Qty: <?php echo $item['quantity']; ?>)
-                  <span>$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
+                  <span>Rs <?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
                 </li>
                 <?php endif; ?>
                 <?php endforeach; ?>
@@ -380,9 +380,9 @@ $total = $subtotal; // Assuming no tax or shipping for now
                 <li>Your cart is empty.</li>
                 <?php endif; ?>
               </ul>
-              <div class="checkout__order__subtotal">Subtotal <span>$<?php echo number_format($subtotal, 2); ?></span>
+              <div class="checkout__order__subtotal">Subtotal <span>Rs <?php echo number_format($subtotal, 2); ?></span>
               </div>
-              <div class="checkout__order__total">Total <span>$<?php echo number_format($total, 2); ?></span></div>
+              <div class="checkout__order__total">Total <span>Rs <?php echo number_format($total, 2); ?></span></div>
 
               <!-- Payment Methods -->
               <div class="checkout__payment__methods">

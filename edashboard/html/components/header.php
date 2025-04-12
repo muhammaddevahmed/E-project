@@ -61,8 +61,7 @@ if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee')
   <!-- Helpers -->
   <script src="../assets/vendor/js/helpers.js"></script>
 
-  <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-  <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+
   <script src="../assets/js/config.js"></script>
 </head>
 
@@ -267,6 +266,7 @@ if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee')
       <div class="layout-page">
 
         <!-- Layout container -->
+
         <!-- Navbar -->
         <nav
           class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
@@ -278,29 +278,16 @@ if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee')
           </div>
 
           <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-            <!-- Search -->
-            <div class="navbar-nav align-items-center">
-              <div class="nav-item d-flex align-items-center">
-                <i class="bx bx-search fs-4 lh-0"></i>
-                <input type="text" class="form-control border-0 shadow-none" placeholder="Search..."
-                  aria-label="Search...">
-              </div>
-            </div>
-            <!-- /Search -->
-
             <ul class="navbar-nav flex-row align-items-center ms-auto">
               <!-- User -->
               <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                   <div class="avatar avatar-online">
-                    <span class="avatar-initial rounded-circle bg-label-primary">
-                      <?php 
-                // Display first letter of username
-                if (isset($_SESSION['username'])) {
-                  echo strtoupper(substr($_SESSION['username'], 0, 1));
-                }
-              ?>
-                    </span>
+                    <div
+                      class="avatar-initial rounded-circle bg-label-primary d-flex align-items-center justify-content-center"
+                      style="width: 40px; height: 40px; background: linear-gradient(135deg, #7fad39, #5a8a1a);">
+                      <i class="bx bx-user text-white" style="font-size: 1.2rem;"></i>
+                    </div>
                   </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">

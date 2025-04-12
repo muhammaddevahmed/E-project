@@ -38,6 +38,16 @@ $products = $pdo->query("
 ")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
+<style>
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+</style>
+
 <div class="container-fluid pt-4 px-4">
   <?php if (isset($success)): ?>
   <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -62,7 +72,7 @@ $products = $pdo->query("
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>All Products</h3>
+        <h3 class="heading">All Products</h3>
         <?php if ($user_type !== 'employee'): ?>
         <a href="addproduct.php" class="btn btn-primary">Add New Product</a>
         <?php endif; ?>
@@ -95,7 +105,7 @@ $products = $pdo->query("
               <?php endif; ?>
             </td>
             <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-            <td>$<?php echo number_format($product['price'], 2); ?></td>
+            <td>Rs <?php echo number_format($product['price'], 2); ?></td>
             <td><?php echo htmlspecialchars($product['stock_quantity']); ?></td>
             <td><?php echo htmlspecialchars($product['category_name'] ?? 'N/A'); ?></td>
             <td><?php echo htmlspecialchars($product['warranty_period']); ?> months</td>

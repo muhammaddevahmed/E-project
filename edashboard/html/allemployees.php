@@ -21,8 +21,12 @@ body {
   margin: 20px;
 }
 
-h1 {
-  color: #333;
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 table {
@@ -76,10 +80,10 @@ tr:hover {
 }
 </style>
 
-<h1>Employee List</h1>
+<h1 class="heading">Employee List</h1>
 
 <!-- Invoice Management Start -->
-<div class="container-fluid pt-4 px-4">
+<div class=" container-fluid pt-4 px-4">
   <?php if ($user_type === 'employee'): ?>
   <div class="alert alert-warning" role="alert">
     You do not have permission to edit or decline data. All actions are disabled.

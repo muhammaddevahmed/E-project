@@ -70,11 +70,20 @@ try {
     $error = "Error fetching categories: " . $e->getMessage();
 }
 ?>
+<style>
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+</style>
 
 <div class="container-fluid pt-4 px-4">
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
-      <h3>Add a New Category</h3>
+      <h3 class="heading">Add a New Category</h3>
 
       <?php if ($user_type === 'employee'): ?>
       <div class="alert alert-warning" role="alert">

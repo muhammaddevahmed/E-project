@@ -1,79 +1,68 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
-
-body {
-    background: linear-gradient(to right, #ff6e7f, #bfe9ff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.form-container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    width: 350px;
-}
-
-h2 {
-    color: #333;
-    margin-bottom: 20px;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-input, textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-button {
-    background: #ff6e7f;
-    color: white;
-    padding: 12px;
+:root {
+    --primary: #7fad39;
+    --primary-dark: #6a9a2b;
+    --primary-light: #a8c97b;
+    --primary-extra-light: #e8f5e9;
+    --text-on-primary: #ffffff;
+  }
+  
+  /* Background Gradient */
+  body {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-extra-light));
+    min-height: 100vh;
+  }
+  
+  /* Navbar Gradient */
+  .navbar {
+    background: linear-gradient(to right, var(--primary), var(--primary-dark));
+  }
+  
+  /* Button Gradient */
+  .btn-primary {
+    background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-button:hover {
-    background: #ff3b50;
-}
-
-p {
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-a {
-    color: #ff6e7f;
+    color: var(--text-on-primary);
+    transition: all 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(to bottom, var(--primary-dark), var(--primary));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  /* Card Header Gradient */
+  .card-header {
+    background: linear-gradient(to right, var(--primary), var(--primary-dark));
+    color: var(--text-on-primary);
+  }
+  
+  /* Link Styling */
+  a {
+    color: var(--primary);
     text-decoration: none;
-    font-weight: bold;
-}
-
-a:hover {
-    text-decoration: underline;
-
- 
-
-}
-
-
-
-
+    background-image: linear-gradient(var(--primary), var(--primary));
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    transition: all 0.3s ease;
+    padding-bottom: 2px;
+  }
+  
+  a:hover {
+    color: var(--primary-dark);
+    background-size: 100% 2px;
+  }
+  
+  /* Form Focus */
+  .form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(127, 173, 57, 0.25);
+  }
+  
+  /* Alert Styling */
+  .alert-primary {
+    background: linear-gradient(to right, var(--primary-extra-light), white);
+    border-left: 4px solid var(--primary);
+    color: #333;
+  }

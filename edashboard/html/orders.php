@@ -4,9 +4,11 @@ body {
   margin: 20px;
 }
 
-h1 {
-  color: #2c3e50;
-  margin-bottom: 30px;
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
   text-align: center;
 }
 
@@ -166,65 +168,68 @@ try {
 
 
 
-<body>
-  <h1>Order Management</h1>
 
-  <?php if (isset($_SESSION['message'])): ?>
-  <div class="alert alert-success"><?php echo htmlspecialchars($_SESSION['message']); 
+<h1 class="heading">Order Management</h1>
+
+<?php if (isset($_SESSION['message'])): ?>
+<div class=" alert alert-success"><?php echo htmlspecialchars($_SESSION['message']); 
         unset($_SESSION['message']); ?></div>
-  <?php elseif (isset($_SESSION['error'])): ?>
-  <div class="alert alert-error"><?php echo htmlspecialchars($_SESSION['error']); 
+<?php elseif (isset($_SESSION['error'])): ?>
+<div class="alert alert-error"><?php echo htmlspecialchars($_SESSION['error']); 
         unset($_SESSION['error']); ?></div>
-  <?php endif; ?>
+<?php endif; ?>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>Customer</th>
-        <th>Product</th>
-        <th>Price</th>
-        <th>Qty</th>
-        <th>Total</th>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($orders as $order): ?>
-      <tr>
-        <td><?php echo htmlspecialchars(substr($order['order_id'], -6)); ?></td>
-        <td>
-          <?php echo htmlspecialchars($order['u_name']); ?><br>
-          <?php echo htmlspecialchars($order['u_email']); ?>
-        </td>
-        <td><?php echo htmlspecialchars($order['p_name']); ?></td>
-        <td>$<?php echo number_format($order['p_price'], 2); ?></td>
-        <td><?php echo htmlspecialchars($order['p_qty']); ?></td>
-        <td>$<?php echo number_format($order['p_price'] * $order['p_qty'], 2); ?></td>
-        <td><?php echo date('M j, Y H:i', strtotime($order['date_time'])); ?></td>
-        <td class="status-<?php echo htmlspecialchars($order['status']); ?>">
-          <?php echo ucfirst(htmlspecialchars($order['status'])); ?>
-        </td>
-        <td class="action-buttons">
-          <form method="POST" style="display: inline;">
-            <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order['order_id']); ?>">
-            <button type="submit" name="action" value="accept" class="btn btn-accept"
-              <?php echo ($order['status'] !== 'pending') ? 'disabled' : ''; ?>>
-              Accept
-            </button>
-          </form>
-          <form method="POST" style="display: inline;">
-            <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order['order_id']); ?>">
-            <button type="submit" name="action" value="decline" class="btn btn-decline"
-              <?php echo ($order['status'] !== 'pending') ? 'disabled' : ''; ?>>
-              Decline
-            </button>
-          </form>
-        </td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-</body>
+<table>
+  <thead>
+    <tr>
+      <th>Order ID</th>
+      <th>Customer</th>
+      <th>Product</th>
+      <th>Price</th>
+      <th>Qty</th>
+      <th>Total</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php foreach ($orders as $order): ?>
+    <tr>
+      <td><?php echo htmlspecialchars(substr($order['order_id'], -6)); ?></td>
+      <td>
+        <?php echo htmlspecialchars($order['u_name']); ?><br>
+        <?php echo htmlspecialchars($order['u_email']); ?>
+      </td>
+      <td><?php echo htmlspecialchars($order['p_name']); ?></td>
+      <td>Rs <?php echo number_format($order['p_price'], 2); ?></td>
+      <td><?php echo htmlspecialchars($order['p_qty']); ?></td>
+      <td>Rs <?php echo number_format($order['p_price'] * $order['p_qty'], 2); ?></td>
+      <td><?php echo date('M j, Y H:i', strtotime($order['date_time'])); ?></td>
+      <td class="status-<?php echo htmlspecialchars($order['status']); ?>">
+        <?php echo ucfirst(htmlspecialchars($order['status'])); ?>
+      </td>
+      <td class="action-buttons">
+        <form method="POST" style="display: inline;">
+          <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order['order_id']); ?>">
+          <button type="submit" name="action" value="accept" class="btn btn-accept"
+            <?php echo ($order['status'] !== 'pending') ? 'disabled' : ''; ?>>
+            Accept
+          </button>
+        </form>
+        <form method="POST" style="display: inline;">
+          <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order['order_id']); ?>">
+          <button type="submit" name="action" value="decline" class="btn btn-decline"
+            <?php echo ($order['status'] !== 'pending') ? 'disabled' : ''; ?>>
+            Decline
+          </button>
+        </form>
+      </td>
+    </tr>
+    <?php endforeach; ?>
+  </tbody>
+</table>
+
+<?php
+include("components/footer.php");
+?>

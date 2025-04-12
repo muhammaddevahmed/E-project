@@ -56,7 +56,7 @@ try {
   .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--secondary-color);
+    color: #7fad39;
     margin-bottom: 1rem;
   }
 

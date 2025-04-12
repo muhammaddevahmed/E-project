@@ -51,62 +51,142 @@ include("components/header.php");
   border: 4px solid #ccc;
   border-radius: 10px;
 }
+
+/* Animation for promo bar */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.01);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Hover effects for categories */
+.hero__categories ul li {
+  transition: all 0.3s;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.hero__categories ul li:last-child {
+  border-bottom: none;
+}
+
+.hero__categories ul li:hover {
+  background: #f8f9fa;
+  padding-left: 10px;
+}
+
+.hero__categories ul li:hover a {
+  color: #7fad39 !important;
+}
+
+/* Button hover effect */
+.btn:hover {
+  background: #6a9a2b !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
 </style>
+
 <!-- Hero Section Begin -->
 <section class="hero mt-4">
   <div class="container">
     <div class="row">
+      <!-- Categories Sidebar - More Vibrant -->
       <div class="col-lg-3">
-        <div class="hero__categories">
-          <div class="hero__categories__all">
+        <div class="hero__categories"
+          style="background: #ffffff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+          <div class="hero__categories__all" style="background: #7fad39; border-radius: 10px 10px 0 0;">
             <i class="fa fa-bars"></i>
             <span>All Categories</span>
+
           </div>
-          <ul>
+          <ul style="border-radius: 0 0 10px 10px;">
             <?php foreach ($categories as $category): ?>
-            <li><a href="shop-grid.php"><?php echo htmlspecialchars($category['category_name']); ?></a></li>
+            <li class="position-relative">
+              <a href="shop-grid.php" class="d-flex justify-content-between align-items-center">
+                <?php echo htmlspecialchars($category['category_name']); ?>
+                <i class="fa fa-chevron-right"></i>
+              </a>
+            </li>
             <?php endforeach; ?>
           </ul>
         </div>
+
+
+
       </div>
+
+      <!-- Main Hero Content - More Dynamic -->
       <div class="col-lg-9">
-        <div class="hero__search">
-          <div class="hero__search__form">
-            <form action="#" method="GET" id="searchForm">
-              <div class="hero__search__categories">
-                All Categories
-                <span class="arrow_carrot-down"></span>
+        <!-- Promo Bar with Animation -->
+        <div class="hero__promo mb-3"
+          style="background: linear-gradient(to right, #7fad39, #5a8a1a); border-radius: 10px; animation: pulse 2s infinite;">
+          <div class="promo__content py-2 px-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between">
+              <div>
+                <h1 style="color: white; font-weight: bold; font-size: 1.5rem; margin-bottom: 0;">
+                  Welcome to Our Store!
+                </h1>
               </div>
-              <input type="text" name="search_query" id="searchInput" placeholder="What do you need?">
-              <button type="submit" class="site-btn">SEARCH</button>
-            </form>
-            <!-- Search Results Container -->
-            <div id="searchResults" class="search-results-container"></div>
-          </div>
-          <div class="hero__search__phone">
-            <div class="hero__search__phone__icon">
-              <i class="fa fa-phone"></i>
-            </div>
-            <div class="hero__search__phone__text">
-              <h5>+65 11.188.888</h5>
-              <span>support 24/7 time</span>
+              <div class="d-flex align-items-center">
+                <i class="fa fa-phone-alt mr-2 text-white"></i>
+                <span style="font-size: 1rem; color: white; font-weight: 500;">
+                  (+92 346789900)
+                </span>
+                <span class="badge badge-light ml-2" style="color: #7fad39;">24/7 Support</span>
+              </div>
             </div>
           </div>
         </div>
-        <div class="hero__item set-bg" data-setbg="images/Banner.png">
-          <div class="hero__text"
-            style="color: #F5E1C8; font-weight: bold; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);">
-            <span>Gifts and stationery shop</span>
-            <h2>Shop Now <br />100% Original items</h2>
-            <p>Free Pickup and Delivery Available</p>
-            <a href="shop-grid.php" class="primary-btn">SHOP NOW</a>
+
+        <!-- Hero Banner with Overlay -->
+        <div class="hero__item position-relative overflow-hidden" style="border-radius: 10px; height: 400px;">
+          <img src="images/Banner.png" class="w-100 h-100" style="object-fit: cover;" alt="Shop Banner">
+
+          <!-- Gradient Overlay -->
+          <div class="position-absolute w-100 h-100"
+            style="background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%); top: 0; left: 0;">
+          </div>
+
+          <div class="hero__text position-absolute text-white"
+            style="max-width: 500px; top: 50%; transform: translateY(-50%); left: 50px;">
+            <span class="d-inline-block px-3 py-1 mb-2"
+              style="background: rgba(127, 173, 57, 0.9); border-radius: 30px; font-size: 0.9rem;">
+              Gifts and stationery shop
+            </span>
+            <h2 class="mb-3" style="font-size: 2.5rem; font-weight: 800; line-height: 1.2;">
+              Shop Now <br />100% Original items
+            </h2>
+            <p class="mb-4" style="font-size: 1.1rem;">Free Pickup and Delivery Available</p>
+            <a href="#" class="btn px-4 py-2 text-white"
+              style="background: #7fad39; border-radius: 30px; font-weight: 600; transition: all 0.3s;">
+              Explore Collection <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+
+          <!-- Decorative Elements -->
+          <div class="position-absolute"
+            style="bottom: 20px; right: 20px; width: 100px; height: 100px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%;">
+          </div>
+          <div class="position-absolute"
+            style="top: 20px; right: 20px; width: 50px; height: 50px; background: rgba(127, 173, 57, 0.7); border-radius: 50%;">
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+
 <!-- Hero Section End -->
+
 <section class="categories">
   <div class="container">
     <div class="row">
@@ -200,7 +280,7 @@ include("components/header.php");
             <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">
                 <?php echo htmlspecialchars($product['product_name']); ?>
               </a></h6>
-            <h5>$<?php echo number_format($product['price'], 2); ?></h5>
+            <h5>Rs <?php echo number_format($product['price'], 2); ?></h5>
           </div>
         </div>
       </div>
@@ -278,7 +358,7 @@ include("components/header.php");
                 </div>
                 <div class="latest-product__item__text">
                   <h6><?php echo htmlspecialchars($product['product_name']); ?></h6>
-                  <span>$<?php echo number_format($product['price'], 2); ?></span>
+                  <span>Rs <?php echo number_format($product['price'], 2); ?></span>
                 </div>
               </a>
               <?php endforeach; ?>
@@ -331,7 +411,7 @@ include("components/header.php");
                         echo '    </div>';
                         echo '    <div class="latest-product__item__text">';
                         echo '        <h6>' . htmlspecialchars($product['product_name']) . '</h6>';
-                        echo '        <span>$' . number_format($product['price'], 2) . '</span>';
+                        echo '        <span>Rs ' . number_format($product['price'], 2) . '</span>';
                         echo '        <div class="product-rating" style="font-size: 12px; color: #ffc107;">';
                         echo '            ' . str_repeat('★', round($product['avg_rating'])) . str_repeat('☆', 5 - round($product['avg_rating']));
                         echo '            (' . round($product['avg_rating'], 1) . ')';
@@ -397,7 +477,7 @@ include("components/header.php");
                         echo '    </div>';
                         echo '    <div class="latest-product__item__text">';
                         echo '        <h6>' . htmlspecialchars($product['product_name']) . '</h6>';
-                        echo '        <span>$' . number_format($product['price'], 2) . '</span>';
+                        echo '        <span>Rs ' . number_format($product['price'], 2) . '</span>';
                         echo '        <div class="product-review-info" style="font-size: 12px; margin-top: 5px;">';
                         echo '            <span style="color: #ffc107;">' . str_repeat('★', $product['rating']) . str_repeat('☆', 5 - $product['rating']) . '</span>';
                         echo '            <span style="color: #777; font-size: 11px;">' . date('M j, Y', strtotime($product['review_date'])) . '</span>';

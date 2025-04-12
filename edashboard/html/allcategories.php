@@ -35,6 +35,15 @@ if (isset($_POST['deleteCategory'])) {
     }
 }
 ?>
+<style>
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+</style>
 
 <div class="container-fluid pt-4 px-4">
   <?php if (isset($success)): ?>
@@ -53,7 +62,7 @@ if (isset($_POST['deleteCategory'])) {
 
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
-      <h3>All Categories</h3>
+      <h3 class="heading">All Categories</h3>
       <?php if ($user_type === 'employee'): ?>
       <div class="alert alert-warning" role="alert">
         You do not have permission to edit or delete categories. All actions are disabled.

@@ -30,8 +30,13 @@ body {
 }
 
 h1 {
-  color: #2c3e50;
-  margin-bottom: 30px;
+
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1rem;
+
+
   text-align: center;
 }
 

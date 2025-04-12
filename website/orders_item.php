@@ -110,7 +110,7 @@ try {
         </div>
         <div>Order #: <?= htmlspecialchars($order['order_number']) ?></div>
         <div>Date: <?= date('d M Y, h:i A', strtotime($order['date_time'])) ?></div>
-        <div>Total Price: $<?= number_format($order['p_price'] * $order['p_qty'], 2) ?></div>
+        <div>Total Price: Rs <?= number_format($order['p_price'] * $order['p_qty'], 2) ?></div>
       </div>
       <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <div class="order-status 

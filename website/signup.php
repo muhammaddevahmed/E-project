@@ -73,33 +73,111 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Crafty Corner</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>The Crafty Corner - Sign Up</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
+  <script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#7fad39',
+          'primary-dark': '#6e9c2a',
+          'primary-light': '#a8cf6e',
+        },
+        fontFamily: {
+          poppins: ['Poppins', 'sans-serif'],
+        },
+      }
+    }
+  }
+  </script>
 </head>
 
-<body>
-  <div class="form-container">
-    <h2>Sign Up</h2>
-    <form method="POST" onsubmit="return validateForm()">
-      <input type="text" name="username" id="username" placeholder="Username (5-20 chars, start with letter)" required>
-      <input type="text" name="full_name" placeholder="Full Name" required>
-      <input type="email" name="email" id="email" placeholder="Email" required>
-      <input type="text" name="phone" id="phone" placeholder="Phone (optional)">
-      <input type="password" name="password" id="password" placeholder="Password (6+ chars with letter & number)"
-        required>
-      <textarea name="address" placeholder="Address (optional)"></textarea>
-      <button type="submit">Sign Up</button>
-      <p>Already have an account? <a href="login.php">Login</a></p>
-      <p><a href="index.php">Return to Home Page</a></p>
-    </form>
+<body
+  class="min-h-screen bg-gradient-to-br from-[#f5f7fa] via-[#e4f0d5] to-[#d4e8b7] font-poppins flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
+    <!-- Header Section -->
+    <div class="bg-gray-800 text-white py-5 px-6 text-center">
+      <h1 class="text-2xl font-bold">The Crafty Corner</h1>
+      <p class="text-gray-300 mt-1">Create your account</p>
+    </div>
+
+    <!-- Form Section -->
+    <div class="p-6 sm:p-8">
+      <form method="POST" onsubmit="return validateForm()">
+        <!-- Username Field -->
+        <div class="mb-4">
+          <label for="username" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
+          <input type="text" name="username" id="username"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="5-20 chars, start with letter" required>
+        </div>
+
+        <!-- Full Name Field -->
+        <div class="mb-4">
+          <label for="full_name" class="block text-gray-700 text-sm font-medium mb-2">Full Name</label>
+          <input type="text" name="full_name"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="Your full name" required>
+        </div>
+
+        <!-- Email Field -->
+        <div class="mb-4">
+          <label for="email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+          <input type="email" name="email" id="email"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="your@email.com" required>
+        </div>
+
+        <!-- Phone Field -->
+        <div class="mb-4">
+          <label for="phone" class="block text-gray-700 text-sm font-medium mb-2">Phone (optional)</label>
+          <input type="text" name="phone" id="phone"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="+1234567890">
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-4">
+          <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+          <input type="password" name="password" id="password"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="6+ chars with letter & number" required>
+        </div>
+
+        <!-- Address Field -->
+        <div class="mb-6">
+          <label for="address" class="block text-gray-700 text-sm font-medium mb-2">Address (optional)</label>
+          <textarea name="address"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="Your address" rows="3"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit"
+          class="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-lg font-medium transition duration-300 hover:shadow-md transform hover:-translate-y-0.5">
+          Sign Up
+        </button>
+
+        <!-- Links Section -->
+        <div class="mt-6 text-center text-sm space-y-2">
+          <p class="text-gray-600">Already have an account?
+            <a href="login.php" class="text-primary hover:text-primary-dark font-medium hover:underline">Login</a>
+          </p>
+          <p>
+            <a href="index.php" class="text-primary hover:text-primary-dark font-medium hover:underline">Return to Home
+              Page</a>
+          </p>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
