@@ -229,6 +229,7 @@ $orders = $stmt->fetchAll();
   <?php
 include("components/footer.php");
 ?>
+
   <script>
   function openModal(orderId) {
     console.log('Opening modal for order:', orderId);
@@ -266,4 +267,16 @@ include("components/footer.php");
         alert('Error loading delivery details: ' + error.message);
       });
   }
+
+  function closeModal() {
+    document.getElementById('deliveryModal').style.display = 'none';
+  }
+
+  // Close the modal when clicking outside of it
+  window.onclick = function(event) {
+    const modal = document.getElementById('deliveryModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  };
   </script>
