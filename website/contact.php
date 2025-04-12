@@ -23,41 +23,46 @@
 include 'php/db_connection.php'; // Include your database connection file
 include("components/header.php");
 
+
+
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Collect and sanitize form data
     $name = htmlspecialchars($_POST['name']);
     $email = htmlspecialchars($_POST['email']);
     $feedbackText = htmlspecialchars($_POST['feedback_text']);
-    $rating = intval($_POST['rating']); // Ensure rating is an integer
+    $rating = intval($_POST['rating']);
 
-    // Retrieve user_id from the session (if logged in)
-    $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+    // Check if required fields are filled
+    if (empty($name) || empty($email) || empty($feedbackText) || empty($rating)) {
+        echo "<script>alert('Please fill all required fields');</script>";
+    } else {
+        try {
+            // Retrieve user_id from the session (if logged in)
+            $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
-    // Insert the feedback into the database
-    $sql = "INSERT INTO feedback (name, email, user_id, feedback_text, rating, submitted_at)
-            VALUES (:name, :email, :user_id, :feedback_text, :rating, NOW())";
+            // Insert the feedback into the database
+            $sql = "INSERT INTO feedback (name, email, user_id, feedback_text, rating, submitted_at)
+                    VALUES (:name, :email, :user_id, :feedback_text, :rating, NOW())";
 
-    try {
-        $stmt = $pdo->prepare($sql);
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':name', $name);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->bindParam(':feedback_text', $feedbackText);
+            $stmt->bindParam(':rating', $rating);
+            
+            if ($stmt->execute()) {
+                echo "<script>alert('Thank you for your feedback!'); window.location.href='index.php';</script>";
+                exit;
+            } else {
+                throw new Exception("Failed to submit feedback");
+            }
 
-        // Bind parameters
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':feedback_text', $feedbackText);
-        $stmt->bindParam(':rating', $rating);
-
-        // Execute the statement
-        $stmt->execute();
-
-        // Show a success message
-        echo "<script>alert('Thank you for submitting your feedback'); window.location.href='index.php';</script>";
-        $successMessage = "Thank you for your feedback!";
-
-    } catch (PDOException $e) {
-        // Handle errors
-        $errorMessage = "Error: " . $e->getMessage();
+        } catch (PDOException $e) {
+            echo "<script>alert('Error submitting feedback. Please Login First.');</script>";
+            error_log("Database error: " . $e->getMessage());
+        }
     }
 }
 ?>
