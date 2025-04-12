@@ -39,7 +39,7 @@ include("components/header.php");
 
 }
 
-.btn-primary,
+.btn,
 .site-btn {
   background-color: #7fad39;
   color: #FFFFFF;
@@ -209,7 +209,7 @@ include("components/header.php");
 
     <div class="row">
       <div class="col-lg-12 text-center">
-        <button id="loadMoreBtn" class="btn btn-primary mt-4">Show More</button>
+        <button id="loadMoreBtn" class="btn mt-4">Show More</button>
       </div>
     </div>
   </div>
