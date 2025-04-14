@@ -202,9 +202,9 @@ try {
         <?php echo htmlspecialchars($order['u_email']); ?>
       </td>
       <td><?php echo htmlspecialchars($order['p_name']); ?></td>
-      <td>Rs <?php echo number_format($order['p_price'], 2); ?></td>
+      <td>$ <?php echo number_format($order['p_price'], 2); ?></td>
       <td><?php echo htmlspecialchars($order['p_qty']); ?></td>
-      <td>Rs <?php echo number_format($order['p_price'] * $order['p_qty'], 2); ?></td>
+      <td>$ <?php echo number_format($order['p_price'] * $order['p_qty'], 2); ?></td>
       <td><?php echo date('M j, Y H:i', strtotime($order['date_time'])); ?></td>
       <td class="status-<?php echo htmlspecialchars($order['status']); ?>">
         <?php echo ucfirst(htmlspecialchars($order['status'])); ?>

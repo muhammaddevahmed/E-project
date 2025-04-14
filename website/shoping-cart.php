@@ -102,7 +102,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                     <h5><?php echo $item['product_name']; ?></h5>
                   </td>
                   <td>
-                    Rs <span class="price" data-id="<?php echo $product_id; ?>"
+                    $ <span class="price" data-id="<?php echo $product_id; ?>"
                       data-price="<?php echo $item['price']; ?>"><?php echo $item['price']; ?></span>
                   </td>
                   <td>
@@ -143,8 +143,8 @@ $total = $subtotal; // Assuming no tax or shipping for now
         <div class="shoping__checkout">
           <h5>Cart Total</h5>
           <ul>
-            <li>Subtotal <span id="subtotal">Rs <?php echo number_format($subtotal, 2); ?></span></li>
-            <li>Total <span id="total">Rs <?php echo number_format($total, 2); ?></span></li>
+            <li>Subtotal <span id="subtotal">$ <?php echo number_format($subtotal, 2); ?></span></li>
+            <li>Total <span id="total">$ <?php echo number_format($total, 2); ?></span></li>
           </ul>
 
           <?php if (!$cart_empty): ?>

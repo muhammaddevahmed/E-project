@@ -70,7 +70,7 @@ $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
 
       <div class="text-right text-2xl font-bold text-[#7fad39]">
-        Total: Rs <?= number_format($invoice['amount'], 2) ?>
+        Total: $ <?= number_format($invoice['amount'], 2) ?>
       </div>
 
       <div class="flex justify-between items-center mt-5 pt-4 border-t border-gray-200">

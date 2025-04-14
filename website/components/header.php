@@ -229,7 +229,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                         }
                     }
                 }
-                echo 'Rs ' . number_format($subtotal, 2);
+                echo '$' . number_format($subtotal, 2);
                 ?>
               </span>
             </div>

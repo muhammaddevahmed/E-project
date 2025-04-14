@@ -337,7 +337,7 @@ unset($product); // break reference
                 <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">
                     <?php echo htmlspecialchars($product['product_name']); ?>
                   </a></h6>
-                <h5>Rs <?php echo number_format($product['price'], 2); ?></h5>
+                <h5>$ <?php echo number_format($product['price'], 2); ?></h5>
               </div>
             </div>
           </div>

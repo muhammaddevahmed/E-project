@@ -352,9 +352,9 @@ if (empty($products)) {
         <?php foreach ($products as $product): ?>
         <tr>
           <td><?= htmlspecialchars($product['p_name']) ?></td>
-          <td>Rs <?= number_format($product['p_price'], 2) ?></td>
+          <td>$ <?= number_format($product['p_price'], 2) ?></td>
           <td><?= htmlspecialchars($product['p_qty']) ?></td>
-          <td class="text-right">Rs <?= number_format($product['p_price'] * $product['p_qty'], 2) ?></td>
+          <td class="text-right">$ <?= number_format($product['p_price'] * $product['p_qty'], 2) ?></td>
         </tr>
         <?php endforeach; ?>
         <?php else: ?>
@@ -369,11 +369,11 @@ if (empty($products)) {
 
         <tr>
           <td colspan="3" class="text-right">Subtotal</td>
-          <td class="text-right">Rs <?= number_format($subtotal, 2) ?></td>
+          <td class="text-right">$<?= number_format($subtotal, 2) ?></td>
         </tr>
         <tr class="total-row">
           <td colspan="3" class="text-right">TOTAL</td>
-          <td class="text-right">Rs <?= number_format($subtotal, 2) ?></td>
+          <td class="text-right">$<?= number_format($subtotal, 2) ?></td>
         </tr>
       </tfoot>
     </table>

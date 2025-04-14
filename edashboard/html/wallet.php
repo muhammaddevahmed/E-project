@@ -154,7 +154,7 @@ try {
       <div class="col-md-6">
         <div class="dashboard-card balance-card">
           <h5>Total Balance</h5>
-          <h2>Rs <?= number_format($total_balance, 2) ?></h2>
+          <h2>$ <?= number_format($total_balance, 2) ?></h2>
         </div>
       </div>
       <div class="col-md-6">
@@ -212,7 +212,7 @@ try {
               <td>#<?= htmlspecialchars($payment['payment_id']) ?></td>
               <td><?= htmlspecialchars($payment['first_name'] . ' ' . $payment['last_name']) ?></td>
               <td><?= htmlspecialchars($payment['payment_method']) ?></td>
-              <td>Rs <?= number_format($payment['amount'], 2) ?></td>
+              <td>$ <?= number_format($payment['amount'], 2) ?></td>
               <td class="status-<?= htmlspecialchars($payment['payment_status']) ?>">
                 <?= ucfirst(htmlspecialchars($payment['payment_status'])) ?>
               </td>

@@ -202,7 +202,7 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
             <span>(<?php echo count($reviews); ?> reviews)</span>
           </div>
           <!-- Dynamically display the product price -->
-          <div class="product__details__price">Rs <?php echo $price; ?></div>
+          <div class="product__details__price">$ <?php echo $price; ?></div>
           <!-- Dynamically display the product description -->
           <p><?php echo $description; ?></p>
 
