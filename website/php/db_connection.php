@@ -11,6 +11,3 @@ $pdo = new PDO($server,$user,$password)
 
 
 ?>
-
-
-
