@@ -105,7 +105,7 @@ $products = $pdo->query("
               <?php endif; ?>
             </td>
             <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-            <td>$ <?php echo number_format($product['price'], 2); ?></td>
+            <td>Rs <?php echo number_format($product['price'], 2); ?></td>
             <td><?php echo htmlspecialchars($product['stock_quantity']); ?></td>
             <td><?php echo htmlspecialchars($product['category_name'] ?? 'N/A'); ?></td>
             <td><?php echo htmlspecialchars($product['warranty_period']); ?> months</td>

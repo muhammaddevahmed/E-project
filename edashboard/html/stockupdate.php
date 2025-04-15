@@ -213,7 +213,7 @@ try {
     <tr>
       <td><?php echo htmlspecialchars($product['product_id']); ?></td>
       <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-      <td>$ <?php echo number_format($product['price'], 2); ?></td>
+      <td>Rs <?php echo number_format($product['price'], 2); ?></td>
       <td><?php echo htmlspecialchars($product['stock_quantity']); ?></td>
       <td class="status-<?php echo strtolower(str_replace(' ', '-', $product['stock_status'])); ?>">
         <?php echo htmlspecialchars($product['stock_status']); ?>

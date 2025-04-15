@@ -280,7 +280,7 @@ include("components/header.php");
             <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">
                 <?php echo htmlspecialchars($product['product_name']); ?>
               </a></h6>
-            <h5>$ <?php echo number_format($product['price'], 2); ?></h5>
+            <h5>Rs <?php echo number_format($product['price'], 2); ?></h5>
           </div>
         </div>
       </div>
@@ -358,7 +358,7 @@ include("components/header.php");
                 </div>
                 <div class="latest-product__item__text">
                   <h6><?php echo htmlspecialchars($product['product_name']); ?></h6>
-                  <span>$ <?php echo number_format($product['price'], 2); ?></span>
+                  <span>Rs <?php echo number_format($product['price'], 2); ?></span>
                 </div>
               </a>
               <?php endforeach; ?>
@@ -411,7 +411,7 @@ include("components/header.php");
                         echo '    </div>';
                         echo '    <div class="latest-product__item__text">';
                         echo '        <h6>' . htmlspecialchars($product['product_name']) . '</h6>';
-                        echo '        <span>$ ' . number_format($product['price'], 2) . '</span>';
+                        echo '        <span>Rs ' . number_format($product['price'], 2) . '</span>';
                         echo '        <div class="product-rating" style="font-size: 12px; color: #ffc107;">';
                         echo '            ' . str_repeat('★', round($product['avg_rating'])) . str_repeat('☆', 5 - round($product['avg_rating']));
                         echo '            (' . round($product['avg_rating'], 1) . ')';
@@ -477,7 +477,7 @@ include("components/header.php");
                         echo '    </div>';
                         echo '    <div class="latest-product__item__text">';
                         echo '        <h6>' . htmlspecialchars($product['product_name']) . '</h6>';
-                        echo '        <span>$ ' . number_format($product['price'], 2) . '</span>';
+                        echo '        <span>Rs ' . number_format($product['price'], 2) . '</span>';
                         echo '        <div class="product-review-info" style="font-size: 12px; margin-top: 5px;">';
                         echo '            <span style="color: #ffc107;">' . str_repeat('★', $product['rating']) . str_repeat('☆', 5 - $product['rating']) . '</span>';
                         echo '            <span style="color: #777; font-size: 11px;">' . date('M j, Y', strtotime($product['review_date'])) . '</span>';

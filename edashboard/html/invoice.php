@@ -77,7 +77,7 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
                 <small><?php echo htmlspecialchars($payment['email']) ?></small>
               </td>
               <td><?php echo htmlspecialchars($payment['payment_method']) ?></td>
-              <td>$ <?php echo number_format($payment['amount'], 2) ?></td>
+              <td>Rs <?php echo number_format($payment['amount'], 2) ?></td>
               <td>
                 <span class="badge <?php echo $status_class ?>">
                   <?php echo ucfirst($payment['payment_status']) ?>
@@ -137,7 +137,7 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
                         <h6>Payment Details</h6>
                         <p>
                           <strong>Method:</strong> <?php echo htmlspecialchars($payment['payment_method']) ?><br>
-                          <strong>Amount:</strong> $<?php echo number_format($payment['amount'], 2) ?><br>
+                          <strong>Amount:</strong> Rs <?php echo number_format($payment['amount'], 2) ?><br>
                           <strong>Date:</strong>
                           <?php echo date('M d, Y h:i A', strtotime($payment['payment_date'])) ?><br>
                           <strong>Status:</strong> <span

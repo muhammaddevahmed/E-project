@@ -82,7 +82,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                   }
               }
           }
-          echo 'Rs ' . number_format($subtotal, 2);
+          echo 'Rs ' . $subtotal;
           ?>
         </span>
       </div>
@@ -128,7 +128,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
     <div class="humberger__menu__contact">
       <ul>
         <li><i class="fa fa-envelope"></i></li>
-        <li>Free Shipping for all Order of $99</li>
+        <li>Free Shipping for all Order of Rs 2000</li>
       </ul>
     </div>
   </div>
@@ -143,7 +143,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
             <div class="header__top__left">
               <ul>
                 <li><i class="fa fa-envelope"></i> <?= $is_logged_in ? $full_name : 'Guest User' ?></li>
-                <li>Free Shipping for all Order of $99</li>
+                <li>Free Shipping for all Order of Rs.2000</li>
               </ul>
             </div>
           </div>
@@ -229,7 +229,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                         }
                     }
                 }
-                echo '$' . number_format($subtotal, 2);
+                echo 'Rs '. $subtotal;
                 ?>
               </span>
             </div>

@@ -85,61 +85,147 @@ unset($product); // break reference
 ?>
 
 <style>
-.product__item__pic {
-  width: 100%;
-  /* Ensure the image takes full width of its container */
-
-  border: 4px solid #ccc;
-  /* Add a light gray border */
-  border-radius: 10px;
-  /* Add rounded corners */
-  background-size: cover;
-  /* Ensure the image covers the container */
-  background-position: center;
-  /* Center the image */
-  margin-bottom: 15px;
-  /* Add some spacing below the image */
-}
-
-/* Animation for promo bar */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.01);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* Hover effects for categories */
-.hero__categories ul li {
+.product__item {
+  margin-bottom: 30px;
   transition: all 0.3s;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  background: #fff;
+}
+
+.product__item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.product__item__pic {
+  height: 250px;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.5s;
+}
+
+.product__item:hover .product__item__pic {
+  opacity: 0.9;
+}
+
+.product__item__text {
+  padding: 20px;
+  text-align: center;
+}
+
+.product__item__text h6 a {
+  color: #333;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.product__item__text h6 a:hover {
+  color: #7fad39;
+}
+
+.product__item__text h5 {
+  color: #7fad39;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.product__pagination {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.product__pagination a {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 50%;
+  margin: 0 5px;
+  color: #333;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.product__pagination a.active,
+.product__pagination a:hover {
+  background: #7fad39;
+  color: #fff;
+}
+
+/* Hero section adjustments */
+.hero__item {
+  margin-bottom: 30px;
+}
+
+/* Sidebar improvements */
+.sidebar__item {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar__item h4 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.sidebar__item ul li {
+  padding: 8px 0;
   border-bottom: 1px solid #f5f5f5;
 }
 
-.hero__categories ul li:last-child {
+.sidebar__item ul li:last-child {
   border-bottom: none;
 }
 
-.hero__categories ul li:hover {
-  background: #f8f9fa;
-  padding-left: 10px;
+.sidebar__item ul li a {
+  color: #666;
+  transition: all 0.3s;
 }
 
-.hero__categories ul li:hover a {
-  color: #7fad39 !important;
+.sidebar__item ul li a:hover {
+  color: #7fad39;
+  padding-left: 5px;
 }
 
-/* Button hover effect */
-.btn:hover {
-  background: #6a9a2b !important;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+/* Filter section */
+.filter__item {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.filter__sort select {
+  border: 1px solid #eee;
+  padding: 8px 15px;
+  border-radius: 5px;
+  width: 100%;
+  outline: none;
+}
+
+.filter__found h6 {
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+}
+
+.filter__found h6 span {
+  color: #7fad39;
+  font-weight: 700;
 }
 </style>
 
@@ -148,33 +234,8 @@ unset($product); // break reference
 <section class="hero mt-4">
   <div class="container">
     <div class="row">
-      <!-- Categories Sidebar - More Vibrant -->
-      <div class="col-lg-3">
-        <div class="hero__categories"
-          style="background: #ffffff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-          <div class="hero__categories__all" style="background: #7fad39; border-radius: 10px 10px 0 0;">
-            <i class="fa fa-bars"></i>
-            <span>All Categories</span>
-
-          </div>
-          <ul style="border-radius: 0 0 10px 10px;">
-            <?php foreach ($categories as $category): ?>
-            <li class="position-relative">
-              <a href="shop-grid.php" class="d-flex justify-content-between align-items-center">
-                <?php echo htmlspecialchars($category['category_name']); ?>
-                <i class="fa fa-chevron-right"></i>
-              </a>
-            </li>
-            <?php endforeach; ?>
-          </ul>
-        </div>
-
-
-
-      </div>
-
-      <!-- Main Hero Content - More Dynamic -->
-      <div class="col-lg-9">
+      <!-- Main Hero Content -->
+      <div class="col-lg-12">
         <!-- Promo Bar with Animation -->
         <div class="hero__promo mb-3"
           style="background: linear-gradient(to right, #7fad39, #5a8a1a); border-radius: 10px; animation: pulse 2s infinite;">
@@ -220,21 +281,11 @@ unset($product); // break reference
               Explore Collection <i class="fa fa-arrow-right ml-2"></i>
             </a>
           </div>
-
-          <!-- Decorative Elements -->
-          <div class="position-absolute"
-            style="bottom: 20px; right: 20px; width: 100px; height: 100px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%;">
-          </div>
-          <div class="position-absolute"
-            style="top: 20px; right: 20px; width: 50px; height: 50px; background: rgba(127, 173, 57, 0.7); border-radius: 50%;">
-          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
-
-
 <!-- Hero Section End -->
 
 <!-- Product Section Begin -->
@@ -256,23 +307,7 @@ unset($product); // break reference
               <?php endforeach; ?>
             </ul>
           </div>
-          <div class="sidebar__item">
-            <h4>Sort By</h4>
-            <form method="GET" action="">
-              <select name="sort" onchange="this.form.submit()">
-                <option value="default" <?php echo ($sort === 'default') ? 'selected' : ''; ?>>Default</option>
-                <option value="price_asc" <?php echo ($sort === 'price_asc') ? 'selected' : ''; ?>>Price: Low to High
-                </option>
-                <option value="price_desc" <?php echo ($sort === 'price_desc') ? 'selected' : ''; ?>>Price: High to Low
-                </option>
-                <option value="name_asc" <?php echo ($sort === 'name_asc') ? 'selected' : ''; ?>>Name: A to Z</option>
-                <option value="name_desc" <?php echo ($sort === 'name_desc') ? 'selected' : ''; ?>>Name: Z to A</option>
-              </select>
-              <?php if ($category_id > 0): ?>
-              <input type="hidden" name="category_id" value="<?php echo $category_id; ?>">
-              <?php endif; ?>
-            </form>
-          </div>
+
         </div>
       </div>
       <div class="col-lg-9 col-md-7">
@@ -282,7 +317,8 @@ unset($product); // break reference
               <div class="filter__sort">
                 <span>Sort By</span>
                 <select
-                  onchange="window.location.href = 'shop-grid.php?sort=' + this.value + '&category_id=<?php echo $category_id; ?>'">
+                  onchange="window.location.href = 'shop-grid.php?sort=' + this.value + '&category_id=<?php echo $category_id; ?>'"
+                  class="form-control">
                   <option value="default" <?php echo ($sort === 'default') ? 'selected' : ''; ?>>Default</option>
                   <option value="price_asc" <?php echo ($sort === 'price_asc') ? 'selected' : ''; ?>>Price: Low to High
                   </option>
@@ -300,44 +336,43 @@ unset($product); // break reference
               </div>
             </div>
             <div class="col-lg-4 col-md-3">
-
+              <!-- Empty column for alignment -->
             </div>
           </div>
         </div>
         <div class="row">
           <?php foreach ($products as $product): ?>
           <?php
-        // Fetch category name for the product
-        $category_name = '';
-        foreach ($categories as $category) {
-            if ($category['category_id'] == $product['category_id']) {
-                $category_name = $category['category_name'];
-                break;
+            // Fetch category name for the product
+            $category_name = '';
+            foreach ($categories as $category) {
+                if ($category['category_id'] == $product['category_id']) {
+                    $category_name = $category['category_name'];
+                    break;
+                }
             }
-        }
 
-        // Process product image path
-        $filename = basename($product['image_path']);
-        $relative_path = $actual_storage . $filename;
-        $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
-        $image_url = $web_root . $relative_path;
-        
-        if (empty($product['image_path']) || !file_exists($absolute_path)) {
-            $image_url = $default_image;
-        }
-    ?>
+            // Process product image path
+            $filename = basename($product['image_path']);
+            $relative_path = $actual_storage . $filename;
+            $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+            $image_url = $web_root . $relative_path;
+            
+            if (empty($product['image_path']) || !file_exists($absolute_path)) {
+                $image_url = $default_image;
+            }
+          ?>
 
           <div class="col-lg-4 col-md-6 col-sm-6">
             <div class="product__item">
               <div class="product__item__pic set-bg" data-setbg="<?php echo $image_url; ?>"
                 style="background-image: url('<?php echo $image_url; ?>');">
-                <!-- You can add hover effects or other elements here -->
               </div>
               <div class="product__item__text">
                 <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">
                     <?php echo htmlspecialchars($product['product_name']); ?>
                   </a></h6>
-                <h5>$ <?php echo number_format($product['price'], 2); ?></h5>
+                <h5>Rs <?php echo $product['price']; ?></h5>
               </div>
             </div>
           </div>
