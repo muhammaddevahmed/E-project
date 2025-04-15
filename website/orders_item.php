@@ -67,9 +67,10 @@ include("components/header.php");
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+  echo "<script>alert('You must be logged in to request a return.'); window.location.href='login.php';</script>";
+  exit();
 }
+
 
 $user_id = $_SESSION['user_id'];
 $orders = [];

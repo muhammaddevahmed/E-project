@@ -1,10 +1,6 @@
 <?php
 include("components/header.php");
-
-
-
 ?>
-
 <style>
 .set-bg {
   height: 300px;
