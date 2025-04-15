@@ -2,7 +2,7 @@
 <footer class="footer spad">
   <div class="container">
     <div class="row">
-      <div class="col-lg-4 col-md-6 col-sm-6">
+      <div class="col-lg-4 col-md-6 col-sm-12">
         <div class="footer__about">
           <div class="footer__about__logo">
             <a href="./index.php"><img src="images/logo.png" alt="The Crafty Corner"></a>
@@ -14,7 +14,7 @@
           </ul>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 col-sm-6">
+      <div class="col-lg-3 col-md-6 col-sm-12">
         <div class="footer__widget">
           <h6>Customer Support</h6>
           <ul>
@@ -26,7 +26,7 @@
           </ul>
         </div>
       </div>
-      <div class="col-lg-5 col-md-12">
+      <div class="col-lg-5 col-md-12 col-sm-12">
         <div class="footer__widget">
           <h6>Join Our Newsletter</h6>
           <p>Stay updated with our latest products and exclusive offers.</p>
@@ -66,11 +66,11 @@
 <style>
 /* Footer Styling */
 .footer {
-  padding: 100px 0 50px;
+  padding: 90px 0 40px;
   background-color: #f9f9f9;
   position: relative;
   overflow: hidden;
-  animation: fadeIn 0.8s ease-in;
+  animation: fadeIn 0.9s ease-in;
 }
 
 .footer::before {
@@ -80,52 +80,53 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(180deg, rgba(40, 167, 69, 0.05) 0%, rgba(0, 0, 0, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08) 0%, rgba(0, 0, 0, 0.05) 100%);
   z-index: -1;
 }
 
 .footer__about__logo img {
-  max-height: 70px;
+  max-height: 75px;
   transition: transform 0.4s ease, filter 0.4s ease;
 }
 
 .footer__about__logo img:hover {
-  transform: scale(1.1);
-  filter: brightness(1.1);
+  transform: scale(1.15);
+  filter: brightness(1.2);
 }
 
 .footer__about ul {
-  margin-top: 25px;
+  margin-top: 20px;
 }
 
 .footer__about ul li {
   font-size: 16px;
   color: #333;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .footer__about ul li i {
-  font-size: 20px;
+  font-size: 22px;
   color: #555;
-  margin-right: 12px;
+  margin-right: 10px;
 }
 
 .footer__about ul li:hover {
   color: #28a745;
+  transform: translateX(3px);
 }
 
 .footer__widget h6 {
   font-size: 20px;
   font-weight: 700;
   color: #333;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   text-transform: uppercase;
   letter-spacing: 1px;
   position: relative;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 }
 
 .footer__widget h6::after {
@@ -133,13 +134,14 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 50px;
+  width: 60px;
   height: 3px;
   background-color: #28a745;
+  border-radius: 1px;
 }
 
 .footer__widget ul li {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .footer__widget ul li a {
@@ -152,7 +154,7 @@
 
 .footer__widget ul li a i {
   font-size: 18px;
-  margin-right: 10px;
+  margin-right: 8px;
   color: #555;
   transition: color 0.3s ease;
 }
@@ -169,40 +171,43 @@
 .footer__widget p {
   font-size: 16px;
   color: #555;
-  margin-bottom: 25px;
-  line-height: 1.7;
+  margin-bottom: 20px;
+  line-height: 1.6;
 }
 
 .footer__widget .newsletter-form {
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .footer__widget .newsletter-input-group {
   display: flex;
   gap: 10px;
   align-items: center;
+  width: 100%;
 }
 
 .footer__widget input[type="email"] {
   flex: 1;
-  padding: 14px;
+  padding: 12px;
   font-size: 15px;
   color: #333;
   border: 1px solid #ddd;
   border-radius: 5px;
   background-color: #fff;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .footer__widget input[type="email"]:focus {
   border-color: #28a745;
-  box-shadow: 0 0 8px rgba(40, 167, 69, 0.2);
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.25);
   outline: none;
 }
 
 .footer__widget .site-btn {
-  padding: 14px 30px;
+  padding: 12px 25px;
   font-size: 16px;
   font-weight: 600;
   color: #fff;
@@ -211,35 +216,36 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .footer__widget .site-btn:hover {
   background-color: #218838;
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  transform: scale(1.08);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
 .footer__widget__social {
   display: flex;
-  gap: 20px;
+  gap: 18px;
   justify-content: center;
+  margin-top: 20px;
 }
 
 .footer__widget__social a {
-  font-size: 22px;
+  font-size: 24px;
   color: #555;
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .footer__widget__social a:hover {
   color: #28a745;
-  transform: scale(1.2);
+  transform: scale(1.3);
 }
 
 .footer__copyright {
-  margin-top: 50px;
-  padding-top: 25px;
+  margin-top: 40px;
+  padding-top: 20px;
   border-top: 1px solid #ddd;
   text-align: center;
 }
@@ -269,12 +275,12 @@
 /* Responsive Design */
 @media (max-width: 991px) {
   .footer {
-    padding: 80px 0 40px;
+    padding: 70px 0 30px;
   }
 
   .footer__about,
   .footer__widget {
-    margin-bottom: 50px;
+    margin-bottom: 40px;
   }
 
   .footer__about__logo img {
@@ -291,22 +297,35 @@
   }
 
   .footer__widget .newsletter-input-group {
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row;
+    /* Changed from column to row */
+    gap: 10px;
+    /* Reduced gap */
+    align-items: stretch;
   }
 
   .footer__widget input[type="email"] {
-    width: 100%;
-    padding: 12px;
+    width: 70%;
+    /* Give more space to input */
+    padding: 10px;
+    font-size: 14px;
   }
 
   .footer__widget .site-btn {
-    width: 100%;
-    padding: 12px;
+    width: 30%;
+    /* Reduce button width */
+    padding: 10px;
+    font-size: 14px;
+    /* Slightly smaller font */
   }
 }
 
+}
+
 @media (max-width: 767px) {
+  .footer {
+    padding: 60px 0 20px;
+  }
 
   .footer__about ul li,
   .footer__widget ul li a,
@@ -314,12 +333,78 @@
     font-size: 14px;
   }
 
-  .footer__widget__social a {
+  .footer__about ul li i {
     font-size: 20px;
   }
 
+  .footer__widget ul li a i {
+    font-size: 16px;
+  }
+
+  .footer__widget__social a {
+    font-size: 22px;
+  }
+
   .footer__copyright__text p {
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .footer__about,
+  .footer__widget {
+    text-align: center;
+  }
+
+  .footer__about ul li,
+  .footer__widget ul li a {
+    justify-content: center;
+  }
+
+  .footer__widget .newsletter-input-group {
+    flex-direction: row;
+    /* Keep as row */
+  }
+
+  .footer__widget input[type="email"] {
+    width: 65%;
+    padding: 8px 10px;
+  }
+
+  .footer__widget .site-btn {
+    width: 35%;
+    padding: 8px 5px;
+    font-size: 13px;
+  }
+}
+}
+}
+
+@media (max-width: 576px) {
+  .footer__about__logo img {
+    max-height: 50px;
+  }
+
+  .footer__widget h6 {
+    font-size: 16px;
+  }
+
+  .footer__widget h6::after {
+    width: 50px;
+  }
+
+  .footer__widget__social {
+    gap: 15px;
+  }
+
+  .footer__widget .newsletter-input-group {
+    flex-direction: column;
+    /* Stack vertically on smallest screens */
+    gap: 8px;
+  }
+
+  .footer__widget input[type="email"],
+  .footer__widget .site-btn {
+    width: 100%;
+    /* Full width when stacked */
   }
 }
 
@@ -327,7 +412,7 @@
 @keyframes fadeIn {
   0% {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(20px);
   }
 
   100% {
