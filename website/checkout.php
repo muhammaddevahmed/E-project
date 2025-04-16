@@ -38,8 +38,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $postcode = validateInput('postcode', "/^[a-zA-Z0-9 \-]{3,10}$/", "Postcode should be 3-10 alphanumeric characters", $errors);
     $phone = validateInput('phone', "/^[0-9\+\-\(\)\s]{7,15}$/", "Phone number should be 7-15 digits with optional +-()", $errors);
     $email = validateInput('email', "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/", "Please enter a valid email address", $errors);
-    $paymentMethod = validateInput('payment_method', "/^(cash_on_delivery|check_payment|credit_card|paypal)$/", "Please select a valid payment method", $errors);
+    $paymentMethod = $_POST['payment_method'] ?? '';
     $orderNotes = htmlspecialchars($_POST['order_notes'] ?? '');
+    
+    // Validate payment method
+    if (empty($paymentMethod)) {
+        $errors['payment_method'] = "Please select a payment method";
+    } elseif (!in_array($paymentMethod, ['cash_on_delivery', 'check_payment', 'credit_card', 'paypal'])) {
+        $errors['payment_method'] = "Please select a valid payment method";
+    }
     
     // Validate payment method specific fields
     if ($paymentMethod === 'credit_card') {
@@ -226,9 +233,6 @@ if (isset($_SESSION['cart'])) {
 }
 $total = $subtotal; // Assuming no tax or shipping for now
 ?>
-
-
-
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
   data-setbg="https://i.pinimg.com/736x/72/e6/21/72e62198095a1c36038869ddf05481f7.jpg">

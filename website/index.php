@@ -161,7 +161,7 @@ include("components/header.php");
               Shop Now <br />100% Original items
             </h2>
             <p class="mb-4" style="font-size: 1.1rem;">Free Pickup and Delivery Available</p>
-            <a href="#" class="btn px-4 py-2 text-white"
+            <a href="shop-grid.php" class="btn px-4 py-2 text-white"
               style="background: #7fad39; border-radius: 30px; font-weight: 600; transition: all 0.3s;">
               Explore Collection <i class="fa fa-arrow-right ml-2"></i>
             </a>

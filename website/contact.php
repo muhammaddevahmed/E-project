@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
         } catch (PDOException $e) {
-            echo "<script>alert('Error submitting feedback. Please Login First.');</script>";
+          echo "<script>alert('Please Login First!'); window.location.href='login.php';</script>";
             error_log("Database error: " . $e->getMessage());
         }
     }

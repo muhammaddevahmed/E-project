@@ -3,8 +3,14 @@ include 'php/db_connection.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if required fields are set
-    if (!isset($_POST['username']) || !isset($_POST['full_name']) || !isset($_POST['email']) || !isset($_POST['password'])) {
+    if (!isset($_POST['username']) || !isset($_POST['full_name']) || !isset($_POST['email']) || !isset($_POST['password']) || !isset($_POST['confirm_password'])) {
         echo "<script>alert('All required fields must be filled.');</script>";
+        exit();
+    }
+
+    // Check if passwords match
+    if ($_POST['password'] !== $_POST['confirm_password']) {
+        echo "<script>alert('Passwords do not match.');</script>";
         exit();
     }
 
@@ -150,6 +156,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <input type="password" name="password" id="password"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
             placeholder="6+ chars with letter & number" required>
+          <div class="text-xs text-gray-500 mt-1">
+            Password must contain at least 6 characters with at least one letter and one number.
+          </div>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="mb-6">
+          <label for="confirm_password" class="block text-gray-700 text-sm font-medium mb-2">Confirm Password</label>
+          <input type="password" name="confirm_password" id="confirm_password"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="Re-enter your password" required>
+          <div id="passwordMatch" class="text-xs mt-1 hidden"></div>
         </div>
 
         <!-- Address Field -->
@@ -186,6 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
     const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm_password").value;
 
     // Improved username regex: must start with letter, then letters, numbers or underscores
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{4,19}$/;
@@ -211,8 +230,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       alert("Password must be at least 6 characters with at least one letter and one number.");
       return false;
     }
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return false;
+    }
     return true;
   }
+
+  // Real-time password match validation
+  document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    const matchDiv = document.getElementById('passwordMatch');
+
+    if (confirmPassword.length > 0) {
+      matchDiv.classList.remove('hidden');
+      if (password === confirmPassword) {
+        matchDiv.textContent = "Passwords match!";
+        matchDiv.className = "text-xs mt-1 text-green-600";
+      } else {
+        matchDiv.textContent = "Passwords do not match!";
+        matchDiv.className = "text-xs mt-1 text-red-600";
+      }
+    } else {
+      matchDiv.classList.add('hidden');
+    }
+  });
+
+  // Show password requirements when password field is focused
+  document.getElementById('password').addEventListener('focus', function() {
+    const requirementsDiv = document.createElement('div');
+    requirementsDiv.className = 'text-xs text-gray-500 mt-1';
+    requirementsDiv.innerHTML = `
+      <p>Password must:</p>
+      <ul class="list-disc pl-5">
+        <li>Be at least 6 characters long</li>
+        <li>Contain at least one letter</li>
+        <li>Contain at least one number</li>
+      </ul>
+    `;
+    this.parentNode.appendChild(requirementsDiv);
+  });
+
+  // Hide requirements when password field loses focus (if they're not already in the DOM)
+  document.getElementById('password').addEventListener('blur', function() {
+    const requirementsDiv = this.parentNode.querySelector('.text-xs.text-gray-500.mt-1:not(:first-child)');
+    if (requirementsDiv) {
+      requirementsDiv.remove();
+    }
+  });
   </script>
 </body>
 
