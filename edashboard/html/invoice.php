@@ -17,12 +17,161 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
 }
 ?>
 <style>
+/* Maintain original color scheme with layout adjustments */
+.container-fluid {
+  padding: 2rem 1.5rem;
+}
+
 .heading {
   font-size: 2.5rem;
   font-weight: 700;
   color: #7fad39;
   margin-bottom: 1rem;
   text-align: center;
+}
+
+.bg-light {
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.table-responsive {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background: #343a40;
+  /* Original table-dark background */
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  padding: 1rem;
+  border: none;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f8f9fc;
+}
+
+.badge {
+  padding: 0.5em 1em;
+  font-size: 0.85rem;
+  border-radius: 0.25rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.btn-info {
+  background: #17a2b8;
+  border: none;
+}
+
+.btn-info:hover {
+  background: #138496;
+}
+
+.btn-success {
+  background: #28a745;
+  border: none;
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+.btn-danger {
+  background: #dc3545;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+.alert-warning {
+  background: #fff3cd;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #856404;
+}
+
+.modal-content {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  background: #343a40;
+  color: white;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-body h6 {
+  color: #7fad39;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.modal-footer {
+  border-top: none;
+  padding: 1rem 2rem;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+/* Adjusted layout for action buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f5f9;
+  transition: background-color 0.2s ease;
 }
 </style>
 
@@ -37,9 +186,9 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
   <div class="row bg-light rounded mx-0">
     <div class="col-md-12">
       <h3 class="heading">Payment Invoices</h3>
-      <div class=" table-responsive">
+      <div class="table-responsive">
         <table class="table table-striped">
-          <thead class="table-dark">
+          <thead>
             <tr>
               <th>Invoice ID</th>
               <th>Date</th>
@@ -91,18 +240,20 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
               </td>
               <td>
                 <?php if ($payment['payment_status'] == 'pending') { ?>
-                <form method="post" class="d-inline">
-                  <input type="hidden" name="payment_id" value="<?php echo $payment['payment_id'] ?>">
-                  <input type="hidden" name="new_status" value="completed">
-                  <button type="submit" name="update_status" class="btn btn-sm btn-success"
-                    <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Approve</button>
-                </form>
-                <form method="post" class="d-inline">
-                  <input type="hidden" name="payment_id" value="<?php echo $payment['payment_id'] ?>">
-                  <input type="hidden" name="new_status" value="failed">
-                  <button type="submit" name="update_status" class="btn btn-sm btn-danger"
-                    <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Decline</button>
-                </form>
+                <div class="action-buttons">
+                  <form method="post" class="d-inline">
+                    <input type="hidden" name="payment_id" value="<?php echo $payment['payment_id'] ?>">
+                    <input type="hidden" name="new_status" value="completed">
+                    <button type="submit" name="update_status" class="btn btn-sm btn-success"
+                      <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Approve</button>
+                  </form>
+                  <form method="post" class="d-inline">
+                    <input type="hidden" name="payment_id" value="<?php echo $payment['payment_id'] ?>">
+                    <input type="hidden" name="new_status" value="failed">
+                    <button type="submit" name="update_status" class="btn btn-sm btn-danger"
+                      <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Decline</button>
+                  </form>
+                </div>
                 <?php } else { ?>
                 <span class="text-muted">Processed</span>
                 <?php } ?>
