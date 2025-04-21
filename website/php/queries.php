@@ -1,11 +1,11 @@
 <?php
 // Fetch categories
-$sql = "SELECT * FROM Categories";
+$sql = "SELECT * FROM categories";
 $stmt = $pdo->query($sql);
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch products
-$sql = "SELECT * FROM Products";
+$sql = "SELECT * FROM products";
 $stmt = $pdo->query($sql);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -15,7 +15,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 //Shop Page
 // Fetch all categories
-$sql_categories = "SELECT * FROM Categories";
+$sql_categories = "SELECT * FROM categories";
 $stmt_categories = $pdo->query($sql_categories);
 $categories = $stmt_categories->fetchAll(PDO::FETCH_ASSOC);
 
@@ -27,7 +27,7 @@ $offset = ($page - 1) * $limit; // Offset for pagination
 $category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : 0; // Selected category
 
 // Base SQL query
-$sql_products = "SELECT * FROM Products";
+$sql_products = "SELECT * FROM products";
 
 // Apply category filter
 if ($category_id > 0) {

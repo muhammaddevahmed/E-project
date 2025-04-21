@@ -5,6 +5,9 @@ session_start();
 
 $is_logged_in = isset($_SESSION['user_id']);
 $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_name'] : "Guest User";
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="zxx">
@@ -30,6 +33,8 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
   <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
   <link rel="stylesheet" href="css/style.css" type="text/css">
   <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
+
+
 
   <style>
   .header__menu ul li a {

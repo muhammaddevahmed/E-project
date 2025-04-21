@@ -1,29 +1,24 @@
-<style>
-.star-rating {
-  display: inline-block;
-  font-size: 0;
-  unicode-bidi: bidi-override;
-  direction: ltr;
-}
-
-.star-rating span {
-  font-size: 30px;
-  color: #ccc;
-  cursor: pointer;
-  display: inline-block;
-  margin: 0 5px;
-  transition: color 0.2s;
-}
-
-.star-rating span.selected {
-  color: #ffcc00;
-}
-</style>
 <?php
 include 'php/db_connection.php'; // Include your database connection file
 include("components/header.php");
 
+// Check if user is logged in and fetch their details
+$defaultName = '';
+$defaultEmail = '';
+if (isset($_SESSION['user_id'])) {
+    try {
+        $query = "SELECT full_name, email FROM users WHERE user_id = :user_id";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute(['user_id' => $_SESSION['user_id']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        $defaultName = $user['full_name'] ?? '';
+        $defaultEmail = $user['email'] ?? '';
+    } catch (PDOException $e) {
+        error_log("Error fetching user data: " . $e->getMessage());
+        // Continue with empty defaults if database query fails
+    }
+}
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -58,14 +53,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 throw new Exception("Failed to submit feedback");
             }
-
         } catch (PDOException $e) {
-          echo "<script>alert('Please Login First!'); window.location.href='login.php';</script>";
+            echo "<script>alert('Please Login First!'); window.location.href='login.php';</script>";
             error_log("Database error: " . $e->getMessage());
         }
     }
 }
 ?>
+
+<style>
+.star-rating {
+  display: inline-block;
+  font-size: 0;
+  unicode-bidi: bidi-override;
+  direction: ltr;
+}
+
+.star-rating span {
+  font-size: 30px;
+  color: #ccc;
+  cursor: pointer;
+  display: inline-block;
+  margin: 0 5px;
+  transition: color 0.2s;
+}
+
+.star-rating span.selected {
+  color: #ffcc00;
+}
+</style>
 
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
@@ -135,7 +151,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <h4>Karachi,Pakistan</h4>
       <ul>
         <li>Phone: +92 3442681140</li>
-        <li>Aptech: Shahra-e-Faisal </li>
+        <li>Aptech: Shahra-e-Faisal</li>
       </ul>
     </div>
   </div>
@@ -161,10 +177,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form action="" method="POST">
       <div class="row">
         <div class="col-lg-6 col-md-6">
-          <input type="text" name="name" placeholder="Your name" required>
+          <input type="text" name="name" placeholder="Your name" value="<?php echo htmlspecialchars($defaultName); ?>"
+            required>
         </div>
         <div class="col-lg-6 col-md-6">
-          <input type="email" name="email" placeholder="Your Email" required>
+          <input type="email" name="email" placeholder="Your Email"
+            value="<?php echo htmlspecialchars($defaultEmail); ?>" required>
         </div>
         <div class="col-lg-12 text-center">
           <textarea name="feedback_text" placeholder="Your message" required></textarea>
@@ -172,11 +190,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="col-lg-12 text-center">
           <label for="rating">Rating:</label>
           <div class="star-rating">
-            <span data-value="1">&#9733;</span>
-            <span data-value="2">&#9733;</span>
-            <span data-value="3">&#9733;</span>
-            <span data-value="4">&#9733;</span>
-            <span data-value="5">&#9733;</span>
+            <span data-value="1">★</span>
+            <span data-value="2">★</span>
+            <span data-value="3">★</span>
+            <span data-value="4">★</span>
+            <span data-value="5">★</span>
           </div>
           <input type="hidden" name="rating" id="rating" required>
         </div>

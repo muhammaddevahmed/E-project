@@ -1,3 +1,76 @@
+<?php
+// Include database connection
+include("components/header.php");
+
+// Check session for logged-in user
+$is_logged_in = isset($_SESSION['user_id']);
+$full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_name'] : "Guest User";
+
+// Image path configuration
+$web_root = 'http://localhost/EProject/'; // Adjust to your local URL
+$actual_storage = 'edashboard/html/images/products/';
+$default_image = $web_root . 'edashboard/html/images/default-product.jpg';
+
+// Check if product ID is provided in the URL
+if (isset($_GET['id']) && !empty($_GET['id'])) {
+    $product_id = $_GET['id'];
+
+    // Fetch product details from the database
+    $sql = "SELECT * FROM Products WHERE product_id = :product_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($product) {
+        // Process product image path
+        $filename = basename($product['image_path']);
+        $relative_path = $actual_storage . $filename;
+        $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+        $image_url = $web_root . $relative_path;
+        
+        if (empty($product['image_path']) || !file_exists($absolute_path)) {
+            $image_url = $default_image;
+        }
+        
+        // Product found, assign details to variables
+        $product_name = htmlspecialchars($product['product_name']);
+        $description = htmlspecialchars($product['description']);
+        $price = $product['price'];
+        $stock_quantity = $product['stock_quantity'];
+        $warranty_period = $product['warranty_period'];
+    } else {
+        // Product not found
+        die("Product not found.");
+    }
+} else {
+    // No product ID provided
+    die("Invalid product ID.");
+}
+
+$sql = "SELECT * FROM Reviews WHERE product_id = :product_id ORDER BY created_at DESC";
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
+$stmt->execute();
+$reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate average rating
+$sql = "SELECT AVG(rating) as avg_rating FROM Reviews WHERE product_id = :product_id";
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
+$stmt->execute();
+$avg_rating = $stmt->fetch(PDO::FETCH_ASSOC)['avg_rating'];
+$avg_rating = number_format($avg_rating, 1); // Format to 1 decimal place
+
+// Fetch total number of reviews for the product
+$sql = "SELECT COUNT(*) as total_reviews FROM Reviews WHERE product_id = :product_id";
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
+$stmt->execute();
+$total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
+
+?>
+
 <style>
 .quantity-control {
   display: flex;
@@ -72,76 +145,6 @@
 }
 </style>
 
-<?php
-// Include database connection
-include("components/header.php");
-
-// Image path configuration
-$web_root = 'http://localhost/EProject/'; // Adjust to your local URL
-$actual_storage = 'edashboard/html/images/products/';
-$default_image = $web_root . 'edashboard/html/images/default-product.jpg';
-
-// Check if product ID is provided in the URL
-if (isset($_GET['id']) && !empty($_GET['id'])) {
-    $product_id = $_GET['id'];
-
-    // Fetch product details from the database
-    $sql = "SELECT * FROM Products WHERE product_id = :product_id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
-    $stmt->execute();
-    $product = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($product) {
-        // Process product image path
-        $filename = basename($product['image_path']);
-        $relative_path = $actual_storage . $filename;
-        $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
-        $image_url = $web_root . $relative_path;
-        
-        if (empty($product['image_path']) || !file_exists($absolute_path)) {
-            $image_url = $default_image;
-        }
-        
-        // Product found, assign details to variables
-        $product_name = htmlspecialchars($product['product_name']);
-        $description = htmlspecialchars($product['description']);
-        $price = $product['price'];
-        $stock_quantity = $product['stock_quantity'];
-        $warranty_period = $product['warranty_period'];
-    } else {
-        // Product not found
-        die("Product not found.");
-    }
-} else {
-    // No product ID provided
-    die("Invalid product ID.");
-}
-
-$sql = "SELECT * FROM Reviews WHERE product_id = :product_id ORDER BY created_at DESC";
-$stmt = $pdo->prepare($sql);
-$stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
-$stmt->execute();
-$reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Calculate average rating
-$sql = "SELECT AVG(rating) as avg_rating FROM Reviews WHERE product_id = :product_id";
-$stmt = $pdo->prepare($sql);
-$stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
-$stmt->execute();
-$avg_rating = $stmt->fetch(PDO::FETCH_ASSOC)['avg_rating'];
-$avg_rating = number_format($avg_rating, 1); // Format to 1 decimal place
-
-// Fetch total number of reviews for the product
-$sql = "SELECT COUNT(*) as total_reviews FROM Reviews WHERE product_id = :product_id";
-$stmt = $pdo->prepare($sql);
-$stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
-$stmt->execute();
-$total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
-
-
-?>
-
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
   data-setbg="https://i.pinimg.com/736x/72/e6/21/72e62198095a1c36038869ddf05481f7.jpg">
@@ -206,11 +209,10 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
           <!-- Dynamically display the product description -->
           <p><?php echo $description; ?></p>
 
-
-          <!-- Replace the Add to Cart form section with this code -->
+          <!-- Add to Cart form section -->
           <div class="quantity-control">
             <?php if ($stock_quantity > 0): ?>
-            <form action="add_to_cart.php" method="POST" style="display: inline;">
+            <form action="add_to_cart.php" method="POST" style="display: inline;" onsubmit="return validateQuantity()">
               <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
               <input type="hidden" name="product_name" value="<?php echo $product_name; ?>">
               <input type="hidden" name="price" value="<?php echo $price; ?>">
@@ -219,7 +221,7 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
               <button type="submit" class="primary-btn">ADD TO CART</button>
               <button type="button" class="qty-btn1 dec">-</button>
               <input type="text" name="quantity" class="qty-input" value="1" min="1"
-                max="<?php echo $stock_quantity; ?>">
+                max="<?php echo $stock_quantity; ?>" data-max="<?php echo $stock_quantity; ?>">
               <button type="button" class="qty-btn inc">+</button>
             </form>
             <?php else: ?>
@@ -331,10 +333,8 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
       </div>
     </div>
   </div>
-  </div>
 </section>
 <!-- Product Details Section End -->
-
 
 <!-- Review Modal -->
 <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel"
@@ -344,7 +344,7 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
       <div class="modal-header">
         <h5 class="modal-title" id="reviewModalLabel">Leave a Review</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+          <span aria-hidden="true">×</span>
         </button>
       </div>
       <div class="modal-body">
@@ -352,7 +352,8 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
           <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
           <div class="form-group">
             <label for="user_name">Your Name</label>
-            <input type="text" class="form-control" id="user_name" name="user_name" required>
+            <input type="text" class="form-control" id="user_name" name="user_name"
+              value="<?php echo htmlspecialchars($full_name); ?>" required>
           </div>
           <div class="form-group">
             <label for="rating">Rating</label>
@@ -384,18 +385,18 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
 
 <?php
 // Add this code before including footer.php in product-details.php
-if (isset($_SESSION['review_submitted'])) {  // Added missing parenthesis here
+if (isset($_SESSION['review_submitted'])) {
     unset($_SESSION['review_submitted']); // Clear the session variable
     echo '<script>alert("Thank you for your review! Your feedback has been submitted successfully.");</script>';
 }
 ?>
 
-
-
 <?php
 // Include database connection
 include("components/footer.php");
-?><script>
+?>
+
+<script>
 // Quantity increment/decrement functionality
 document.addEventListener('DOMContentLoaded', function() {
   const decButtons = document.querySelectorAll('.dec');
@@ -416,8 +417,40 @@ document.addEventListener('DOMContentLoaded', function() {
     button.addEventListener('click', function() {
       const input = this.previousElementSibling;
       let value = parseInt(input.value);
-      input.value = value + 1;
+      const max = parseInt(input.getAttribute('data-max'));
+      if (value < max) {
+        input.value = value + 1;
+      } else {
+        alert('You are trying to add more than the available products in stock.');
+      }
+    });
+  });
+
+  // Prevent manual input exceeding stock
+  qtyInputs.forEach(input => {
+    input.addEventListener('input', function() {
+      const max = parseInt(this.getAttribute('data-max'));
+      let value = parseInt(this.value);
+      if (isNaN(value) || value < 1) {
+        this.value = 1;
+      } else if (value > max) {
+        this.value = max;
+        alert('You are trying to add more than the available products in stock.');
+      }
     });
   });
 });
+
+// Validate quantity on form submission
+function validateQuantity() {
+  const qtyInput = document.querySelector('.qty-input');
+  const max = parseInt(qtyInput.getAttribute('data-max'));
+  const value = parseInt(qtyInput.value);
+
+  if (value > max) {
+    alert('You are trying to add more than the available products in stock.');
+    return false;
+  }
+  return true;
+}
 </script>

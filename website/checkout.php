@@ -1,10 +1,3 @@
-<style>
-.site-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  background-color: #cccccc;
-}
-</style>
 <?php
 include("components/header.php");
 
@@ -17,6 +10,49 @@ if (!isset($_SESSION['user_id'])) {
 // Retrieve user information from the session
 $userId = $_SESSION['user_id'];
 $username = $_SESSION['full_name'];
+
+// Fetch user details from the database
+try {
+    $query = "SELECT full_name, email, phone, address FROM users WHERE user_id = :user_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['user_id' => $userId]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Split full_name into first_name and last_name
+    $fullNameParts = explode(' ', $user['full_name'], 2);
+    $defaultFirstName = $fullNameParts[0] ?? '';
+    $defaultLastName = $fullNameParts[1] ?? '';
+    $defaultEmail = $user['email'] ?? '';
+    $defaultPhone = $user['phone'] ?? '';
+    $defaultAddress = $user['address'] ?? '';
+
+} catch (PDOException $e) {
+    error_log("Error fetching user data: " . $e->getMessage());
+    $defaultFirstName = '';
+    $defaultLastName = '';
+    $defaultEmail = '';
+    $defaultPhone = '';
+    $defaultAddress = '';
+}
+
+// Initialize form data from session or database
+$sessionFormData = $_SESSION['checkout_form_data'] ?? [];
+$firstName = $sessionFormData['first_name'] ?? $defaultFirstName;
+$lastName = $sessionFormData['last_name'] ?? $defaultLastName;
+$email = $sessionFormData['email'] ?? $defaultEmail;
+$phone = $sessionFormData['phone'] ?? $defaultPhone;
+$address = $sessionFormData['address'] ?? $defaultAddress;
+$country = $sessionFormData['country'] ?? '';
+$city = $sessionFormData['city'] ?? '';
+$state = $sessionFormData['state'] ?? '';
+$postcode = $sessionFormData['postcode'] ?? '';
+$orderNotes = $sessionFormData['order_notes'] ?? '';
+$paymentMethod = $sessionFormData['payment_method'] ?? '';
+$cardNumber = $sessionFormData['card_number'] ?? '';
+$expiryDate = $sessionFormData['expiry_date'] ?? '';
+$cvv = $sessionFormData['cvv'] ?? '';
+$checkNumber = $sessionFormData['check_number'] ?? '';
+$bankName = $sessionFormData['bank_name'] ?? '';
 
 // Initialize error array
 $errors = [];
@@ -40,6 +76,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = validateInput('email', "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/", "Please enter a valid email address", $errors);
     $paymentMethod = $_POST['payment_method'] ?? '';
     $orderNotes = htmlspecialchars($_POST['order_notes'] ?? '');
+    
+    // Store form data in session
+    $_SESSION['checkout_form_data'] = [
+        'first_name' => $firstName,
+        'last_name' => $lastName,
+        'country' => $country,
+        'address' => $address,
+        'city' => $city,
+        'state' => $state,
+        'postcode' => $postcode,
+        'phone' => $phone,
+        'email' => $email,
+        'order_notes' => $orderNotes,
+        'payment_method' => $paymentMethod,
+        'card_number' => $_POST['card_number'] ?? '',
+        'expiry_date' => $_POST['expiry_date'] ?? '',
+        'cvv' => $_POST['cvv'] ?? '',
+        'check_number' => $_POST['check_number'] ?? '',
+        'bank_name' => $_POST['bank_name'] ?? ''
+    ];
     
     // Validate payment method
     if (empty($paymentMethod)) {
@@ -127,21 +183,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $payment_id = $pdo->lastInsertId();
 
             foreach ($_SESSION['cart'] as $product_id => $item) {
-              $quantity = $item['quantity'];
-              
-              // Check if enough stock is available
-              $stockCheck = $pdo->prepare("SELECT stock_quantity FROM products WHERE product_id = ?");
-              $stockCheck->execute([$product_id]);
-              $currentStock = $stockCheck->fetchColumn();
-              
-              if ($currentStock < $quantity) {
-                  throw new PDOException("Not enough stock available for product ID: $product_id");
-              }
-              
-              // Update the stock quantity
-              $updateStock = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
-              $updateStock->execute([$quantity, $product_id]);
-          }
+                $quantity = $item['quantity'];
+                
+                // Check if enough stock is available
+                $stockCheck = $pdo->prepare("SELECT stock_quantity FROM products WHERE product_id = ?");
+                $stockCheck->execute([$product_id]);
+                $currentStock = $stockCheck->fetchColumn();
+                
+                if ($currentStock < $quantity) {
+                    throw new PDOException("Not enough stock available for product ID: $product_id");
+                }
+                
+                // Update the stock quantity
+                $updateStock = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
+                $updateStock->execute([$quantity, $product_id]);
+            }
 
             // Insert the orders
             $sql = "INSERT INTO orders (
@@ -179,8 +235,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Commit the transaction
             $pdo->commit();
 
-            // Clear the cart after successful order
+            // Clear the cart and form data after successful order
             unset($_SESSION['cart']);
+            unset($_SESSION['checkout_form_data']);
 
             // Redirect to confirmation page
             echo "<script>
@@ -196,7 +253,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             // Log detailed error for debugging
             error_log("Order processing error for user $userId: " . $e->getMessage());
-            echo "<script>alert('Error processing your order. You are trying to buy more products then stock');</script>";
+            echo "<script>alert('Error processing your order. You are trying to buy more products than in stock');</script>";
         }
     }
 }
@@ -233,6 +290,13 @@ if (isset($_SESSION['cart'])) {
 }
 $total = $subtotal; // Assuming no tax or shipping for now
 ?>
+<style>
+.site-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #cccccc;
+}
+</style>
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
   data-setbg="https://i.pinimg.com/736x/72/e6/21/72e62198095a1c36038869ddf05481f7.jpg">
@@ -261,9 +325,6 @@ $total = $subtotal; // Assuming no tax or shipping for now
     </div>
     <?php endif; ?>
 
-    <div class="row">
-
-    </div>
     <div class="checkout__form">
       <h4>Billing Details</h4>
       <form action="checkout.php" method="POST" id="checkoutForm"
@@ -275,9 +336,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
               <div class="col-lg-6">
                 <div class="checkout__input">
                   <p>First Name<span>*</span></p>
-                  <input type="text" name="first_name"
-                    value="<?php echo isset($_POST['first_name']) ? htmlspecialchars($_POST['first_name']) : ''; ?>"
-                    required>
+                  <input type="text" name="first_name" value="<?php echo htmlspecialchars($firstName); ?>" required>
                   <?php if (isset($errors['first_name'])): ?>
                   <small class="text-danger"><?php echo $errors['first_name']; ?></small>
                   <?php endif; ?>
@@ -286,9 +345,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
               <div class="col-lg-6">
                 <div class="checkout__input">
                   <p>Last Name<span>*</span></p>
-                  <input type="text" name="last_name"
-                    value="<?php echo isset($_POST['last_name']) ? htmlspecialchars($_POST['last_name']) : ''; ?>"
-                    required>
+                  <input type="text" name="last_name" value="<?php echo htmlspecialchars($lastName); ?>" required>
                   <?php if (isset($errors['last_name'])): ?>
                   <small class="text-danger"><?php echo $errors['last_name']; ?></small>
                   <?php endif; ?>
@@ -297,8 +354,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
             </div>
             <div class="checkout__input">
               <p>Country<span>*</span></p>
-              <input type="text" name="country"
-                value="<?php echo isset($_POST['country']) ? htmlspecialchars($_POST['country']) : ''; ?>" required>
+              <input type="text" name="country" value="<?php echo htmlspecialchars($country); ?>" required>
               <?php if (isset($errors['country'])): ?>
               <small class="text-danger"><?php echo $errors['country']; ?></small>
               <?php endif; ?>
@@ -306,31 +362,28 @@ $total = $subtotal; // Assuming no tax or shipping for now
             <div class="checkout__input">
               <p>Address<span>*</span></p>
               <input type="text" name="address" placeholder="Street Address" class="checkout__input__add"
-                value="<?php echo isset($_POST['address']) ? htmlspecialchars($_POST['address']) : ''; ?>" required>
+                value="<?php echo htmlspecialchars($address); ?>" required>
               <?php if (isset($errors['address'])): ?>
               <small class="text-danger"><?php echo $errors['address']; ?></small>
               <?php endif; ?>
             </div>
             <div class="checkout__input">
               <p>City<span>*</span></p>
-              <input type="text" name="city"
-                value="<?php echo isset($_POST['city']) ? htmlspecialchars($_POST['city']) : ''; ?>" required>
+              <input type="text" name="city" value="<?php echo htmlspecialchars($city); ?>" required>
               <?php if (isset($errors['city'])): ?>
               <small class="text-danger"><?php echo $errors['city']; ?></small>
               <?php endif; ?>
             </div>
             <div class="checkout__input">
               <p>State<span>*</span></p>
-              <input type="text" name="state"
-                value="<?php echo isset($_POST['state']) ? htmlspecialchars($_POST['state']) : ''; ?>" required>
+              <input type="text" name="state" value="<?php echo htmlspecialchars($state); ?>" required>
               <?php if (isset($errors['state'])): ?>
               <small class="text-danger"><?php echo $errors['state']; ?></small>
               <?php endif; ?>
             </div>
             <div class="checkout__input">
               <p>Postcode / ZIP<span>*</span></p>
-              <input type="text" name="postcode"
-                value="<?php echo isset($_POST['postcode']) ? htmlspecialchars($_POST['postcode']) : ''; ?>" required>
+              <input type="text" name="postcode" value="<?php echo htmlspecialchars($postcode); ?>" required>
               <?php if (isset($errors['postcode'])): ?>
               <small class="text-danger"><?php echo $errors['postcode']; ?></small>
               <?php endif; ?>
@@ -339,8 +392,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
               <div class="col-lg-6">
                 <div class="checkout__input">
                   <p>Phone<span>*</span></p>
-                  <input type="text" name="phone"
-                    value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>" required>
+                  <input type="text" name="phone" value="<?php echo htmlspecialchars($phone); ?>" required>
                   <?php if (isset($errors['phone'])): ?>
                   <small class="text-danger"><?php echo $errors['phone']; ?></small>
                   <?php endif; ?>
@@ -349,8 +401,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
               <div class="col-lg-6">
                 <div class="checkout__input">
                   <p>Email<span>*</span></p>
-                  <input type="text" name="email"
-                    value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required>
+                  <input type="text" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
                   <?php if (isset($errors['email'])): ?>
                   <small class="text-danger"><?php echo $errors['email']; ?></small>
                   <?php endif; ?>
@@ -362,7 +413,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
               <p>Order notes</p>
               <input type="text" name="order_notes"
                 placeholder="Notes about your order, e.g. special notes for delivery."
-                value="<?php echo isset($_POST['order_notes']) ? htmlspecialchars($_POST['order_notes']) : ''; ?>">
+                value="<?php echo htmlspecialchars($orderNotes); ?>">
             </div>
           </div>
 
@@ -375,7 +426,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                 <?php foreach ($_SESSION['cart'] as $product_id => $item): ?>
                 <?php if (isset($item['product_name']) && isset($item['price']) && isset($item['quantity'])): ?>
                 <li>
-                  <?php echo $item['product_name']; ?> (Qty: <?php echo $item['quantity']; ?>)
+                  <?php echo htmlspecialchars($item['product_name']); ?> (Qty: <?php echo $item['quantity']; ?>)
                   <span>Rs <?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
                 </li>
                 <?php endif; ?>
@@ -399,8 +450,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                   <label for="cash-on-delivery">
                     <i class="fa fa-money-bill-wave"></i> Cash on Delivery
                     <input type="radio" id="cash-on-delivery" name="payment_method" value="cash_on_delivery"
-                      <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'cash_on_delivery') ? 'checked' : ''; ?>
-                      required>
+                      <?php echo ($paymentMethod == 'cash_on_delivery') ? 'checked' : ''; ?> required>
                     <span class="checkmark"></span>
                   </label>
                 </div>
@@ -408,7 +458,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                   <label for="check-payment">
                     <i class="fa fa-money-check"></i> Check Payment
                     <input type="radio" id="check-payment" name="payment_method" value="check_payment"
-                      <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'check_payment') ? 'checked' : ''; ?>>
+                      <?php echo ($paymentMethod == 'check_payment') ? 'checked' : ''; ?>>
                     <span class="checkmark"></span>
                   </label>
                 </div>
@@ -416,7 +466,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                   <label for="credit-card">
                     <i class="fa fa-credit-card"></i> Credit/Debit Card
                     <input type="radio" id="credit-card" name="payment_method" value="credit_card"
-                      <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'credit_card') ? 'checked' : ''; ?>>
+                      <?php echo ($paymentMethod == 'credit_card') ? 'checked' : ''; ?>>
                     <span class="checkmark"></span>
                   </label>
                 </div>
@@ -424,7 +474,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                   <label for="paypal">
                     <i class="fa fa-paypal"></i> PayPal
                     <input type="radio" id="paypal" name="payment_method" value="paypal"
-                      <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'paypal') ? 'checked' : ''; ?>>
+                      <?php echo ($paymentMethod == 'paypal') ? 'checked' : ''; ?>>
                     <span class="checkmark"></span>
                   </label>
                 </div>
@@ -438,7 +488,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                 <div class="checkout__input">
                   <p>Check Number<span>*</span></p>
                   <input type="text" name="check_number" placeholder="Enter check number"
-                    value="<?php echo isset($_POST['check_number']) ? htmlspecialchars($_POST['check_number']) : ''; ?>">
+                    value="<?php echo htmlspecialchars($checkNumber); ?>">
                   <?php if (isset($errors['check_number'])): ?>
                   <small class="text-danger"><?php echo $errors['check_number']; ?></small>
                   <?php endif; ?>
@@ -446,7 +496,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                 <div class="checkout__input">
                   <p>Bank Name<span>*</span></p>
                   <input type="text" name="bank_name" placeholder="Enter bank name"
-                    value="<?php echo isset($_POST['bank_name']) ? htmlspecialchars($_POST['bank_name']) : ''; ?>">
+                    value="<?php echo htmlspecialchars($bankName); ?>">
                   <?php if (isset($errors['bank_name'])): ?>
                   <small class="text-danger"><?php echo $errors['bank_name']; ?></small>
                   <?php endif; ?>
@@ -456,7 +506,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                 <div class="checkout__input">
                   <p>Card Number<span>*</span></p>
                   <input type="text" name="card_number" placeholder="1234 5678 9012 3456"
-                    value="<?php echo isset($_POST['card_number']) ? htmlspecialchars($_POST['card_number']) : ''; ?>">
+                    value="<?php echo htmlspecialchars($cardNumber); ?>">
                   <?php if (isset($errors['card_number'])): ?>
                   <small class="text-danger"><?php echo $errors['card_number']; ?></small>
                   <?php endif; ?>
@@ -466,7 +516,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                     <div class="checkout__input">
                       <p>Expiration Date<span>*</span></p>
                       <input type="text" name="expiry_date" placeholder="MM/YY"
-                        value="<?php echo isset($_POST['expiry_date']) ? htmlspecialchars($_POST['expiry_date']) : ''; ?>">
+                        value="<?php echo htmlspecialchars($expiryDate); ?>">
                       <?php if (isset($errors['expiry_date'])): ?>
                       <small class="text-danger"><?php echo $errors['expiry_date']; ?></small>
                       <?php endif; ?>
@@ -475,8 +525,7 @@ $total = $subtotal; // Assuming no tax or shipping for now
                   <div class="col-lg-6">
                     <div class="checkout__input">
                       <p>CVV<span>*</span></p>
-                      <input type="text" name="cvv" placeholder="123"
-                        value="<?php echo isset($_POST['cvv']) ? htmlspecialchars($_POST['cvv']) : ''; ?>">
+                      <input type="text" name="cvv" placeholder="123" value="<?php echo htmlspecialchars($cvv); ?>">
                       <?php if (isset($errors['cvv'])): ?>
                       <small class="text-danger"><?php echo $errors['cvv']; ?></small>
                       <?php endif; ?>
@@ -495,7 +544,8 @@ $total = $subtotal; // Assuming no tax or shipping for now
 </section>
 <!-- Checkout Section End -->
 
-<?php include("components/footer.php"); ?><script>
+<?php include("components/footer.php"); ?>
+<script>
 // Show/hide payment forms based on selected payment method
 document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
   input.addEventListener('change', function() {

@@ -431,8 +431,8 @@
 <script src="js/mixitup.min.js"></script>
 <script src="js/owl.carousel.min.js"></script>
 <script src="js/main.js"></script>
-<script src="js/add_cart.js"></script>
 <script src="js/checkout.js"></script>
+
 <script>
 document.querySelectorAll('[data-setbg]').forEach(element => {
   const imagePath = element.getAttribute('data-setbg');
