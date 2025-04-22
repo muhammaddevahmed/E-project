@@ -81,7 +81,7 @@ include("components/header.php");
                 Explore new art supplies in stock and track your category performance.
               </p>
               <a href="allproducts.php"
-                class="inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">View
+                class="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 transition">View
                 Inventory</a>
             </div>
             <div class="md:w-1/3 p-6 flex items-center justify-center">

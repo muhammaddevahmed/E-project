@@ -81,6 +81,78 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 .star-rating span.selected {
   color: #ffcc00;
 }
+
+/* Chatbot Iframe Styles */
+.chatbot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.chatbot-button {
+  background-color: #7fad39;
+  color: #fff;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s;
+}
+
+.chatbot-button:hover {
+  background-color: #e6b800;
+}
+
+.chatbot-button i {
+  font-size: 24px;
+}
+
+.chatbot-iframe-container {
+  display: none;
+  width: 350px;
+  height: 450px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.chatbot-iframe-container.open {
+  display: block;
+}
+
+.chatbot-header {
+  background-color: #7fad39;
+  color: #fff;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chatbot-header h4 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.chatbot-close {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chatbot-iframe-container {
+    width: 300px;
+    height: 400px;
+  }
+}
 </style>
 
 <!-- Breadcrumb Section Begin -->
@@ -207,6 +279,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 <!-- Contact Form End -->
 
+<!-- Chatbot Iframe Begin -->
+<div class="chatbot-container">
+  <div class="chatbot-button" id="chatbot-toggle">
+    <i class="fa fa-comment"></i>
+  </div>
+  <div class="chatbot-iframe-container" id="chatbot-iframe-container">
+    <div class="chatbot-header">
+      <h4>Chat with Us</h4>
+      <span class="chatbot-close" id="chatbot-close">×</span>
+    </div>
+    <iframe src="https://www.chatbase.co/chatbot-iframe/1UT8fd5KZpZF9IPlSYquk" width="100%"
+      style="height: calc(100% - 50px); min-height: 400px" frameborder="0"></iframe>
+  </div>
+</div>
+<!-- Chatbot Iframe End -->
+
 <?php
 include("components/footer.php");
 ?>
@@ -228,6 +316,19 @@ document.addEventListener('DOMContentLoaded', function() {
         stars[i].classList.add('selected');
       }
     });
+  });
+
+  // Chatbot iframe toggle functionality
+  const chatbotToggle = document.getElementById('chatbot-toggle');
+  const chatbotIframeContainer = document.getElementById('chatbot-iframe-container');
+  const chatbotClose = document.getElementById('chatbot-close');
+
+  chatbotToggle.addEventListener('click', () => {
+    chatbotIframeContainer.classList.toggle('open');
+  });
+
+  chatbotClose.addEventListener('click', () => {
+    chatbotIframeContainer.classList.remove('open');
   });
 });
 </script>
