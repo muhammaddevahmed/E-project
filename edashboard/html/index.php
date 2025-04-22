@@ -1,163 +1,268 @@
-<style>
-.full-width-centered {
-  width: 100%;
-  max-width: 100%;
-  padding: 0 15px;
-  /* Add some padding on sides */
-}
+<?php
+include("components/header.php");
+?>
 
-.centered-content {
-  max-width: 1200px;
-  /* Or your preferred max width */
-  margin: 0 auto;
-  /* Center the content */
-}
-</style>
 
-<?php include("components/header.php"); ?>
 
-<body>
-  <!-- Full width wrapper -->
-  <div class="full-width-centered">
-    <!-- Centered content container -->
-    <div class="centered-content">
-      <!-- Your content here -->
-      <div class="container-xxl flex-grow-1 container-p-y">
-        <!-- Stationary & Art Shop Specific Content -->
-        <div class="row">
-          <div class="col-12">
-            <!-- Welcome Card for Art Shop -->
-            <div class="card mb-4">
-              <div class="d-flex align-items-end row">
-                <div class="col-sm-7">
-                  <div class="card-body">
-                    <h5 class="card-title text-primary">Welcome to Dashboard 🎨</h5>
-                    <p class="mb-4">
-                      You've completed <span class="fw-bold">72%</span> of today's sales target.
-                      Check your new art supplies in stock.
-                    </p>
-                    <a href="allproducts.php" class="btn btn-sm btn-outline-primary">View Inventory</a>
-                  </div>
-                </div>
-                <div class="col-sm-5 text-center text-sm-left">
-                  <div class="card-body pb-0 px-0 px-md-4">
-                    <img src="https://t3.ftcdn.net/jpg/02/89/73/52/360_F_289735210_ilL7T0J9EvenaB8gfEnQRMww0WBBpmiO.jpg"
-                      height="140" alt="Art Supplies" class="img-fluid" />
-                  </div>
-                </div>
-              </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Crafty Corner - Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <style>
+  /* Custom Animations */
+  .fade-in {
+    animation: fadeIn 1s ease-in;
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hover-scale {
+    transition: transform 0.3s ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  /* Glassmorphism Effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #7fad39;
+    border-radius: 4px;
+  }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+
+  <!-- Full Width Wrapper -->
+  <div class="w-full py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Centered Content Container -->
+    <div class="max-w-7xl mx-auto">
+      <!-- Welcome Section -->
+      <div class="mb-8">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden glass fade-in">
+          <div class="flex flex-col md:flex-row">
+            <div class="p-6 md:w-2/3">
+              <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome to Your Dashboard 🎨</h2>
+              <p class="text-gray-600 mb-4">
+                You've achieved <span class="font-bold text-green-600">72%</span> of today's sales target.
+                Explore new art supplies in stock and track your category performance.
+              </p>
+              <a href="allproducts.php"
+                class="inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">View
+                Inventory</a>
+            </div>
+            <div class="md:w-1/3 p-6 flex items-center justify-center">
+              <img src="https://t3.ftcdn.net/jpg/02/89/73/52/360_F_289735210_ilL7T0J9EvenaB8gfEnQRMww0WBBpmiO.jpg"
+                alt="Art Supplies" class="h-32 object-cover rounded fade-in" />
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- Art Shop Metrics -->
-          <div class="col-md-4 mb-4">
-            <div class="card">
-              <div class="card-body">
-                <div class="card-title d-flex align-items-start justify-content-between">
-                  <div class="avatar flex-shrink-0">
-                    <span class="avatar-initial rounded bg-label-primary">
-                      <i class="bx bx-paint"></i>
-                    </span>
-                  </div>
-                </div>
-                <span class="fw-semibold d-block mb-1">Art Supplies Sold</span>
-                <h3 class="card-title mb-2">1,428</h3>
-                <small class="text-success fw-semibold">
-                  <i class="bx bx-up-arrow-alt"></i> +28.14%
-                </small>
-              </div>
+      <!-- Metrics Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Art Supplies Sold -->
+        <div class="bg-white shadow-lg rounded-lg p-6 glass fade-in hover-scale">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="block text-sm text-gray-500">Art Supplies Sold</span>
+              <h3 class="text-2xl font-bold text-gray-800">1,428</h3>
+              <span class="text-green-500 text-sm"><i class="fas fa-arrow-up"></i> +28.14%</span>
+            </div>
+            <span class="bg-blue-100 text-blue-600 p-3 rounded-full">
+              <i class="fas fa-paint-brush"></i>
+            </span>
+          </div>
+        </div>
+        <!-- Stationery Items -->
+        <div class="bg-white shadow-lg rounded-lg p-6 glass fade-in hover-scale">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="block text-sm text-gray-500">Stationery Items</span>
+              <h3 class="text-2xl font-bold text-gray-800">3,287</h3>
+              <span class="text-green-500 text-sm"><i class="fas fa-arrow-up"></i> +18.42%</span>
+            </div>
+            <span class="bg-green-100 text-green-600 p-3 rounded-full">
+              <i class="fas fa-sticky-note"></i>
+            </span>
+          </div>
+        </div>
+        <!-- Total Revenue -->
+        <div class="bg-white shadow-lg rounded-lg p-6 glass fade-in hover-scale">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="block text-sm text-gray-500">Total Revenue</span>
+              <h3 class="text-2xl font-bold text-gray-800">Rs 150,000</h3>
+              <span class="text-green-500 text-sm"><i class="fas fa-arrow-up"></i> +22.63%</span>
+            </div>
+            <span class="bg-teal-100 text-teal-600 p-3 rounded-full">
+
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Revenue Section -->
+      <div class="bg-white shadow-lg rounded-lg p-6 mb-8 glass fade-in">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Revenue by Category</h3>
+        <div id="category-revenue-container">
+          <!-- Dynamic content loaded via AJAX -->
+        </div>
+        <canvas id="categoryRevenueChart" class="mt-6"></canvas>
+      </div>
+
+      <!-- Popular Products Section -->
+      <div class="bg-white shadow-lg rounded-lg p-6 glass fade-in">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Popular Products (Rated 3+ Stars)</h3>
+        <?php
+        require_once 'php/connection.php';
+        try {
+            $query = "
+                SELECT 
+                    p.product_id,
+                    p.product_name,
+                    p.price,
+                    p.image_path
+                FROM products p
+                LEFT JOIN reviews r ON p.product_id = r.product_id
+                GROUP BY p.product_id
+                HAVING AVG(r.rating) >= 3
+                ORDER BY AVG(r.rating) DESC
+                LIMIT 3
+            ";
+            $stmt = $pdo->query($query);
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $products = [];
+            echo '<p class="text-red-500">Error fetching products: ' . htmlspecialchars($e->getMessage()) . '</p>';
+        }
+        ?>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <?php if (empty($products)): ?>
+          <p class="text-gray-600 col-span-3">No products with 3+ star ratings found.</p>
+          <?php else: ?>
+          <?php foreach ($products as $product): ?>
+          <div class="bg-gray-50 rounded-lg overflow-hidden shadow hover-scale">
+            <img src="<?php echo htmlspecialchars($product['image_path']); ?>"
+              alt="<?php echo htmlspecialchars($product['product_name']); ?>" class="w-full h-48 object-cover">
+            <div class="p-4">
+              <h5 class="text-lg font-bold text-gray-800"><?php echo htmlspecialchars($product['product_name']); ?></h5>
+              <span class="font-bold text-green-600">Rs <?php echo number_format($product['price'], 2); ?></span>
             </div>
           </div>
-
-          <div class="col-md-4 mb-4">
-            <div class="card">
-              <div class="card-body">
-                <div class="card-title d-flex align-items-start justify-content-between">
-                  <div class="avatar flex-shrink-0">
-                    <span class="avatar-initial rounded bg-label-success">
-                      <i class="bx bx-notepad"></i>
-                    </span>
-                  </div>
-                </div>
-                <span class="fw-semibold d-block mb-1">Stationary Items</span>
-                <h3 class="card-title mb-2">3,287</h3>
-                <small class="text-success fw-semibold">
-                  <i class="bx bx-up-arrow-alt"></i> +18.42%
-                </small>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-4 mb-4">
-            <div class="card">
-              <div class="card-body">
-                <div class="card-title d-flex align-items-start justify-content-between">
-                  <div class="avatar flex-shrink-0">
-                    <span class="avatar-initial rounded bg-label-info">
-                      <i class="bx bx-dollar"></i>
-                    </span>
-                  </div>
-                </div>
-                <span class="fw-semibold d-block mb-1">Total Revenue</span>
-                <h3 class="card-title mb-2">Rs 1,50000</h3>
-                <small class="text-success fw-semibold">
-                  <i class="bx bx-up-arrow-alt"></i> +22.63%
-                </small>
-              </div>
-            </div>
-          </div>
-
-          <!-- Art Products Section -->
-          <div class="col-12 mb-4">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="card-title mb-0">Popular Products</h5>
-              </div>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                      <img class="card-img-top"
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf7gYV_tBE-KIVF9Tc-XFL1Lx4_Cjj6oUCFQ&s"
-                        alt="Watercolor Set">
-                      <div class="card-body">
-                        <h5 class="card-title">Watercolor Set</h5>
-                        <p class="card-text">24-color professional watercolor palette</p>
-                        <span class="fw-bold">Rs 500</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                      <img class="card-img-top"
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXGgxv8PwzA6yQsTVZvvcO-15Opu-lrEj54Q&s"
-                        alt="Sketchbook">
-                      <div class="card-body">
-                        <h5 class="card-title">Premium Sketchbook</h5>
-                        <p class="card-text">120gsm acid-free paper, 50 sheets</p>
-                        <span class="fw-bold">Rs 400</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                      <img class="card-img-top"
-                        src="https://market-resized.envatousercontent.com/previews/files/299819032/Calligraphy-pen-590x590.jpg?w=590&h=590&cf_fit=crop&crop=top&format=auto&q=85&s=fe8abaa0465eb0061383014c8c134c3549dadecf07b8f50ac396ef438b703dc8"
-                        alt="Calligraphy Pen">
-                      <div class="card-body">
-                        <h5 class="card-title">Calligraphy Pen Set</h5>
-                        <p class="card-text">5 nibs with ink and practice guide</p>
-                        <span class="fw-bold">Rs 300</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <?php endforeach; ?>
+          <?php endif; ?>
         </div>
       </div>
     </div>
   </div>
 
   <?php include("components/footer.php"); ?>
+
+  <script>
+  // Fetch category revenue data and update chart
+  async function fetchCategoryRevenue() {
+    try {
+      const response = await fetch('fetch_category_revenue.php');
+      const data = await response.json();
+
+      // Update revenue container
+      const container = document.getElementById('category-revenue-container');
+      container.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            ${data.map(category => `
+              <div class="bg-gray-50 p-4 rounded-lg shadow flex items-center">
+                <span class="text-2xl text-green-600 mr-4"><i class="${category.icon}"></i></span>
+                <div>
+                  <h4 class="font-bold text-gray-800">${category.category_name}</h4>
+                  <p class="text-gray-600">Revenue: Rs ${category.revenue.toLocaleString()}</p>
+                  <p class="text-gray-600">Orders: ${category.order_count}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-teal-50 p-4 rounded-lg shadow">
+            <h4 class="font-bold text-gray-800">Top Category</h4>
+            <p class="text-gray-600">${data[0]?.category_name || 'N/A'}: Rs ${data[0]?.revenue.toLocaleString() || '0'}</p>
+          </div>
+        `;
+
+      // Update chart
+      const ctx = document.getElementById('categoryRevenueChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(item => item.category_name),
+          datasets: [{
+            label: 'Revenue (Rs)',
+            data: data.map(item => item.revenue),
+            backgroundColor: ['#7fad39', '#4ade80', '#2dd4bf', '#60a5fa', '#f87171'],
+            borderColor: ['#5f8a2b', '#38a169', '#1ebeb4', '#3b82f6', '#ef4444'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: context => `Rs ${context.parsed.y.toLocaleString()}`
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value => `Rs ${value.toLocaleString()}`
+              }
+            }
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching category revenue:', error);
+      document.getElementById('category-revenue-container').innerHTML =
+        '<p class="text-red-500">Error loading category data. Please try again later.</p>';
+    }
+  }
+
+  // Initial fetch and periodic updates
+  fetchCategoryRevenue();
+  </script>

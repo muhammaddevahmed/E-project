@@ -5,16 +5,13 @@ session_start();
 
 $is_logged_in = isset($_SESSION['user_id']);
 $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_name'] : "Guest User";
-
-
-
 ?>
 <!DOCTYPE html>
 <html lang="zxx">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="description" content="Ogani Template">
+  <meta name="description" content="Ogani TEMPLATE">
   <meta name="keywords" content="Ogani, unica, creative, html">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -34,8 +31,6 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
   <link rel="stylesheet" href="css/style.css" type="text/css">
   <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
 
-
-
   <style>
   .header__menu ul li a {
     font-size: 14px;
@@ -43,6 +38,78 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
 
   .header__menu__dropdown li a {
     font-size: 16px;
+  }
+
+  .header__cart .notification {
+    position: relative;
+    margin-left: 15px;
+    display: inline-block;
+  }
+
+  .header__cart .notification a {
+    color: #7fad39;
+    /* Dark green */
+    transition: color 0.3s ease;
+  }
+
+  .header__cart .notification a:hover {
+    color: #90EE90;
+    /* Light green */
+  }
+
+  .header__cart .notification .badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #FFFF00;
+    /* Yellow */
+    color: #7fad39;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .header__cart .notification .badge:hover {
+    background-color: #FFFFE0;
+    /* Light yellow */
+  }
+
+  .humberger__menu__cart .notification {
+    position: relative;
+    margin-left: 15px;
+    display: inline-block;
+  }
+
+  .humberger__menu__cart .notification a {
+    color: #7fad39;
+    /* Dark green */
+    transition: color 0.3s ease;
+  }
+
+  .humberger__menu__cart .notification a:hover {
+    color: #90EE90;
+    /* Light green */
+  }
+
+  .humberger__menu__cart .notification .badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #FFFF00;
+    /* Yellow */
+    color: #000;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .humberger__menu__cart .notification .badge:hover {
+    background-color: #FFFFE0;
+    /* Light yellow */
   }
   </style>
 </head>
@@ -90,6 +157,17 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
           echo 'Rs ' . $subtotal;
           ?>
         </span>
+        <span class="notification">
+          <a href="notifications.php">
+            <i class="fa fa-bell"></i>
+            <span class="badge" id="notification-count">
+              <?php
+              $notification_count = isset($_SESSION['notifications']) ? count($_SESSION['notifications']) : 0;
+              echo $notification_count;
+              ?>
+            </span>
+          </a>
+        </span>
       </div>
     </div>
     <div class="humberger__menu__widget">
@@ -117,7 +195,6 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
       <ul>
         <li class="active"><a href="./index.php">Home</a></li>
         <li><a href="./shop-grid.php">Shop</a></li>
-
         <li class="active"><a href="./about.php">About Us</a></li>
         <li><a href="./returns.php">Returns</a></li>
         <li><a href="./contact.php">Contact</a></li>
@@ -169,7 +246,6 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                   <li><a href="profile.php">Profile</a></li>
                   <li><a href="invoices.php">Invoices</a></li>
                   <li><a href="orders_item.php">MY Orders</a></li>
-
                 </ul>
               </div>
               <?php endif; ?>
@@ -198,7 +274,6 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
             <ul>
               <li class="active"><a href="./index.php">Home</a></li>
               <li><a href="./shop-grid.php">Shop</a></li>
-
               <li><a href="./about.php">About</a></li>
               <li><a href="./returns.php">Returns</a></li>
               <li><a href="./contact.php">Contact</a></li>
@@ -236,6 +311,17 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                 }
                 echo 'Rs '. $subtotal;
                 ?>
+              </span>
+              <span class="notification">
+                <a href="notifications.php">
+                  <i class="fa fa-bell"></i>
+                  <span class="badge" id="notification-count">
+                    <?php
+                    $notification_count = isset($_SESSION['notifications']) ? count($_SESSION['notifications']) : 0;
+                    echo $notification_count;
+                    ?>
+                  </span>
+                </a>
               </span>
             </div>
           </div>
