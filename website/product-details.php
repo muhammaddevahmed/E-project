@@ -123,7 +123,8 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
   background-size: cover;
   background-position: center;
   margin-bottom: 15px;
-  position: relative; /* Added for wishlist icon positioning */
+  position: relative;
+  /* Added for wishlist icon positioning */
 }
 
 .product__details__pic__item--large {
@@ -191,7 +192,8 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
           <div class="product__details__pic__item">
             <img class="product__details__pic__item--large" src="<?php echo $image_url; ?>"
               alt="<?php echo $product_name; ?>">
-            <i class="fa fa-heart wishlist-icon" data-product-id="<?php echo $product_id; ?>" title="Add to Wishlist"></i>
+            <i class="fa fa-heart wishlist-icon" data-product-id="<?php echo $product_id; ?>"
+              title="Add to Wishlist"></i>
           </div>
         </div>
       </div>
@@ -229,7 +231,8 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
               <button type="button" class="qty-btn inc">+</button>
             </form>
             <?php else: ?>
-            <button class="primary-btn" disabled style="background-color:rgb(228, 49, 49); cursor: not-allowed;">OUT OF STOCK</button>
+            <button class="primary-btn" disabled style="background-color:rgb(228, 49, 49); cursor: not-allowed;">OUT OF
+              STOCK</button>
             <?php endif; ?>
           </div>
           <ul>
@@ -372,9 +375,8 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
 
 <!-- Center the button using Bootstrap -->
 <div class="d-flex justify-content-center mb-4">
-  <button type="button" class="btn btn-success review-btn" 
-    <?php echo !$is_logged_in ? 'disabled' : ''; ?> 
-    data-toggle="<?php echo $is_logged_in ? 'modal' : ''; ?>" 
+  <button type="button" class="btn btn-success review-btn" <?php echo !$is_logged_in ? 'disabled' : ''; ?>
+    data-toggle="<?php echo $is_logged_in ? 'modal' : ''; ?>"
     data-target="<?php echo $is_logged_in ? '#reviewModal' : ''; ?>">
     Leave a Review
   </button>
@@ -445,25 +447,26 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       const productId = this.getAttribute('data-product-id');
       fetch('add_to_wishlist.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `product_id=${productId}`
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Product added to wishlist!');
-          this.classList.add('added');
-        } else {
-          alert(data.message || 'Please login to add to wishlist');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while adding to wishlist');
-      });
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `product_id=${productId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Product added to wishlist!');
+            this.classList.add('added');
+            location.reload();
+          } else {
+            alert(data.message || 'Please login to add to wishlist');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while adding to wishlist');
+        });
     });
   });
 

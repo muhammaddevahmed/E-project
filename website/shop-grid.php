@@ -445,6 +445,7 @@ document.querySelectorAll('.wishlist-icon').forEach(icon => {
           alert('Product added to wishlist!');
           this.classList.add('added');
           this.style.color = '#ff0000';
+          location.reload();
         } else {
           alert(data.message || 'Please login to add to wishlist');
         }

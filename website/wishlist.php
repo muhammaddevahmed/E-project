@@ -329,7 +329,6 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <th>Image</th>
                   <th>Name</th>
                   <th>Price</th>
-                  <th>Stock Status</th>
                   <th>Added On</th>
                   <th>Action</th>
                   <th></th>
@@ -366,9 +365,7 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <td class="product-price" data-label="Price">
                     Rs <?php echo number_format($item['price'], 2); ?>
                   </td>
-                  <td class="product-stock <?php echo $in_stock ? '' : 'out'; ?>" data-label="Stock">
-                    <?php echo $in_stock ? 'In Stock' : 'Out of Stock'; ?>
-                  </td>
+
                   <td data-label="Added On">
                     <?php echo date('M j, Y', strtotime($item['added_at'])); ?>
                   </td>
