@@ -68,7 +68,6 @@ $stmt = $pdo->prepare($sql);
 $stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
 $stmt->execute();
 $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
-
 ?>
 
 <style>
@@ -113,35 +112,53 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
 }
 
 .btnNew {
-  background-color: #7fad39
+  background-color: #7fad39;
 }
 
 .product__details__pic__item {
   width: 440px;
-  /* Ensure the image takes full width of its container */
   height: 450px;
-  /* Increase the height for a larger image */
   border: 2px solid #ccc;
-  /* Add a light gray border */
   border-radius: 10px;
-  /* Add rounded corners */
   background-size: cover;
-  /* Ensure the image covers the container */
   background-position: center;
-  /* Center the image */
   margin-bottom: 15px;
-  /* Add some spacing below the image */
+  position: relative; /* Added for wishlist icon positioning */
 }
 
 .product__details__pic__item--large {
   max-width: 100%;
-  /* Ensure the image doesn't exceed the container width */
   height: 100%;
-  /* Make the image fill the container height */
   object-fit: cover;
-  /* Ensure the image scales properly */
   border-radius: 10px;
-  /* Match the border radius of the container */
+}
+
+/* Wishlist Icon Styles */
+.wishlist-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(127, 173, 57, 0.9);
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.wishlist-icon:hover {
+  background: #6a9a2b;
+  transform: scale(1.1);
+}
+
+.wishlist-icon.added {
+  color: #ff0000;
+}
+
+.product__details__pic__item:hover .wishlist-icon {
+  opacity: 1;
 }
 </style>
 
@@ -152,12 +169,10 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
     <div class="row">
       <div class="col-lg-12 text-center">
         <div class="breadcrumb__text">
-          <!-- Dynamically display the product name -->
           <h2><?php echo $product_name; ?></h2>
           <div class="breadcrumb__option">
-            <a href="./index.html">Home</a>
-            <a href="./index.html">Products</a>
-            <!-- Dynamically display the product name -->
+            <a href="./index.php">Home</a>
+            <a href="./shop-grid.php">Products</a>
             <span><?php echo $product_name; ?></span>
           </div>
         </div>
@@ -173,27 +188,21 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
     <div class="row">
       <div class="col-lg-6 col-md-6">
         <div class="product__details__pic">
-          <div class="col-lg-6 col-md-6">
-            <div class="product__details__pic">
-              <div class="product__details__pic__item">
-                <img class="product__details__pic__item--large" src="<?php echo $image_url; ?>"
-                  alt="<?php echo $product_name; ?>">
-              </div>
-            </div>
+          <div class="product__details__pic__item">
+            <img class="product__details__pic__item--large" src="<?php echo $image_url; ?>"
+              alt="<?php echo $product_name; ?>">
+            <i class="fa fa-heart wishlist-icon" data-product-id="<?php echo $product_id; ?>" title="Add to Wishlist"></i>
           </div>
-          <!-- Add more images if needed -->
         </div>
       </div>
       <div class="col-lg-6 col-md-6">
         <div class="product__details__text">
-          <!-- Dynamically display the product name -->
           <h3><?php echo $product_name; ?></h3>
-
           <div class="product__details__rating">
             <?php
-    $full_stars = floor($avg_rating);
-    $half_star = ($avg_rating - $full_stars) >= 0.5;
-    for ($i = 1; $i <= 5; $i++): ?>
+            $full_stars = floor($avg_rating);
+            $half_star = ($avg_rating - $full_stars) >= 0.5;
+            for ($i = 1; $i <= 5; $i++): ?>
             <?php if ($i <= $full_stars): ?>
             <i class="fa fa-star"></i>
             <?php elseif ($half_star && $i == $full_stars + 1): ?>
@@ -204,12 +213,8 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
             <?php endfor; ?>
             <span>(<?php echo count($reviews); ?> reviews)</span>
           </div>
-          <!-- Dynamically display the product price -->
           <div class="product__details__price">Rs <?php echo $price; ?></div>
-          <!-- Dynamically display the product description -->
           <p><?php echo $description; ?></p>
-
-          <!-- Add to Cart form section -->
           <div class="quantity-control">
             <?php if ($stock_quantity > 0): ?>
             <form action="add_to_cart.php" method="POST" style="display: inline;" onsubmit="return validateQuantity()">
@@ -217,7 +222,6 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
               <input type="hidden" name="product_name" value="<?php echo $product_name; ?>">
               <input type="hidden" name="price" value="<?php echo $price; ?>">
               <input type="hidden" name="image_path" value="<?php echo $image_url; ?>">
-
               <button type="submit" class="primary-btn">ADD TO CART</button>
               <button type="button" class="qty-btn1 dec">-</button>
               <input type="text" name="quantity" class="qty-input" value="1" min="1"
@@ -225,17 +229,13 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
               <button type="button" class="qty-btn inc">+</button>
             </form>
             <?php else: ?>
-            <button class="primary-btn" disabled style="background-color:rgb(228, 49, 49); cursor: not-allowed;">OUT OF
-              STOCK</button>
+            <button class="primary-btn" disabled style="background-color:rgb(228, 49, 49); cursor: not-allowed;">OUT OF STOCK</button>
             <?php endif; ?>
           </div>
-
           <ul>
-            <!-- Dynamically display availability -->
             <li><b>Availability</b>
               <span><?php echo ($stock_quantity > 0) ? 'In Stock' : 'Out of Stock'; ?></span>
             </li>
-            <!-- Dynamically display warranty period -->
             <li><b>Warranty</b> <span><?php echo $warranty_period; ?> months</span></li>
             <li><b>Share on</b>
               <div class="share">
@@ -268,27 +268,22 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
             <div class="tab-pane active" id="tabs-1" role="tabpanel">
               <div class="product__details__tab__desc">
                 <h6>Products Information</h6>
-                <!-- Dynamically display the product description -->
                 <p><?php echo $description; ?></p>
               </div>
             </div>
-
             <div class="tab-pane" id="tabs-2" role="tabpanel">
               <div class="product__details__tab__desc">
                 <h6>Additional Information</h6>
-                <!-- Dynamically display warranty and stock quantity -->
                 <p>Warranty: <?php echo $warranty_period; ?> months</p>
                 <p>Stock Quantity: <?php echo $stock_quantity; ?></p>
               </div>
             </div>
-            <!-- Display Reviews -->
             <div class="tab-pane" id="tabs-3" role="tabpanel">
               <div class="product__details__tab__desc">
                 <h6>Customer Reviews</h6>
                 <?php if (empty($reviews)): ?>
                 <p>No reviews yet.</p>
                 <?php else: ?>
-                <!-- Display average rating -->
                 <div class="average-rating">
                   <h4>Average Rating: <?php echo $avg_rating; ?> / 5</h4>
                   <div class="stars">
@@ -306,7 +301,6 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
                     <?php endfor; ?>
                   </div>
                 </div>
-                <!-- Display individual reviews -->
                 <div class="reviews">
                   <?php foreach ($reviews as $review): ?>
                   <div class="review">
@@ -378,7 +372,10 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
 
 <!-- Center the button using Bootstrap -->
 <div class="d-flex justify-content-center mb-4">
-  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#reviewModal">
+  <button type="button" class="btn btn-success review-btn" 
+    <?php echo !$is_logged_in ? 'disabled' : ''; ?> 
+    data-toggle="<?php echo $is_logged_in ? 'modal' : ''; ?>" 
+    data-target="<?php echo $is_logged_in ? '#reviewModal' : ''; ?>">
     Leave a Review
   </button>
 </div>
@@ -402,6 +399,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const decButtons = document.querySelectorAll('.dec');
   const incButtons = document.querySelectorAll('.inc');
   const qtyInputs = document.querySelectorAll('.qty-input');
+  const wishlistIcons = document.querySelectorAll('.wishlist-icon');
+  const reviewButton = document.querySelector('.review-btn');
 
   decButtons.forEach(button => {
     button.addEventListener('click', function() {
@@ -439,6 +438,41 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+  // Wishlist functionality
+  wishlistIcons.forEach(icon => {
+    icon.addEventListener('click', function(e) {
+      e.preventDefault();
+      const productId = this.getAttribute('data-product-id');
+      fetch('add_to_wishlist.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `product_id=${productId}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Product added to wishlist!');
+          this.classList.add('added');
+        } else {
+          alert(data.message || 'Please login to add to wishlist');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding to wishlist');
+      });
+    });
+  });
+
+  // Prevent review modal for non-logged-in users
+  if (reviewButton && !<?php echo json_encode($is_logged_in); ?>) {
+    reviewButton.addEventListener('click', function() {
+      alert('Please login to leave a review.');
+    });
+  }
 });
 
 // Validate quantity on form submission

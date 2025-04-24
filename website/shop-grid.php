@@ -81,7 +81,6 @@ foreach ($products as &$product) {
         : $default_image;
 }
 unset($product); // break reference
-
 ?>
 
 <style>
@@ -106,6 +105,8 @@ unset($product); // break reference
   background-position: center;
   border-bottom: 1px solid #f0f0f0;
   transition: all 0.5s;
+  position: relative;
+  /* Added for wishlist icon positioning */
 }
 
 .product__item:hover .product__item__pic {
@@ -227,8 +228,30 @@ unset($product); // break reference
   color: #7fad39;
   font-weight: 700;
 }
-</style>
 
+/* Wishlist Icon Styles */
+.wishlist-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(127, 173, 57, 0.9);
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.wishlist-icon:hover {
+  background: #6a9a2b;
+  transform: scale(1.1);
+}
+
+.product__item__pic:hover .wishlist-icon {
+  opacity: 1;
+}
+</style>
 
 <!-- Hero Section Begin -->
 <section class="hero mt-4">
@@ -307,7 +330,6 @@ unset($product); // break reference
               <?php endforeach; ?>
             </ul>
           </div>
-
         </div>
       </div>
       <div class="col-lg-9 col-md-7">
@@ -362,11 +384,12 @@ unset($product); // break reference
                 $image_url = $default_image;
             }
           ?>
-
           <div class="col-lg-4 col-md-6 col-sm-6">
             <div class="product__item">
               <div class="product__item__pic set-bg" data-setbg="<?php echo $image_url; ?>"
                 style="background-image: url('<?php echo $image_url; ?>');">
+                <i class="fa fa-heart wishlist-icon" data-product-id="<?php echo $product['product_id']; ?>"
+                  title="Add to Wishlist"></i>
               </div>
               <div class="product__item__text">
                 <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">
@@ -401,3 +424,35 @@ unset($product); // break reference
 <?php
 include("components/footer.php");
 ?>
+
+<script>
+// Wishlist functionality
+document.querySelectorAll('.wishlist-icon').forEach(icon => {
+  icon.addEventListener('click', function(e) {
+    e.preventDefault();
+    const productId = this.getAttribute('data-product-id');
+
+    fetch('add_to_wishlist.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `product_id=${productId}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Product added to wishlist!');
+          this.classList.add('added');
+          this.style.color = '#ff0000';
+        } else {
+          alert(data.message || 'Please login to add to wishlist');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding to wishlist');
+      });
+  });
+});
+</script>

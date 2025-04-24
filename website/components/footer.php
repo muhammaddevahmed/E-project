@@ -438,6 +438,105 @@ document.querySelectorAll('[data-setbg]').forEach(element => {
   const imagePath = element.getAttribute('data-setbg');
   element.style.backgroundImage = `url(${imagePath})`;
 });
+
+// Add this to your main JavaScript file or before </body> tag
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize wishlist count on page load
+  updateWishlistCount();
+
+  // Set interval to periodically update count (optional)
+  setInterval(updateWishlistCount, 30000); // Update every 30 seconds
+});
+
+// Function to update wishlist count
+function updateWishlistCount() {
+  fetch('get_wishlist_count.php')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        // Update all wishlist counters on the page
+        document.querySelectorAll('#wishlist-item-count').forEach(el => {
+          el.textContent = data.count;
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error updating wishlist count:', error);
+    });
+}
+
+// Function to handle wishlist toggle
+function toggleWishlist(icon) {
+  const productId = icon.getAttribute('data-product-id');
+  const isActive = icon.classList.contains('active');
+
+  fetch('wishlist_action.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `action=${isActive ? 'remove' : 'add'}&product_id=${productId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Toggle active class
+        icon.classList.toggle('active');
+
+        // Update all instances of this product's wishlist icon
+        document.querySelectorAll(`.wishlist-icon[data-product-id="${productId}"]`).forEach(el => {
+          el.classList.toggle('active', !isActive);
+        });
+
+        // Update the wishlist count
+        if (data.hasOwnProperty('count')) {
+          document.querySelectorAll('#wishlist-item-count').forEach(el => {
+            el.textContent = data.count;
+          });
+        } else {
+          updateWishlistCount();
+        }
+
+        // Show toast notification
+        showToast(isActive ? 'Product removed from wishlist' : 'Product added to wishlist');
+      } else {
+        if (data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          showToast(data.message || 'An error occurred', 'error');
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showToast('An error occurred. Please try again.', 'error');
+    });
+}
+
+// Toast notification function
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = `toast-notification ${type}`;
+  toast.innerHTML = `
+        <i class="fa ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }, 10);
+}
 </script>
 
 </body>

@@ -40,29 +40,38 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
     font-size: 16px;
   }
 
-  .header__cart .notification {
+  .header__cart .notification,
+  .header__cart .wishlist,
+  .humberger__menu__cart .notification,
+  .humberger__menu__cart .wishlist {
     position: relative;
     margin-left: 15px;
     display: inline-block;
   }
 
-  .header__cart .notification a {
+  .header__cart .notification a,
+  .header__cart .wishlist a,
+  .humberger__menu__cart .notification a,
+  .humberger__menu__cart .wishlist a {
     color: #7fad39;
-    /* Dark green */
     transition: color 0.3s ease;
   }
 
-  .header__cart .notification a:hover {
+  .header__cart .notification a:hover,
+  .header__cart .wishlist a:hover,
+  .humberger__menu__cart .notification a:hover,
+  .humberger__menu__cart .wishlist a:hover {
     color: #90EE90;
-    /* Light green */
   }
 
-  .header__cart .notification .badge {
+  .header__cart .notification .badge,
+  .header__cart .wishlist .badge,
+  .humberger__menu__cart .notification .badge,
+  .humberger__menu__cart .wishlist .badge {
     position: absolute;
     top: -10px;
     right: -10px;
     background-color: #FFFF00;
-    /* Yellow */
     color: #7fad39;
     border-radius: 50%;
     padding: 2px 6px;
@@ -71,45 +80,16 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
     transition: background-color 0.3s ease;
   }
 
-  .header__cart .notification .badge:hover {
-    background-color: #FFFFE0;
-    /* Light yellow */
-  }
-
-  .humberger__menu__cart .notification {
-    position: relative;
-    margin-left: 15px;
-    display: inline-block;
-  }
-
-  .humberger__menu__cart .notification a {
-    color: #7fad39;
-    /* Dark green */
-    transition: color 0.3s ease;
-  }
-
-  .humberger__menu__cart .notification a:hover {
-    color: #90EE90;
-    /* Light green */
-  }
-
-  .humberger__menu__cart .notification .badge {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    background-color: #FFFF00;
-    /* Yellow */
+  .humberger__menu__cart .notification .badge,
+  .humberger__menu__cart .wishlist .badge {
     color: #000;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
   }
 
-  .humberger__menu__cart .notification .badge:hover {
+  .header__cart .notification .badge:hover,
+  .header__cart .wishlist .badge:hover,
+  .humberger__menu__cart .notification .badge:hover,
+  .humberger__menu__cart .wishlist .badge:hover {
     background-color: #FFFFE0;
-    /* Light yellow */
   }
   </style>
 </head>
@@ -129,16 +109,21 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
     <div class="humberger__menu__cart">
       <ul>
         <li>
+          <a href="wishlist.php" class="wishlist">
+            <i class="fa fa-heart"></i>
+            <span id="wishlist-item-count">
+              <?php echo $wishlist_count; ?>
+            </span>
+          </a>
+        </li>
+        <li>
           <a href="shoping-cart.php">
             <i class="fa fa-shopping-bag"></i>
             <span id="cart-item-count">
               <?php
-              $count = 0;
-              if(isset($_SESSION['cart'])){
-                  $count = count($_SESSION['cart']);
-              }
-              echo $count;
-              ?>
+                        $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+                        echo $cart_count;
+                        ?>
             </span>
           </a>
         </li>
@@ -146,25 +131,25 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
       <div class="header__cart__price">
         Subtotal: <span id="cart-subtotal-price">
           <?php
-          $subtotal = 0;
-          if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
-              foreach ($_SESSION['cart'] as $item) {
-                  if (isset($item['price']) && isset($item['quantity'])) {
-                      $subtotal += $item['price'] * $item['quantity'];
-                  }
-              }
-          }
-          echo 'Rs ' . $subtotal;
-          ?>
+                $subtotal = 0;
+                if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+                    foreach ($_SESSION['cart'] as $item) {
+                        if (isset($item['price']) && isset($item['quantity'])) {
+                            $subtotal += $item['price'] * $item['quantity'];
+                        }
+                    }
+                }
+                echo 'Rs ' . $subtotal;
+                ?>
         </span>
         <span class="notification">
           <a href="notifications.php">
             <i class="fa fa-bell"></i>
             <span class="badge" id="notification-count">
               <?php
-              $notification_count = isset($_SESSION['notifications']) ? count($_SESSION['notifications']) : 0;
-              echo $notification_count;
-              ?>
+                        $notification_count = isset($_SESSION['notifications']) ? count($_SESSION['notifications']) : 0;
+                        echo $notification_count;
+                        ?>
             </span>
           </a>
         </span>
@@ -179,7 +164,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
         <ul>
           <li><a href="profile.php">Profile</a></li>
           <li><a href="invoices.php">Invoices</a></li>
-          <li><a href="orders_item.php">MY Orders</a></li>
+          <li><a href="orders_item.php">My Orders</a></li>
         </ul>
       </div>
       <?php endif; ?>
@@ -245,7 +230,7 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                 <ul>
                   <li><a href="profile.php">Profile</a></li>
                   <li><a href="invoices.php">Invoices</a></li>
-                  <li><a href="orders_item.php">MY Orders</a></li>
+                  <li><a href="orders_item.php">My Orders</a></li>
                 </ul>
               </div>
               <?php endif; ?>
@@ -284,16 +269,21 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
           <div class="header__cart">
             <ul>
               <li>
+                <a href="wishlist.php" class="wishlist">
+                  <i class="fa fa-heart"></i>
+                  <span id="wishlist-item-count">
+                    <?php echo $wishlist_count; ?>
+                  </span>
+                </a>
+              </li>
+              <li>
                 <a href="shoping-cart.php">
                   <i class="fa fa-shopping-bag"></i>
                   <span id="cart-item-count">
                     <?php
-                    $count = 0;
-                    if(isset($_SESSION['cart'])){
-                        $count = count($_SESSION['cart']);
-                    }
-                    echo $count;
-                    ?>
+                                    $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+                                    echo $cart_count;
+                                    ?>
                   </span>
                 </a>
               </li>
@@ -301,25 +291,25 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
             <div class="header__cart__price">
               Subtotal: <span id="cart-subtotal-price">
                 <?php
-                $subtotal = 0;
-                if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
-                    foreach ($_SESSION['cart'] as $item) {
-                        if (isset($item['price']) && isset($item['quantity'])) {
-                            $subtotal += $item['price'] * $item['quantity'];
-                        }
-                    }
-                }
-                echo 'Rs '. $subtotal;
-                ?>
+                            $subtotal = 0;
+                            if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+                                foreach ($_SESSION['cart'] as $item) {
+                                    if (isset($item['price']) && isset($item['quantity'])) {
+                                        $subtotal += $item['price'] * $item['quantity'];
+                                    }
+                                }
+                            }
+                            echo 'Rs ' . $subtotal;
+                            ?>
               </span>
               <span class="notification">
                 <a href="notifications.php">
                   <i class="fa fa-bell"></i>
                   <span class="badge" id="notification-count">
                     <?php
-                    $notification_count = isset($_SESSION['notifications']) ? count($_SESSION['notifications']) : 0;
-                    echo $notification_count;
-                    ?>
+                                    $notification_count = isset($_SESSION['notifications']) ? count($_SESSION['notifications']) : 0;
+                                    echo $notification_count;
+                                    ?>
                   </span>
                 </a>
               </span>

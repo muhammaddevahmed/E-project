@@ -88,6 +88,31 @@ include("components/header.php");
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
+
+
+/* Wishlist Icon Styles */
+.wishlist-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(127, 173, 57, 0.9);
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.wishlist-icon:hover {
+  background: #6a9a2b;
+  transform: scale(1.1);
+}
+
+.featured__item__pic:hover .wishlist-icon,
+.latest-product__item__pic:hover .wishlist-icon {
+  opacity: 1;
+}
 </style>
 
 <!-- Hero Section Begin -->
@@ -271,6 +296,8 @@ include("components/header.php");
         <div class="featured__item">
           <div class="featured__item__pic set-bg" data-setbg="<?php echo $image_url; ?>"
             style="background-image: url('<?php echo $image_url; ?>');">
+            <i class="fa fa-heart wishlist-icon" data-product-id="<?php echo $product['product_id']; ?>"
+              title="Add to Wishlist"></i>
           </div>
           <div class="featured__item__text">
             <h6><a href="product-details.php?id=<?php echo $product['product_id']; ?>">
@@ -494,28 +521,53 @@ include("components/header.php");
 <!-- Latest Product Section End -->
 
 <?php
-
 include("components/footer.php");
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/mixitup@3/dist/mixitup.min.js"></script>
-
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-  var mixer = mixitup('.featured__filter'); // Initialize MixItUp
+  var mixer = mixitup('.featured__filter');
 
-  // Category button active state
   document.querySelectorAll('.featured__controls ul li').forEach(item => {
     item.addEventListener('click', function() {
       document.querySelectorAll('.featured__controls ul li').forEach(el => el.classList.remove('active'));
       this.classList.add('active');
     });
   });
-});
 
+  // Wishlist functionality
+  document.querySelectorAll('.wishlist-icon').forEach(icon => {
+    icon.addEventListener('click', function(e) {
+      e.preventDefault();
+      const productId = this.getAttribute('data-product-id');
 
-document.addEventListener("DOMContentLoaded", function() {
-  let offset = 9; // Start after the first 9 products
+      fetch('add_to_wishlist.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `product_id=${productId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Product added to wishlist!');
+            this.classList.add('added');
+            this.style.color = '#ff0000';
+          } else {
+            alert(data.message || 'Please login to add to wishlist');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while adding to wishlist');
+        });
+    });
+  });
+
+  // Load more products
+  let offset = 9;
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   const productContainer = document.getElementById("productContainer");
 
@@ -523,16 +575,39 @@ document.addEventListener("DOMContentLoaded", function() {
     fetch(`load_more_products.php?offset=${offset}`)
       .then(response => response.text())
       .then(data => {
-        // Append the new products to the container
         productContainer.insertAdjacentHTML("beforeend", data);
-
-        // Increment the offset
         offset += 9;
-
-        // If no more products are returned, hide the button
         if (data.trim() === "") {
           loadMoreBtn.style.display = "none";
         }
+        // Re-attach wishlist event listeners to new products
+        document.querySelectorAll('.wishlist-icon').forEach(icon => {
+          icon.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.getAttribute('data-product-id');
+            fetch('add_to_wishlist.php', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `product_id=${productId}`
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  alert('Product added to wishlist!');
+                  this.classList.add('added');
+                  this.style.color = '#ff0000';
+                } else {
+                  alert(data.message || 'Please login to add to wishlist');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding to wishlist');
+              });
+          });
+        });
       })
       .catch(error => console.error("Error loading more products:", error));
   });
