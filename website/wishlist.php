@@ -2,8 +2,8 @@
 include("components/header.php");
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
+  echo "<script>alert('You must be logged in to see your wishlist.'); window.location.href='login.php';</script>";
+  exit();
 }
 
 $user_id = $_SESSION['user_id'];
@@ -256,6 +256,51 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
     color: white;
   }
 
+  /* Quantity control styles */
+  .quantity-control {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .qty-btn {
+    background: rgb(10, 162, 51);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 16px;
+  }
+
+  .qty-btn1 {
+    background: rgb(208, 35, 35);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 16px;
+  }
+
+  .qty-btn:hover {
+    background: rgb(119, 195, 154);
+  }
+
+  .qty-input {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    margin: 0 5px;
+    padding: 3px;
+    border-radius: 3px;
+  }
+
+  .btnNew {
+    background-color: #7fad39;
+  }
+
   @media (max-width: 768px) {
     .wishlist-table thead {
       display: none;
@@ -307,6 +352,22 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .wishlist-actions .btn {
       width: 100%;
     }
+
+    /* Mobile styles for quantity controls */
+    .quantity-control {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .quantity-control .primary-btn {
+      margin-bottom: 10px;
+    }
+
+    .qty-btn,
+    .qty-btn1,
+    .qty-input {
+      margin: 5px 0;
+    }
   }
   </style>
 </head>
@@ -331,28 +392,25 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <th>Price</th>
                   <th>Added On</th>
                   <th>Action</th>
-                  <th></th>
+                  <th>Delete</th>
                 </tr>
               </thead>
               <tbody>
                 <?php foreach ($wishlist_items as $item): 
-                                    // Image path logic
-                                    $web_root = 'http://localhost/EProject/';
-                                    $actual_storage = 'edashboard/html/images/products/';
-                                    $default_image = $web_root . 'edashboard/html/images/default-product.jpg';
-                                    
-                                    $filename = basename($item['image_path']);
-                                    $relative_path = $actual_storage . $filename;
-                                    $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
-                                    $image_url = $web_root . $relative_path;
-                                    
-                                    if (empty($item['image_path']) || !file_exists($absolute_path)) {
-                                        $image_url = $default_image;
-                                    }
-                                    
-                                    // Simple stock status simulation
-                                    $in_stock = rand(0, 1);
-                                ?>
+                  // Image path logic
+                  $web_root = 'http://localhost/EProject/';
+                  $actual_storage = 'edashboard/html/images/products/';
+                  $default_image = $web_root . 'edashboard/html/images/default-product.jpg';
+                  
+                  $filename = basename($item['image_path']);
+                  $relative_path = $actual_storage . $filename;
+                  $absolute_path = $_SERVER['DOCUMENT_ROOT'] . '/EProject/' . $relative_path;
+                  $image_url = $web_root . $relative_path;
+                  
+                  if (empty($item['image_path']) || !file_exists($absolute_path)) {
+                      $image_url = $default_image;
+                  }
+                ?>
                 <tr class="wishlist-item" id="wishlist-item-<?php echo $item['product_id']; ?>">
                   <td class="product-thumbnail" data-label="Product">
                     <img src="<?php echo $image_url; ?>" alt="<?php echo htmlspecialchars($item['product_name']); ?>">
@@ -365,11 +423,31 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <td class="product-price" data-label="Price">
                     Rs <?php echo number_format($item['price'], 2); ?>
                   </td>
-
                   <td data-label="Added On">
                     <?php echo date('M j, Y', strtotime($item['added_at'])); ?>
                   </td>
-
+                  <td class="product-add-cart" data-label="Action">
+                    <?php if ($item['stock_quantity'] > 0): ?>
+                    <form action="add_to_cart.php" method="POST" style="display: inline;"
+                      onsubmit="return validateQuantity(this)">
+                      <input type="hidden" name="product_id" value="<?php echo $item['product_id']; ?>">
+                      <input type="hidden" name="product_name"
+                        value="<?php echo htmlspecialchars($item['product_name']); ?>">
+                      <input type="hidden" name="price" value="<?php echo $item['price']; ?>">
+                      <input type="hidden" name="image_path" value="<?php echo $image_url; ?>">
+                      <button type="submit" class="primary-btn">ADD TO CART</button>
+                      <button type="button" class="qty-btn1 dec">-</button>
+                      <input type="text" name="quantity" class="qty-input" value="1" min="1"
+                        max="<?php echo $item['stock_quantity']; ?>" data-max="<?php echo $item['stock_quantity']; ?>">
+                      <button type="button" class="qty-btn inc">+</button>
+                    </form>
+                    <?php else: ?>
+                    <button class="primary-btn" disabled
+                      style="background-color:rgb(228, 49, 49); cursor: not-allowed;">
+                      OUT OF STOCK
+                    </button>
+                    <?php endif; ?>
+                  </td>
                   <td class="product-remove" data-label="Remove">
                     <button onclick="removeFromWishlist(<?php echo $item['product_id']; ?>)">
                       <i class="fa fa-trash"></i>
@@ -406,6 +484,63 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </section>
 
   <script>
+  // Quantity increment/decrement functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const decButtons = document.querySelectorAll('.dec');
+    const incButtons = document.querySelectorAll('.inc');
+    const qtyInputs = document.querySelectorAll('.qty-input');
+
+    decButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const input = this.nextElementSibling;
+        let value = parseInt(input.value);
+        if (value > 1) {
+          input.value = value - 1;
+        }
+      });
+    });
+
+    incButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        let value = parseInt(input.value);
+        const max = parseInt(input.getAttribute('data-max'));
+        if (value < max) {
+          input.value = value + 1;
+        } else {
+          alert('You are trying to add more than the available products in stock.');
+        }
+      });
+    });
+
+    // Prevent manual input exceeding stock
+    qtyInputs.forEach(input => {
+      input.addEventListener('input', function() {
+        const max = parseInt(this.getAttribute('data-max'));
+        let value = parseInt(this.value);
+        if (isNaN(value) || value < 1) {
+          this.value = 1;
+        } else if (value > max) {
+          this.value = max;
+          alert('You are trying to add more than the available products in stock.');
+        }
+      });
+    });
+  });
+
+  // Validate quantity on form submission
+  function validateQuantity(form) {
+    const qtyInput = form.querySelector('.qty-input');
+    const max = parseInt(qtyInput.getAttribute('data-max'));
+    const value = parseInt(qtyInput.value);
+
+    if (value > max) {
+      alert('You are trying to add more than the available products in stock.');
+      return false;
+    }
+    return true;
+  }
+
   function removeFromWishlist(productId) {
     if (!confirm('Are you sure you want to remove this item from your wishlist?')) {
       return;

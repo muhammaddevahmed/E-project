@@ -5,6 +5,16 @@ session_start();
 
 $is_logged_in = isset($_SESSION['user_id']);
 $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_name'] : "Guest User";
+
+// Get unread notifications count
+$notification_count = 0;
+if ($is_logged_in) {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0");
+    $stmt->execute([$_SESSION['user_id']]);
+    $notification_count = $stmt->fetchColumn();
+}
+// Store just the count in session
+$_SESSION['notifications'] = $notification_count;
 ?>
 <!DOCTYPE html>
 <html lang="zxx">
@@ -147,9 +157,12 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
             <i class="fa fa-bell"></i>
             <span class="badge" id="notification-count">
               <?php
-                        $notification_count = isset($_SESSION['notifications']) ? count($_SESSION['notifications']) : 0;
-                        echo $notification_count;
-                        ?>
+    // Check if it's an array first, then count, otherwise treat as direct count
+    $notification_count = isset($_SESSION['notifications']) ? 
+                         (is_array($_SESSION['notifications']) ? count($_SESSION['notifications']) : $_SESSION['notifications']) : 
+                         0;
+    echo $notification_count;
+    ?>
             </span>
           </a>
         </span>
@@ -307,10 +320,12 @@ $full_name = $is_logged_in && isset($_SESSION['full_name']) ? $_SESSION['full_na
                   <i class="fa fa-bell"></i>
                   <span class="badge" id="notification-count">
                     <?php
-                                    $notification_count = isset($_SESSION['notifications']) ? count($_SESSION['notifications']) : 0;
-                                    echo $notification_count;
-                                    ?>
-                  </span>
+    // Check if it's an array first, then count, otherwise treat as direct count
+    $notification_count = isset($_SESSION['notifications']) ? 
+                         (is_array($_SESSION['notifications']) ? count($_SESSION['notifications']) : $_SESSION['notifications']) : 
+                         0;
+    echo $notification_count;
+    ?>
                 </a>
               </span>
             </div>

@@ -75,6 +75,18 @@ $total_pages = ceil($total_products / $limit); // Total pages
 
 
 
-
+function createNotification($pdo, $user_id, $title, $message, $related_table, $related_id) {
+    $sql = "INSERT INTO notifications (user_id, title, message, related_table, related_id) 
+            VALUES (:user_id, :title, :message, :related_table, :related_id)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':user_id' => $user_id,
+        ':title' => $title,
+        ':message' => $message,
+        ':related_table' => $related_table,
+        ':related_id' => $related_id
+    ]);
+    return $pdo->lastInsertId();
+}
 
 ?>

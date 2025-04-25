@@ -537,6 +537,26 @@ function showToast(message, type = 'success') {
     }, 3000);
   }, 10);
 }
+
+// Function to update notification count
+function updateNotificationCount() {
+  if (<?php echo $is_logged_in ? 'true' : 'false'; ?>) {
+    fetch('get_notification_count.php')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('notification-count').textContent = data.count;
+        document.querySelectorAll('.notification .badge').forEach(el => {
+          el.textContent = data.count;
+        });
+      });
+  }
+}
+
+// Check for new notifications every 30 seconds
+setInterval(updateNotificationCount, 30000);
+
+// Also update when page loads
+document.addEventListener('DOMContentLoaded', updateNotificationCount);
 </script>
 
 </body>

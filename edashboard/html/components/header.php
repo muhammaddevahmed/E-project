@@ -17,6 +17,16 @@ if ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'employee')
     echo "<script>location.assign('../../website/login.php');</script>";
     exit();
 }
+
+// Example for updating order status in admin
+function updateOrderStatus($pdo, $order_id, $new_status) {
+  $sql = "UPDATE orders SET status = ?, delivery_status = ? WHERE order_id = ?";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$new_status, $new_delivery_status, $order_id]);
+  
+  // The trigger will automatically create the notification
+  return true;
+}
 ?>
 <!DOCTYPE html>
 
