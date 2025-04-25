@@ -84,6 +84,12 @@ tr:hover {
   background-color: #45a049;
 }
 
+.btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .modal {
   display: none;
   position: fixed;
@@ -179,7 +185,10 @@ label {
         <?= htmlspecialchars(substr($order['delivery_notes'] ?? '', 0, 30)) ?><?= (strlen($order['delivery_notes'] ?? '') > 30 ? '...' : '') ?>
       </td>
       <td>
-        <button onclick="openModal('<?= htmlspecialchars($order['order_id']) ?>')" class="btn">Update</button>
+        <button onclick="openModal('<?= htmlspecialchars($order['order_id']) ?>')" class="btn"
+          <?php echo ($order['delivery_status'] === 'delivered') ? 'disabled' : ''; ?>>
+          Update
+        </button>
       </td>
     </tr>
     <?php endforeach; ?>

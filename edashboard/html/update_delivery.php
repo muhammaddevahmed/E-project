@@ -3,9 +3,10 @@ include("components/header.php");
 
 
 
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  header('Location: delivery_report.php');
-  exit;
+    echo "<script>location.assign('delivery_report.php');</script>";
+    exit;
 }
 
 $orderId = $_POST['order_id'] ?? '';
@@ -83,8 +84,9 @@ try {
     $pdo->commit();
     echo "<script>location.assign('delivery_report.php?success=1');</script>";
 exit;
+
 } catch (PDOException $e) {
     $pdo->rollBack();
-    header('Location: delivery_report.php?error=' . urlencode($e->getMessage()));
+    echo "<script>location.assign('delivery_report.php?error=" . urlencode($e->getMessage()) . "');</script>";
 }
 ?>

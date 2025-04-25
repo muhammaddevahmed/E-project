@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:8111
--- Generation Time: Apr 11, 2025 at 09:10 PM
+-- Host: 127.0.0.1
+-- Generation Time: Apr 25, 2025 at 02:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -67,16 +67,39 @@ CREATE TABLE `deliveries` (
   `actual_delivery_date` date DEFAULT NULL,
   `delivery_notes` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `read_status` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `deliveries`
 --
 
-INSERT INTO `deliveries` (`delivery_id`, `order_id`, `user_id`, `product_id`, `delivery_status`, `estimated_delivery_date`, `actual_delivery_date`, `delivery_notes`, `created_at`, `updated_at`) VALUES
-(3, 'c-4800005-67f964', 17, '4800005', 'shipped', '2025-04-14', '2025-04-14', 'Soon', '2025-04-11 18:58:42', '2025-04-11 18:58:42'),
-(4, 'c-3800002-67f967', 17, '3800002', 'processing', '2025-04-19', '2025-04-25', 'hi', '2025-04-11 19:04:20', '2025-04-11 19:04:20');
+INSERT INTO `deliveries` (`delivery_id`, `order_id`, `user_id`, `product_id`, `delivery_status`, `estimated_delivery_date`, `actual_delivery_date`, `delivery_notes`, `created_at`, `updated_at`, `read_status`) VALUES
+(3, 'c-4800005-67f964', 17, '4800005', 'delivered', '2025-04-26', '2025-04-26', 'Soon', '2025-04-11 18:58:42', '2025-04-25 12:52:57', 1),
+(4, 'c-3800002-67f967', 17, '3800002', 'shipped', '2025-04-19', '2025-04-25', 'hi', '2025-04-11 19:04:20', '2025-04-22 12:01:39', 1),
+(5, 'c-3800005-68076e', 17, '3800005', 'delivered', '2025-05-03', '2025-05-05', 'good', '2025-04-22 10:28:40', '2025-04-25 12:53:36', 1),
+(6, 'p-4000003-680b6f', 17, '4000003', 'delivered', '2025-04-29', '2025-04-30', 'soon', '2025-04-25 11:18:23', '2025-04-25 11:59:41', 0),
+(7, 'c-3900001-680b7b', 17, '3900001', 'shipped', '2025-04-30', '2025-05-01', 'soon', '2025-04-25 12:09:06', '2025-04-25 12:50:15', 0);
+
+--
+-- Triggers `deliveries`
+--
+DELIMITER $$
+CREATE TRIGGER `after_delivery_status_update` AFTER UPDATE ON `deliveries` FOR EACH ROW BEGIN
+    IF NEW.delivery_status != OLD.delivery_status THEN
+        INSERT INTO notifications (user_id, title, message, related_table, related_id)
+        VALUES (
+            NEW.user_id,
+            'Delivery Status Updated',
+            CONCAT('Your delivery for order #', NEW.order_id, ' is now ', NEW.delivery_status),
+            'deliveries',
+            NEW.delivery_id
+        );
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -123,6 +146,23 @@ INSERT INTO `feedback` (`feedback_id`, `name`, `email`, `user_id`, `feedback_tex
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `notification_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `related_table` varchar(50) NOT NULL,
+  `related_id` varchar(50) NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `orders`
 --
 
@@ -140,20 +180,39 @@ CREATE TABLE `orders` (
   `status` varchar(200) NOT NULL DEFAULT 'pending',
   `u_id` int(11) DEFAULT NULL,
   `payment_id` int(11) DEFAULT NULL,
-  `delivery_status` enum('pending','processing','shipped','delivered','cancelled') DEFAULT 'pending'
+  `delivery_status` enum('pending','processing','shipped','delivered','cancelled') DEFAULT 'pending',
+  `read_status` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`order_id`, `delivery_type`, `product_id`, `order_number`, `u_name`, `u_email`, `p_name`, `p_price`, `p_qty`, `date_time`, `status`, `u_id`, `payment_id`, `delivery_status`) VALUES
-('c-3800002-67f967', 'c', '3800002', '67f96715', 'Muhammad Ahmed', 'ahmed@gmail.com', 'Pakistan Champions Trophy 2025 Jersey', 50, 2, '2025-04-11 19:01:41', 'accepted', 17, 49, 'processing'),
-('c-4800005-67f964', 'c', '4800005', '67f964e3', 'Muhammad Ahmed', 'ahmed@gmail.com', ' Dreamy Creatures – Cartoon Painting', 100, 2, '2025-04-11 18:52:19', 'accepted', 17, 48, 'shipped');
+INSERT INTO `orders` (`order_id`, `delivery_type`, `product_id`, `order_number`, `u_name`, `u_email`, `p_name`, `p_price`, `p_qty`, `date_time`, `status`, `u_id`, `payment_id`, `delivery_status`, `read_status`) VALUES
+('c-3800002-67f967', 'c', '3800002', '67f96715', 'Muhammad Ahmed', 'ahmed@gmail.com', 'Pakistan Champions Trophy 2025 Jersey', 50, 2, '2025-04-11 19:01:41', 'accepted', 17, 49, 'shipped', 1),
+('c-3800005-68076e', 'c', '3800005', '68076ee6', 'Muhammad Ahmed', 'ahmed@gmail.com', 'VelocityPro Football Cleats', 40, 3, '2025-04-22 10:26:46', 'accepted', 17, 50, 'delivered', 1),
+('c-3900001-680b7b', 'c', '3900001', '680b7b05', 'Muhammad Ahmed', 'ahmed@gmail.com', 'StarPop Backpack', 50, 3, '2025-04-25 12:07:33', 'accepted', 17, 52, 'shipped', 0),
+('c-4800005-67f964', 'c', '4800005', '67f964e3', 'Muhammad Ahmed', 'ahmed@gmail.com', ' Dreamy Creatures – Cartoon Painting', 100, 2, '2025-04-11 18:52:19', 'accepted', 17, 48, 'delivered', 1),
+('p-4000003-680b6f', 'p', '4000003', '680b6f35', 'Muhammad Ahmed', 'ahmed@gmail.com', 'CalcMaster Scientific Calculator', 30, 3, '2025-04-25 11:17:09', 'accepted', 17, 51, 'delivered', 0);
 
 --
 -- Triggers `orders`
 --
+DELIMITER $$
+CREATE TRIGGER `after_order_status_update` AFTER UPDATE ON `orders` FOR EACH ROW BEGIN
+    IF NEW.status != OLD.status OR NEW.delivery_status != OLD.delivery_status THEN
+        INSERT INTO notifications (user_id, title, message, related_table, related_id)
+        VALUES (
+            NEW.u_id,
+            'Order Status Updated',
+            CONCAT('Your order #', NEW.order_id, ' status is now ', NEW.status, ' and delivery status is ', NEW.delivery_status),
+            'orders',
+            NEW.order_id
+        );
+    END IF;
+END
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `before_insert_orders` BEFORE INSERT ON `orders` FOR EACH ROW BEGIN
     SET NEW.order_id = CONCAT(NEW.delivery_type, '-', NEW.product_id, '-', NEW.order_number);
@@ -187,16 +246,42 @@ CREATE TABLE `payments` (
   `expiry_date` varchar(10) DEFAULT NULL,
   `cvv` varchar(5) DEFAULT NULL,
   `check_number` varchar(50) DEFAULT NULL,
-  `bank_name` varchar(100) DEFAULT NULL
+  `bank_name` varchar(100) DEFAULT NULL,
+  `read_status` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `payments`
 --
 
-INSERT INTO `payments` (`payment_id`, `payment_method`, `amount`, `payment_status`, `payment_date`, `first_name`, `last_name`, `country`, `address`, `city`, `state`, `postcode`, `phone`, `email`, `order_notes`, `card_number`, `expiry_date`, `cvv`, `check_number`, `bank_name`) VALUES
-(48, 'cash_on_delivery', 200.00, 'completed', '2025-04-11 18:52:19', 'Muhammad', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'karachi', 'Sindh', '4667', '+923442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL),
-(49, 'cash_on_delivery', 100.00, 'completed', '2025-04-11 19:01:41', 'Muhammad', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'Karachi', 'Sindh', '24455', '+923442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `payments` (`payment_id`, `payment_method`, `amount`, `payment_status`, `payment_date`, `first_name`, `last_name`, `country`, `address`, `city`, `state`, `postcode`, `phone`, `email`, `order_notes`, `card_number`, `expiry_date`, `cvv`, `check_number`, `bank_name`, `read_status`) VALUES
+(48, 'cash_on_delivery', 200.00, 'completed', '2025-04-11 18:52:19', 'Muhammad', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'karachi', 'Sindh', '4667', '+923442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL, 1),
+(49, 'cash_on_delivery', 100.00, 'completed', '2025-04-11 19:01:41', 'Muhammad', 'Ahmed', 'pakistan', 'House No N1819/A metrovill 3rd Gulzar-e-hijri Karchi', 'Karachi', 'Sindh', '24455', '+923442681140', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL, 1),
+(50, 'credit_card', 120.00, 'completed', '2025-04-22 10:26:46', 'Muhammad', 'Ahmed', 'Pakistan', 'Karachi', 'Karachi', 'sindh', '537384', '7843894390439', 'ahmed@gmail.com', 'good', '4363794040578494', '12/30', '567', NULL, NULL, 1),
+(51, 'paypal', 90.00, 'completed', '2025-04-25 11:17:09', 'Muhammad', 'Ahmed', 'Pakistan', 'Karachi', 'Karachi', 'sindh', '537384', '7843894390439', 'ahmed@gmail.com', 'hi', NULL, NULL, NULL, NULL, NULL, 0),
+(52, 'cash_on_delivery', 150.00, 'completed', '2025-04-25 12:07:33', 'Muhammad', 'Ahmed', 'Pakistan', 'Karachi', 'Karachi', 'sindh', '537384', '7843894390439', 'ahmed@gmail.com', 'good', NULL, NULL, NULL, NULL, NULL, 0);
+
+--
+-- Triggers `payments`
+--
+DELIMITER $$
+CREATE TRIGGER `after_payment_status_update` AFTER UPDATE ON `payments` FOR EACH ROW BEGIN
+    IF NEW.payment_status != OLD.payment_status THEN
+        -- Get user_id from orders table
+        SET @user_id = (SELECT u_id FROM orders WHERE payment_id = NEW.payment_id LIMIT 1);
+        
+        INSERT INTO notifications (user_id, title, message, related_table, related_id)
+        VALUES (
+            @user_id,
+            'Payment Status Updated',
+            CONCAT('Your payment for order #', (SELECT order_id FROM orders WHERE payment_id = NEW.payment_id LIMIT 1), ' is now ', NEW.payment_status),
+            'payments',
+            NEW.payment_id
+        );
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -225,15 +310,15 @@ INSERT INTO `products` (`product_id`, `product_name`, `description`, `price`, `s
 ('3800002', 'Pakistan Champions Trophy 2025 Jersey', 'The Pakistan Champions Trophy 2025 Shirt is designed to capture the essence of national pride and the spirit of cricket. Featuring a bold and striking green color scheme, this shirt represents the energy, passion, and resilience of the Pakistani cricket team. Made from high-quality, breathable fabric, it ensures comfort and durability, whether you\'re cheering in the stands or playing your own match. The shirt is adorned with the iconic Pakistan Cricket Board (PCB) crest on the chest, alongside the official Champions Trophy 2025 logo, making it a true collector\'s item. The slim-fit design offers a modern look while maintaining flexibility and freedom of movement. A lightweight, moisture-wicking material keeps you cool and dry, even during intense moments. The short-sleeve style and round neckline make it versatile for various occasions, from casual outings to sporting events. Ideal for both players and fans, this shirt combines performance with national pride. Its sleek design includes subtle accents of white and gold to reflect the elegance of the tournament. The vibrant green color symbolizes the unity and strength of the team, inspiring fans to support Pakistan on its journey to victory. Whether you\'re wearing it for game day or as a memento of the tournament, the Pakistan Champions Trophy 2025 Shirt is a must-have for cricket enthusiasts. With its timeless design, this shirt allows fans to show their unwavering support in style. Available in a range of sizes, it fits comfortably and looks great on all ages. Don’t miss out on this iconic piece to commemorate Pakistan’s participation in the 2025 Champions Trophy.', 50.00, 28, 38, 2, 'images/products/1744392976_Sports 2.jpg', '2025-04-11 17:36:16'),
 ('3800003', 'Cricket Equipments', 'Hard ball cricket gears are essential for any cricketer looking to play the game at a competitive level, offering safety, performance, and durability. These gears are specifically designed to protect players from the impact of hard cricket balls, ensuring they can perform at their best while staying safe. The gear set typically includes a high-quality bat, protective gloves, a helmet, pads, and thigh guards, all crafted from premium materials. The cricket bat is designed with a strong willow handle and a large sweet spot, giving players the power and control they need. The gloves are made with leather palms and soft inner linings for maximum comfort and grip, while the helmets feature strong faceguards for protection from bouncers and fast deliveries. The thigh pads are lightweight and offer high protection without compromising on movement. Shin pads are available in different sizes to ensure a perfect fit, offering comprehensive protection for the legs. A chest guard and arm guard complete the set, providing full protection for the body. The materials used are not only durable but also lightweight, ensuring that the player doesn’t feel weighed down during play. The gear’s design also prioritizes ventilation, with breathable fabrics used to prevent overheating. Whether you\'re an amateur or professional cricketer, these hard ball cricket gears are designed to enhance performance, offer safety, and last through rigorous use on the field. Ideal for all levels of cricket, these gears offer a combination of innovation and tradition, allowing players to focus on the game with confidence.', 100.00, 10, 38, 5, 'images/products/1744393069_sports 3.jpg', '2025-04-11 17:37:49'),
 ('3800004', ' ProStrike Football', 'The ProStrike Football is built for players who demand precision, durability, and superior performance. Crafted with a high-quality synthetic leather cover, this football is designed to withstand the toughest of matches, whether on grass, turf, or indoor surfaces. Its advanced grip technology ensures that players have better control, whether they’re passing, kicking, or making quick moves on the field. The ball’s bladder is made from durable latex, providing excellent air retention and maintaining shape over extended use. The ProStrike Football is engineered for optimal bounce, allowing for consistent play and accurate passes. Its vibrant, eye-catching design with bold patterns makes it easy to spot in any condition, while the textured surface ensures a firm grip, even in wet weather. Whether you’re training or playing in a competitive game, this ball offers superior flight stability, making long-distance kicks more accurate and precise. The ball\'s stitched seams provide enhanced durability and prevent wear and tear, ensuring it stays in top condition game after game. Available in standard sizes for all levels of play, from youth leagues to professional matches, the ProStrike Football offers the perfect balance of performance and value. Whether you\'re practicing your footwork, working on passing accuracy, or gearing up for a match, the ProStrike Football is the ideal choice for players who want to elevate their game. Lightweight and responsive, it offers the perfect feel, making it a must-have for any football enthusiast.', 40.00, 10, 38, 2, 'images/products/1744393171_Sports 4.jpg', '2025-04-11 17:39:31'),
-('3800005', 'VelocityPro Football Cleats', 'The VelocityPro Football Cleats are engineered to deliver top-tier performance on the field, ensuring you stay quick, agile, and comfortable during every play. Crafted with a lightweight yet durable design, these cleats provide superior traction, allowing you to accelerate, decelerate, and change directions with ease. The cleats feature a high-quality synthetic upper that offers flexibility and support while reducing weight, giving you the freedom to move swiftly without compromising on stability. The innovative stud configuration on the outsole ensures optimal grip on both grass and turf, preventing slippage during quick cuts and sprints. The cushioned insole and padded ankle collar provide additional comfort, reducing the risk of blisters and foot fatigue, so you can focus on the game. A breathable mesh lining helps to keep your feet cool and dry, even during intense gameplay, by wicking away moisture and promoting airflow. The sleek, modern design with bold accents gives you a stylish edge on the field, while the reinforced toe cap adds durability and protection against wear and tear. Whether you’re an attacking player looking for speed or a defender relying on stability, the VelocityPro Football Cleats are designed to meet the needs of all positions. The shoes come in various sizes to ensure the perfect fit for players of all ages and skill levels. With their lightweight construction, high-performance features, and stylish design, these cleats are the ultimate choice for any serious football player. Get ready to elevate your game and dominate the field with the VelocityPro Football Cleats.\r\n\r\n', 40.00, 10, 38, 3, 'images/products/1744393225_Sports 5.jpg', '2025-04-11 17:40:25'),
-('3900001', 'StarPop Backpack', 'StarPop Backpack is a burst of color and cool design, made to brighten every school day. With bold star patterns and vibrant trims, it’s perfect for kids who love to stand out. The bag is crafted from durable, water-resistant fabric to handle every adventure. Padded shoulder straps offer all-day comfort, even on the busiest days. A spacious main compartment fits books, folders, and a laptop sleeve. The front zip pocket is great for snacks, pens, and small essentials. Two side mesh pockets easily hold water bottles or umbrellas. A reinforced top handle allows for easy grab-and-go moments. The zipper is smooth and sturdy, designed for daily use. StarPop’s fun design boosts confidence and self-expression. The interior lining is easy to clean and wipe down. Bright interior accents make finding things inside a breeze. Lightweight and comfortable, it’s ideal for school, travel, or playdates. The back panel is breathable for extra comfort on warm days. Reflective strips add safety for early mornings or late afternoons. Great for kids aged 6 and up. StarPop Backpack mixes style and practicality effortlessly. Available in multiple colors to suit every personality. Whether in class or on the go, StarPop is ready for anything. A fun, reliable bag kids will love to carry every day.', 50.00, 10, 39, 3, 'images/products/1744392678_67f951e631982.jpg', '2025-04-11 17:26:01'),
+('3800005', 'VelocityPro Football Cleats', 'The VelocityPro Football Cleats are engineered to deliver top-tier performance on the field, ensuring you stay quick, agile, and comfortable during every play. Crafted with a lightweight yet durable design, these cleats provide superior traction, allowing you to accelerate, decelerate, and change directions with ease. The cleats feature a high-quality synthetic upper that offers flexibility and support while reducing weight, giving you the freedom to move swiftly without compromising on stability. The innovative stud configuration on the outsole ensures optimal grip on both grass and turf, preventing slippage during quick cuts and sprints. The cushioned insole and padded ankle collar provide additional comfort, reducing the risk of blisters and foot fatigue, so you can focus on the game. A breathable mesh lining helps to keep your feet cool and dry, even during intense gameplay, by wicking away moisture and promoting airflow. The sleek, modern design with bold accents gives you a stylish edge on the field, while the reinforced toe cap adds durability and protection against wear and tear. Whether you’re an attacking player looking for speed or a defender relying on stability, the VelocityPro Football Cleats are designed to meet the needs of all positions. The shoes come in various sizes to ensure the perfect fit for players of all ages and skill levels. With their lightweight construction, high-performance features, and stylish design, these cleats are the ultimate choice for any serious football player. Get ready to elevate your game and dominate the field with the VelocityPro Football Cleats.\r\n\r\n', 40.00, 7, 38, 3, 'images/products/1744393225_Sports 5.jpg', '2025-04-11 17:40:25'),
+('3900001', 'StarPop Backpack', 'StarPop Backpack is a burst of color and cool design, made to brighten every school day. With bold star patterns and vibrant trims, it’s perfect for kids who love to stand out. The bag is crafted from durable, water-resistant fabric to handle every adventure. Padded shoulder straps offer all-day comfort, even on the busiest days. A spacious main compartment fits books, folders, and a laptop sleeve. The front zip pocket is great for snacks, pens, and small essentials. Two side mesh pockets easily hold water bottles or umbrellas. A reinforced top handle allows for easy grab-and-go moments. The zipper is smooth and sturdy, designed for daily use. StarPop’s fun design boosts confidence and self-expression. The interior lining is easy to clean and wipe down. Bright interior accents make finding things inside a breeze. Lightweight and comfortable, it’s ideal for school, travel, or playdates. The back panel is breathable for extra comfort on warm days. Reflective strips add safety for early mornings or late afternoons. Great for kids aged 6 and up. StarPop Backpack mixes style and practicality effortlessly. Available in multiple colors to suit every personality. Whether in class or on the go, StarPop is ready for anything. A fun, reliable bag kids will love to carry every day.', 50.00, 7, 39, 3, 'images/products/1744392678_67f951e631982.jpg', '2025-04-11 17:26:01'),
 ('3900002', 'DinoDash Bag', 'DinoDash Bag is perfect for young adventurers who dream of roaring through school in dino-style. Covered in bold dinosaur prints and earthy colors, it captures attention instantly. The water-resistant outer layer keeps contents safe from rain or spills. Padded straps and back support ensure comfort during long school days. A roomy main compartment fits books, lunchboxes, and supplies with ease. Front and side pockets hold essentials like pencils, sanitizer, or snacks. Durable zippers make opening and closing smooth and simple. The top loop handle is great for hanging or carrying. DinoDash is lightweight but strong enough for everyday use. Easy-to-clean inside and out—perfect for messy explorers. Designed with safety in mind, it includes reflective detailing. Inner name label for personalization helps avoid mix-ups. DinoDash sparks imagination with every wear. It’s built to survive both classrooms and playgrounds. The dino pattern is fun but never over-the-top. Ideal for kids aged 5 to 10. Whether heading to school or a playdate, DinoDash adds adventure. Great as a birthday or back-to-school gift. Helps kids feel confident and prepared. Roar into learning with DinoDash—where fun meets function.', 40.00, 10, 39, 2, 'images/products/1744392395_Bag 2.jpg', '2025-04-11 17:26:35'),
 ('3900003', 'SkyWhirl Backpack', 'SkyWhirl Backpack is a dreamy school companion with soft clouds, rainbows, and floating balloons. It’s perfect for kids who love daydreams and gentle designs. The smooth, pastel finish gives it a calming, magical look. Crafted with lightweight, durable materials to last through every school year. Large enough to hold books, notebooks, and even a change of clothes. The padded laptop sleeve protects electronics safely. Mesh side pockets hold water bottles for easy access. A smaller front pocket keeps essentials neatly organized. Ergonomic straps reduce shoulder strain for growing kids. The breathable back panel adds comfort for long walks or rides. Easy-glide zippers make access smooth and kid-friendly. Inside lining is soft and wipe-clean for easy maintenance. A name tag slot inside makes it personal and unique. SkyWhirl encourages imagination and creativity wherever it goes. Subtle glitter details give it a magical touch. Ideal for kids aged 6 and up. Lightweight yet roomy enough for every day. Pairs well with matching lunchboxes and accessories. Spark joy and wonder with every trip to school. SkyWhirl is more than a backpack—it’s a cloud of comfort and fun.', 60.00, 12, 39, 3, 'images/products/1744392447_67f950ff8f0e7.jpg', '2025-04-11 17:27:10'),
 ('3900004', 'RoboRush Bag', 'RoboRush Bag is designed for tech-loving kids with a sleek, futuristic look. The robotic print and neon accents make it stand out in any classroom. Built from strong, weather-resistant fabric to protect inside contents. Spacious interior fits books, gadgets, and folders with ease. Built-in tech pouch for tablets or small laptops. Front organizer pocket for pencils, chargers, and cards. Side compartments for bottles or mini umbrellas. Reflective details for safety during dark mornings. Padded straps and back support for growing shoulders. Extra-strong zippers that hold up to daily use. RoboRush is lightweight and smartly designed. Inside pockets help keep items sorted and easy to find. The bold design inspires curiosity and confidence. Comes with a built-in key holder and name label. Wipe-clean interior makes spills easy to manage. Ideal for ages 7 and up. Stands upright easily for quick access. Pairs great with tech-themed accessories. Perfect for kids who love coding, robots, and discovery. RoboRush powers every school day with energy and style.', 40.00, 10, 39, 3, 'images/products/1744392715_67f9520b6362e.jpg', '2025-04-11 17:29:27'),
 ('3900005', ' BerryBloom Backpack', 'BerryBloom Backpack is a fresh and fun choice for young nature lovers. Featuring a delightful mix of berry prints and blooming flowers, it’s sweet and stylish. Soft pinks, purples, and greens give it a calm, joyful vibe. Made with eco-friendly, sturdy fabric that holds up well. Padded straps adjust for the perfect fit. Spacious main section holds books, art supplies, or a change of clothes. Front zip pocket is great for lunch cards or small gadgets. Side pockets hold bottles, umbrellas, or snacks. Inside mesh pouch keeps small items tidy. Durable stitching makes it ready for everyday wear and tear. Zippers are smooth and strong for little hands. Easy to clean, inside and out. Comes with a floral name label for personalization. Ideal for ages 5–9. Lightweight and comfy for all-day use. BerryBloom encourages a love for nature and color. Comes in eco-conscious packaging. Perfect for school, parks, or weekend adventures. Great gift for spring or back-to-school season. With BerryBloom, every day feels like a garden walk.', 45.00, 10, 39, 1, 'images/products/1744392613_Bag 6.jpg', '2025-04-11 17:30:13'),
 ('4000001', 'NoteMaster Premium Notebook', 'The NoteMaster Premium Notebook is designed for those who appreciate quality, functionality, and style in their everyday writing tools. Featuring a sleek, hardcover design, this notebook provides both durability and sophistication, making it ideal for students, professionals, and creatives alike. The pages are made from high-quality, acid-free paper, ensuring smooth writing and preventing ink from bleeding through. Whether you\'re jotting down notes, sketching ideas, or writing a journal entry, the pages provide a premium writing experience. The notebook includes a convenient elastic closure to keep it securely closed when not in use, protecting your notes from external damage. Inside, you\'ll find a set of perfectly aligned pages with a subtle grid pattern, ideal for structured writing or drawing. The compact size makes it easy to carry in a backpack, briefcase, or even your purse, so you can take it anywhere you go. The elegant design includes a built-in ribbon marker, making it easy to find your place whenever you need it. Whether you\'re taking lecture notes, planning a project, or organizing your thoughts, the NoteMaster Premium Notebook is the perfect companion for staying organized and focused. The notebook is available in various colors, allowing you to choose the one that best suits your style. With its stylish look, practical features, and high-quality paper, the NoteMaster Premium Notebook is an essential tool for anyone who values efficiency and elegance in their everyday writing. Elevate your note-taking experience with the NoteMaster Premium Notebook, designed to inspire creativity and productivity.', 10.00, 30, 40, 0, 'images/products/1744393327_Stationary 1.jpg', '2025-04-11 17:42:07'),
 ('4000002', 'PrecisionPro Geometry Box', 'The PrecisionPro Geometry Box is the ultimate tool for students, professionals, and artists alike, offering precision and reliability for all your geometric needs. Made from durable, high-quality materials, this compact set includes all the essential tools for accurate measurements and drawings. It features a sturdy compass for perfect circles, a set square for precise angles, a protractor for accurate measurements, and a ruler with both metric and imperial scales for versatility. The box also includes a pencil, eraser, and sharpener, ensuring that you\'re fully equipped for any task. The tools are made from lightweight yet durable materials, making them easy to handle while maintaining long-lasting performance. The clear plastic design of the tools allows for easy visibility of your measurements and lines, enhancing the accuracy of your work. The entire set comes neatly packed in a sleek, portable case, which keeps the tools organized and easily accessible. Whether you’re working on math assignments, architectural designs, or technical drawings, the PrecisionPro Geometry Box ensures that every task is completed with exactness. The box is designed to be compact and lightweight, making it easy to carry to school, college, or office. The high-quality build of the tools provides a smooth and comfortable writing experience, helping you to work efficiently for long hours. With the PrecisionPro Geometry Box, you’ll always have the right tool for the job, ensuring your measurements are spot-on and your designs flawless. Ideal for students, professionals, and anyone who values precision, this geometry box is an indispensable addition to your stationery collection.', 20.00, 10, 40, 1, 'images/products/1744393388_stationary 2.jpg', '2025-04-11 17:43:08'),
-('4000003', 'CalcMaster Scientific Calculator', 'The CalcMaster Scientific Calculator is a powerful and versatile tool designed to meet the needs of students, professionals, and anyone requiring advanced mathematical functions. Equipped with a user-friendly interface and a durable, compact design, this calculator is perfect for a wide range of tasks, from simple arithmetic to complex scientific and engineering calculations. Featuring a large, easy-to-read display, the CalcMaster allows you to view results clearly, even with multiple operations at once. With over 200 built-in functions, including trigonometry, logarithms, exponents, and statistics, it provides the functionality needed for higher-level mathematics and science work. The calculator also includes a memory function for storing intermediate results, making it easier to work through multi-step problems without losing track of your calculations. Its sleek, ergonomic design fits comfortably in your hand, and the buttons are tactile and responsive, ensuring quick and accurate inputs. Powered by long-lasting batteries, the CalcMaster Scientific Calculator ensures reliability throughout intense study sessions or professional use. The lightweight construction and protective cover make it ideal for carrying in a backpack or briefcase without the risk of damage. Whether you\'re a student tackling algebra and calculus or a professional working with data analysis and engineering calculations, the CalcMaster is designed to provide accuracy and efficiency. Its intuitive layout and responsive keys make it an essential tool for anyone in need of reliable mathematical computing. The CalcMaster Scientific Calculator is perfect for school, college, or work, offering all the functions you need in one easy-to-use device.', 30.00, 12, 40, 1, 'images/products/1744393449_stationary 3.jpg', '2025-04-11 17:44:09'),
+('4000003', 'CalcMaster Scientific Calculator', 'The CalcMaster Scientific Calculator is a powerful and versatile tool designed to meet the needs of students, professionals, and anyone requiring advanced mathematical functions. Equipped with a user-friendly interface and a durable, compact design, this calculator is perfect for a wide range of tasks, from simple arithmetic to complex scientific and engineering calculations. Featuring a large, easy-to-read display, the CalcMaster allows you to view results clearly, even with multiple operations at once. With over 200 built-in functions, including trigonometry, logarithms, exponents, and statistics, it provides the functionality needed for higher-level mathematics and science work. The calculator also includes a memory function for storing intermediate results, making it easier to work through multi-step problems without losing track of your calculations. Its sleek, ergonomic design fits comfortably in your hand, and the buttons are tactile and responsive, ensuring quick and accurate inputs. Powered by long-lasting batteries, the CalcMaster Scientific Calculator ensures reliability throughout intense study sessions or professional use. The lightweight construction and protective cover make it ideal for carrying in a backpack or briefcase without the risk of damage. Whether you\'re a student tackling algebra and calculus or a professional working with data analysis and engineering calculations, the CalcMaster is designed to provide accuracy and efficiency. Its intuitive layout and responsive keys make it an essential tool for anyone in need of reliable mathematical computing. The CalcMaster Scientific Calculator is perfect for school, college, or work, offering all the functions you need in one easy-to-use device.', 30.00, 9, 40, 1, 'images/products/1744393449_stationary 3.jpg', '2025-04-11 17:44:09'),
 ('4000004', ' StapleMaster Premium Stapler', 'The StapleMaster Premium Stapler is a high-quality, reliable tool designed to handle all your stapling needs with ease and precision. Whether you\'re at home, in the office, or at school, this stapler provides smooth, consistent performance for binding papers together quickly and securely. Built with durable metal construction, it ensures long-lasting use without compromising on strength. The ergonomic design fits comfortably in your hand, reducing hand strain even after repeated use. With its easy-to-load staple chamber, reloading staples is a breeze, and the mechanism ensures jam-free stapling every time. The stapler is capable of stapling a range of paper sizes and thicknesses, making it versatile for different tasks—whether you’re stapling a single sheet or a thicker stack of documents. The compact size makes it portable, so you can carry it with you in a briefcase or drawer, perfect for work or on-the-go use. Featuring a sleek, modern design, the StapleMaster adds a touch of professionalism to any workspace. The adjustable anvil allows for both permanent and temporary stapling, giving you the flexibility to meet different needs. The non-slip base ensures stability and prevents sliding while stapling, keeping your work surface tidy and secure. With its sturdy build and smooth operation, the StapleMaster Premium Stapler is the ideal choice for anyone seeking a dependable and efficient stapling solution. Available in a range of stylish colors, it fits seamlessly into any office or home environment. Say goodbye to frustrating paper jams and inconsistent stapling with the StapleMaster Premium Stapler, designed to make your paperwork tasks easier and more efficient.', 12.00, 10, 40, -1, 'images/products/1744393509_stationary 5.jpg', '2025-04-11 17:45:09'),
 ('4000005', 'ColorMaster PE Color Box', 'The ColorMaster PE Color Box is the perfect storage solution for artists, students, and crafters who need a convenient and durable way to organize their colors. Made from high-quality polyethylene (PE), this color box offers both strength and flexibility, ensuring that your materials stay safe and intact. Its sturdy, impact-resistant design makes it ideal for frequent use and long-term storage. The ColorMaster PE Color Box features a spacious interior with adjustable compartments, allowing you to neatly store and organize markers, crayons, colored pencils, paints, and other art supplies. The smooth, easy-to-clean surface helps maintain the box’s aesthetic and functionality, making it a long-lasting tool for any workspace. The box is lightweight yet tough, making it easy to carry to school, art classes, or outdoor crafting sessions. The secure locking mechanism ensures that your items stay safely enclosed while you’re on the move. The box is available in a variety of sizes, catering to different storage needs, from small, personal collections to larger, professional setups. With its vibrant color options, the ColorMaster PE Color Box adds a touch of fun and creativity to your workspace, inspiring your artistic endeavors. Its sleek, modern design is both practical and stylish, making it a great addition to any desk or storage area. Whether you’re an artist, a student, or a hobbyist, this box helps keep your art supplies organized, accessible, and easy to find. Say goodbye to cluttered drawers and disorganized supplies with the ColorMaster PE Color Box—a must-have for anyone who values order and creativity in their work.', 25.00, 5, 40, 1, 'images/products/1744393558_stationary 6.jpg', '2025-04-11 17:45:58'),
 ('4000006', ' SlimFit Wallet', 'The SlimFit Wallet is the perfect choice for those who prefer a minimalist, streamlined approach to carrying their essentials. Made from premium synthetic leather, this wallet is lightweight, durable, and built for comfort. Its ultra-slim design fits easily in your pocket or bag without adding unnecessary bulk. Despite its compact size, the SlimFit Wallet features multiple card slots, a full-length bill compartment, and an RFID-blocking layer to protect your personal information. This wallet’s clean lines and smooth finish offer a modern aesthetic that suits both casual and formal looks. Ideal for anyone who wants a sleek, practical solution for everyday use, the SlimFit Wallet keeps your essentials organized while maintaining a low profile. Whether you’re running errands or going on a trip, the SlimFit Wallet ensures that your valuables are safe, secure, and easily accessible.', 20.00, 10, 40, 1, 'images/products/1744393926_4.jpg', '2025-04-11 17:52:06'),
@@ -274,7 +359,7 @@ INSERT INTO `products` (`product_id`, `product_name`, `description`, `price`, `s
 ('4700005', 'RibbonRealm Deluxe ', 'RibbonRealm Deluxe Set brings luxury to your wraps with a collection of satin, grosgrain, and velvet ribbons. Each spool features high-quality, non-fray ribbon in coordinated tones. Whether you\'re finishing a wrapped box, tying a bouquet, or sealing a bag, this set elevates the look. Perfect for DIY gift wrapping or professional use.', 8.00, 5, 47, 0, 'images/products/1744395892_5.jpg', '2025-04-11 18:24:52'),
 ('4800001', 'Whimsical Wonders  Painting', 'Whimsical Wonders is a vibrant and playful cartoon painting that adds a sense of fun and creativity to any space.\r\nFilled with exaggerated characters and bright, bold colors, this artwork instantly grabs attention.\r\nEach character is full of personality, capturing the essence of lightheartedness and joy.\r\nFrom quirky animals to imaginative creatures, the painting brings a sense of whimsy to any room.\r\nThe vibrant palette of colors creates a cheerful and inviting atmosphere, perfect for children\'s rooms.\r\nIts exaggerated expressions and whimsical settings spark the imagination, making it perfect for kids and adults alike.\r\nThe playful nature of this painting encourages creativity and fun, making it ideal for a playroom or nursery.\r\nIts lively and carefree design makes it a perfect addition to any space that needs an uplifting touch.\r\nThe artwork features a variety of adorable cartoon characters, each one more charming than the last.\r\nThe vivid colors are bold and engaging, filling the room with an infectious sense of energy.\r\nWhether hanging on a wall in the living room, a play area, or a bedroom, it will instantly brighten the mood.\r\nIt’s a timeless piece that continues to bring joy and laughter, year after year.\r\nDesigned to appeal to all ages, it’s a great gift for anyone who loves fun, quirky art.\r\nWhimsical Wonders works perfectly in a space where imagination and creativity are encouraged.\r\nThis painting captures the essence of youthful imagination, inviting viewers to explore their own creativity.\r\nIts lighthearted theme makes it a great conversation starter and adds a personal touch to any room.\r\nThe fun, exaggerated details invite you to look closer, discovering new elements every time.\r\nWhimsical Wonders isn’t just a painting; it’s an experience—one that will make everyone smile.\r\nIts universal charm and lively spirit ensure that it fits perfectly in any modern, playful, or colorful decor.\r\nThis piece is perfect for anyone looking to add a splash of joy and fun to their surroundings.', 70.00, 10, 48, 3, 'images/products/1744397261_Art 1.jpg', '2025-04-11 18:47:41'),
 ('4800002', 'Adventure Awaits – Cartoon Painting', 'Adventure Awaits is a dynamic and action-packed cartoon painting that brings the thrill of exploration to life.\r\nThis artwork features a group of brave characters embarking on a whimsical journey through fantastical lands.\r\nBold lines and vivid colors emphasize the excitement of the adventure, drawing viewers into its world.\r\nFrom treasure maps to magical creatures, this painting is a perfect fit for any space full of curiosity and wonder.\r\nThe vibrant colors create an energetic atmosphere, inspiring a sense of adventure in every viewer.\r\nEach character’s expressive face tells a story of courage and determination as they embark on their quest.\r\nThe painting’s whimsical setting captures the magic of the unknown, sparking the imagination of both children and adults.\r\nIdeal for game rooms, creative spaces, or classrooms, it encourages dreamers to explore their own potential.\r\nAdventure Awaits is a beautiful blend of art and storytelling, each brushstroke adding depth to the adventure.\r\nThe lively and action-filled design makes it an eye-catching piece that is sure to grab attention.\r\nWhether hung in a child\'s room or an office, it instills a sense of excitement and possibility.\r\nThe playful and imaginative characters invite you to see the world in a new light, full of adventure.\r\nThis painting transforms any space into an inspiring environment, motivating everyone to chase their dreams.\r\nAdventure Awaits is perfect for those who believe in the power of imagination and the beauty of exploration.\r\nIts theme of discovery and joy makes it a great gift for adventurers and wanderers at heart.\r\nThe bold and bright design instantly energizes any room, making it a great addition to dynamic spaces.\r\nThis piece is a reminder that every journey holds the possibility for discovery and fun.\r\nIdeal for classrooms, offices, or bedrooms, it encourages a sense of curiosity and excitement.\r\nAdventure Awaits is more than just a painting; it’s an invitation to embark on a journey of imagination.\r\nWhether you’re young or young at heart, this painting brings adventure into your everyday life.', 80.00, 5, 48, 1, 'images/products/1744397311_Art 2.jpg', '2025-04-11 18:48:31'),
-('4800003', 'Laugh Out Loud – Cartoon Painting', 'Laugh Out Loud is a cartoon painting that embodies the true spirit of humor and joy.\r\nFilled with exaggerated characters and funny situations, this piece is sure to bring a smile to anyone’s face.\r\nThe whimsical characters are caught in comical predicaments, with exaggerated expressions that evoke laughter.\r\nThe bold use of color and dynamic design adds to the playful nature of the artwork.\r\nEach character\'s hilarious antics create an atmosphere of fun and lightheartedness that fills any room.\r\nPerfect for playrooms, living rooms, or offices, it is a constant reminder to find humor in everyday life.\r\nThe vibrant hues enhance the playful tone of the painting, making it an uplifting addition to any space.\r\nThe exaggerated designs and cartoonish elements bring out the childlike joy in viewers.\r\nWhether hung in a family room or a fun, casual workspace, this painting will instantly lighten the mood.\r\nIts humorous vibe encourages creativity and fun, making it a great piece for creative minds.\r\nLaugh Out Loud is not just a painting—it’s a daily dose of joy and positivity.\r\nIdeal for kids and adults alike, it spreads laughter and cheer wherever it’s placed.\r\nIts lighthearted theme makes it a perfect gift for anyone who appreciates comedy and vibrant art.\r\nThis painting is a playful, whimsical escape into a world where laughter is the best medicine.\r\nIts quirky characters invite viewers to step into a world of pure joy and fun.\r\nThe exaggerated expressions and playful design make this a great conversation starter.\r\nLaugh Out Loud brings a sense of humor to spaces where people gather and share moments of joy.\r\nPerfect for anyone who loves to laugh, this painting adds a burst of personality and warmth.\r\nIt’s a great reminder to not take life too seriously and to embrace the fun moments.\r\nHang it in your favorite spot to brighten your day with a cheerful, comedic vibe.', 120.00, 2, 48, 1, 'images/products/1744397367_Art 3.jpg', '2025-04-11 18:49:27'),
+('4800003', 'Laugh Out Loud – Cartoon Painting', 'Laugh Out Loud is a cartoon painting that embodies the true spirit of humor and joy.\r\nFilled with exaggerated characters and funny situations, this piece is sure to bring a smile to anyone’s face.\r\nThe whimsical characters are caught in comical predicaments, with exaggerated expressions that evoke laughter.\r\nThe bold use of color and dynamic design adds to the playful nature of the artwork.\r\nEach character\'s hilarious antics create an atmosphere of fun and lightheartedness that fills any room.\r\nPerfect for playrooms, living rooms, or offices, it is a constant reminder to find humor in everyday life.\r\nThe vibrant hues enhance the playful tone of the painting, making it an uplifting addition to any space.\r\nThe exaggerated designs and cartoonish elements bring out the childlike joy in viewers.\r\nWhether hung in a family room or a fun, casual workspace, this painting will instantly lighten the mood.\r\nIts humorous vibe encourages creativity and fun, making it a great piece for creative minds.\r\nLaugh Out Loud is not just a painting—it’s a daily dose of joy and positivity.\r\nIdeal for kids and adults alike, it spreads laughter and cheer wherever it’s placed.\r\nIts lighthearted theme makes it a perfect gift for anyone who appreciates comedy and vibrant art.\r\nThis painting is a playful, whimsical escape into a world where laughter is the best medicine.\r\nIts quirky characters invite viewers to step into a world of pure joy and fun.\r\nThe exaggerated expressions and playful design make this a great conversation starter.\r\nLaugh Out Loud brings a sense of humor to spaces where people gather and share moments of joy.\r\nPerfect for anyone who loves to laugh, this painting adds a burst of personality and warmth.\r\nIt’s a great reminder to not take life too seriously and to embrace the fun moments.\r\nHang it in your favorite spot to brighten your day with a cheerful, comedic vibe.', 120.00, 4, 48, 1, 'images/products/1744397367_Art 3.jpg', '2025-04-11 18:49:27'),
 ('4800004', 'Toon Town Fun – Cartoon Painting', 'Toon Town Fun is a colorful and lively cartoon painting that brings the joy of animated characters to life.\r\nWith bold outlines and exaggerated features, this painting depicts a bustling cartoon town filled with action.\r\nFrom wacky animals to playful characters, each figure has a story to tell, adding depth and personality to the painting.\r\nThe playful design and vivid colors infuse energy into any room, making it ideal for spaces that encourage creativity.\r\nThis artwork brings the charm of animated worlds into real life, perfect for children\'s rooms or fun spaces.\r\nThe exaggerated designs and quirky characters create a whimsical vibe that’s perfect for young and old alike.\r\nThe bright color scheme energizes any room, sparking imagination and creating a happy, joyful environment.\r\nToon Town Fun captures the carefree essence of cartoons and brings it into your home or office.\r\nIdeal for spaces that need a touch of fun and excitement, it’s a great piece to inspire creativity.\r\nIts lively atmosphere makes it an excellent addition to a classroom, playroom, or any area designed for children.\r\nThis painting encourages viewers to tap into their own sense of fun and embrace their imagination.\r\nToon Town Fun is a great gift for anyone who loves cartoons or enjoys whimsical, colorful art.\r\nIts simple yet captivating design makes it an attention-grabbing piece in any setting.\r\nThis artwork works beautifully in bedrooms, living rooms, or creative spaces where laughter and joy are always welcome.\r\nWith its friendly characters and bright design, it will appeal to people of all ages.\r\nWhether you\'re a cartoon enthusiast or just love fun, lively art, this painting adds character to any space.\r\nThe fun, animated style invites you to leave the ordinary behind and step into a world of imagination.\r\nToon Town Fun is sure to bring a smile to anyone’s face with its lighthearted, carefree charm.\r\nThis piece is more than just a decoration—it’s a gateway to a joyful, colorful world.\r\nAdd it to your collection and let the fun begin in your home.', 90.00, 8, 48, 2, 'images/products/1744397405_Art 4.jpg', '2025-04-11 18:50:05'),
 ('4800005', ' Dreamy Creatures – Cartoon Painting', 'Dreamy Creatures is a soft, serene cartoon painting that captures the magic of fantastical beings and whimsical worlds.\r\nGentle pastel colors and subtle details create a peaceful atmosphere, ideal for relaxation and creativity.\r\nThe painting features mystical creatures, each more enchanting than the last, inviting viewers into a world of imagination.\r\nWith its calming palette and dreamlike setting, Dreamy Creatures is perfect for bedrooms, nurseries, or spaces dedicated to relaxation.\r\nThe soft hues and delicate lines give this painting a tranquil and peaceful vibe, making it ideal for a calming space.\r\nThe whimsical creatures are friendly and comforting, adding a touch of fantasy and wonder to your room.\r\nPerfect for anyone who enjoys gentle, imaginative art, this painting evokes feelings of serenity and joy.\r\nIts subtle yet captivating design makes it a great choice for creating a peaceful ambiance in any room.\r\nThe dreamy creatures in this painting are a reminder of the beauty and magic that imagination can create.\r\nIdeal for nurseries or children’s rooms, Dreamy Creatures sparks creativity in a soft, gentle way.\r\nThis artwork works beautifully in spaces designed for relaxation, such as reading corners or meditation areas.\r\nThe soothing colors and graceful figures bring a sense of calm to any space.\r\nDreamy Creatures is a fantastic choice for anyone who wants to add a touch of peaceful fantasy to their home.\r\nThe delicate details and soft tones create an atmosphere of serenity and quiet beauty.\r\nPerfect for bedrooms, meditation spaces, or even office areas where calm and creativity are essential.\r\nThis painting offers a moment of calm in the busy world, allowing you to escape into a dreamlike realm.\r\nDreamy Creatures is a timeless piece that will continue to captivate and inspire, making it perfect for any age.\r\nThe gentle beauty of this piece is perfect for creating a peaceful sanctuary in your home.\r\nAdd a little magic and tranquility to your space with Dreamy Creatures.', 100.00, 3, 48, 1, 'images/products/1744397439_Art 5.jpg', '2025-04-11 18:50:39');
 
@@ -313,15 +398,40 @@ CREATE TABLE `returns` (
   `product_id` char(7) NOT NULL,
   `reason` text NOT NULL,
   `return_status` enum('pending','approved','rejected') DEFAULT 'pending',
-  `return_date` timestamp NOT NULL DEFAULT current_timestamp()
+  `return_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `read_status` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `returns`
 --
 
-INSERT INTO `returns` (`return_id`, `order_id`, `product_id`, `reason`, `return_status`, `return_date`) VALUES
-(17, 'c-4800005-67f964', '4800005', 'Defected', 'rejected', '2025-04-11 18:53:54');
+INSERT INTO `returns` (`return_id`, `order_id`, `product_id`, `reason`, `return_status`, `return_date`, `read_status`) VALUES
+(17, 'c-4800005-67f964', '4800005', 'Defected', 'rejected', '2025-04-11 18:53:54', 1),
+(18, 'c-3800002-67f967', '3800002', 'defected', 'rejected', '2025-04-25 11:16:03', 0),
+(19, 'c-3800002-67f967', '3800002', 'defected\r\n', 'approved', '2025-04-25 12:10:11', 0);
+
+--
+-- Triggers `returns`
+--
+DELIMITER $$
+CREATE TRIGGER `after_return_status_update` AFTER UPDATE ON `returns` FOR EACH ROW BEGIN
+    IF NEW.return_status != OLD.return_status THEN
+        -- Get user_id from orders table
+        SET @user_id = (SELECT u_id FROM orders WHERE order_id = NEW.order_id LIMIT 1);
+        
+        INSERT INTO notifications (user_id, title, message, related_table, related_id)
+        VALUES (
+            @user_id,
+            'Return Status Updated',
+            CONCAT('Your return for order #', NEW.order_id, ' is now ', NEW.return_status),
+            'returns',
+            NEW.return_id
+        );
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -343,7 +453,8 @@ CREATE TABLE `reviews` (
 --
 
 INSERT INTO `reviews` (`review_id`, `product_id`, `user_name`, `rating`, `review_text`, `created_at`) VALUES
-(24, '4800005', 'Ahmed', 5, 'Excellent', '2025-04-11 18:53:18');
+(24, '4800005', 'Ahmed', 5, 'Excellent', '2025-04-11 18:53:18'),
+(25, '3800005', 'Muhammad Ahmed', 4, 'great\r\n', '2025-04-22 10:25:27');
 
 -- --------------------------------------------------------
 
@@ -360,6 +471,14 @@ CREATE TABLE `stock_update` (
   `update_reason` varchar(255) DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `stock_update`
+--
+
+INSERT INTO `stock_update` (`update_id`, `product_id`, `previous_quantity`, `new_quantity`, `quantity_change`, `update_reason`, `updated_at`) VALUES
+(4, '4800003', 2, 0, -2, 'out of stock', '2025-04-25 05:42:59'),
+(5, '4800003', 0, 4, 4, 'Out of stock', '2025-04-25 11:54:17');
 
 -- --------------------------------------------------------
 
@@ -387,6 +506,19 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `full_name`, `email
 (17, 'Ahmed', '$2y$10$BkJ8.7ZwIta2GSF/4zAy2Otzk0eaGz/uu2Qw/IyPzrqWPQDl/Y4Xm', 'Muhammad Ahmed', 'ahmed@gmail.com', '', 'customer', '', '2025-04-10 17:47:14'),
 (18, 'Ali12', '$2y$10$s4uywapiZ/JPr/AXhygzRODTdyIso8Qdcc2UXvE/VPBX/CLZoMPpO', 'Ali Khan', 'ali@gmail.com', '+923442681140', 'employee', 'Karachi', '2025-04-10 19:35:44'),
 (20, 'Administarator', '$2y$10$lCQ.4Olkv0N.f9GX.CPkcuOPWYPStW.eBH11pAvWgpDj/F20w1Ywq', 'Admin', 'admin@gmail.com', NULL, 'admin', NULL, '2025-04-11 13:31:17');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `wishlist`
+--
+
+CREATE TABLE `wishlist` (
+  `wishlist_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `product_id` char(7) NOT NULL,
+  `added_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
@@ -419,6 +551,13 @@ ALTER TABLE `employees`
 --
 ALTER TABLE `feedback`
   ADD PRIMARY KEY (`feedback_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`notification_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
@@ -472,6 +611,14 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `wishlist`
+--
+ALTER TABLE `wishlist`
+  ADD PRIMARY KEY (`wishlist_id`),
+  ADD UNIQUE KEY `unique_wishlist_item` (`user_id`,`product_id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -485,7 +632,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `deliveries`
 --
 ALTER TABLE `deliveries`
-  MODIFY `delivery_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `delivery_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -500,34 +647,46 @@ ALTER TABLE `feedback`
   MODIFY `feedback_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+
+--
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `returns`
 --
 ALTER TABLE `returns`
-  MODIFY `return_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `return_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `stock_update`
 --
 ALTER TABLE `stock_update`
-  MODIFY `update_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `update_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `wishlist`
+--
+ALTER TABLE `wishlist`
+  MODIFY `wishlist_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- Constraints for dumped tables
@@ -552,6 +711,12 @@ ALTER TABLE `employees`
 --
 ALTER TABLE `feedback`
   ADD CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `orders`
@@ -583,6 +748,13 @@ ALTER TABLE `reviews`
 --
 ALTER TABLE `stock_update`
   ADD CONSTRAINT `stock_update_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`);
+
+--
+-- Constraints for table `wishlist`
+--
+ALTER TABLE `wishlist`
+  ADD CONSTRAINT `wishlist_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `wishlist_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
