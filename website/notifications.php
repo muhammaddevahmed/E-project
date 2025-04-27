@@ -6,8 +6,8 @@ ob_start(); // Start output buffering to catch stray output
 include 'components/header.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+  echo "<script>alert('You must be logged in to see your notifications.'); window.location.href='login.php';</script>";
+  exit();
 }
 
 // Handle notification deletion via AJAX
@@ -42,11 +42,15 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
 ?>
 
 
+
 <script src="https://cdn.tailwindcss.com"></script>
+
+
 
 <style>
 .notification-item {
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .notification-item:hover {
@@ -69,10 +73,31 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
     height: 0;
     margin-bottom: 0;
     padding: 0;
+    border: none;
   }
 }
-</style>
 
+.delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.delete-btn:active {
+  transform: scale(0.95);
+}
+</style>
 
 <body class="bg-gray-100 font-sans">
   <div class="min-h-screen flex justify-center items-start py-12">
@@ -91,9 +116,16 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
       <div id="notifications-list">
         <?php foreach ($notifications as $notification): ?>
         <div
-          class="notification-item flex justify-between items-start p-6 mb-4 rounded-lg <?php echo $notification['is_read'] ? 'bg-gray-50' : 'bg-blue-50 border-l-4 border-blue-500'; ?>"
+          class="notification-item relative flex justify-between items-start p-6 mb-4 rounded-lg <?php echo $notification['is_read'] ? 'bg-gray-50' : 'bg-blue-50 border-l-4 border-blue-500'; ?>"
           data-notification-id="<?php echo $notification['notification_id']; ?>">
-          <div>
+
+          <!-- Delete Button -->
+          <button class="delete-btn" data-notification-id="<?php echo $notification['notification_id']; ?>">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+
+          <div class="pr-8">
+            <!-- Added padding to prevent text overlap with delete button -->
             <div class="text-lg font-semibold text-gray-800"><?php echo htmlspecialchars($notification['title']); ?>
             </div>
             <div class="text-gray-600 mt-1"><?php echo htmlspecialchars($notification['message']); ?></div>
@@ -101,10 +133,6 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
               <?php echo date('M j, Y g:i a', strtotime($notification['created_at'])); ?>
             </div>
           </div>
-          <button class="delete-notification text-red-500 hover:text-red-700"
-            data-notification-id="<?php echo $notification['notification_id']; ?>">
-            <i class="fas fa-trash-alt"></i>
-          </button>
         </div>
         <?php endforeach; ?>
       </div>
@@ -119,9 +147,11 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const deleteButtons = document.querySelectorAll('.delete-notification');
-    deleteButtons.forEach(button => {
-      button.addEventListener('click', async () => {
+    // Handle delete button clicks
+    document.querySelectorAll('.delete-btn').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        e.stopPropagation(); // Prevent any parent click handlers
+
         const notificationId = button.getAttribute('data-notification-id');
         const notificationItem = button.closest('.notification-item');
 
@@ -131,6 +161,9 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
         }
 
         try {
+          // Show loading state
+          button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
           const response = await fetch('notifications.php', {
             method: 'POST',
             headers: {
@@ -146,7 +179,10 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
           const result = await response.json();
 
           if (result.success) {
+            // Add fade-out animation
             notificationItem.classList.add('fade-out');
+
+            // Remove after animation completes
             setTimeout(() => {
               notificationItem.remove();
 
@@ -154,19 +190,21 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
               if (!document.querySelector('.notification-item')) {
                 const list = document.getElementById('notifications-list');
                 list.innerHTML = `
-                                        <div class="text-center py-12">
-                                            <i class="fas fa-bell-slash text-gray-400 text-6xl mb-4"></i>
-                                            <p class="text-gray-500 text-lg">You don't have any notifications yet.</p>
-                                        </div>
-                                    `;
+                  <div class="text-center py-12">
+                    <i class="fas fa-bell-slash text-gray-400 text-6xl mb-4"></i>
+                    <p class="text-gray-500 text-lg">You don't have any notifications yet.</p>
+                  </div>
+                `;
               }
             }, 500);
           } else {
             alert('Failed to delete notification: ' + (result.error || 'Unknown error'));
+            button.innerHTML = '<i class="fas fa-trash-alt"></i>';
           }
         } catch (error) {
           console.error('Error deleting notification:', error);
           alert('An error occurred while deleting the notification: ' + error.message);
+          button.innerHTML = '<i class="fas fa-trash-alt"></i>';
         }
       });
     });

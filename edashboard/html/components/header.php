@@ -233,6 +233,17 @@ function updateOrderStatus($pdo, $order_id, $new_status) {
             </a>
           </li>
 
+          <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Promo Codes</span>
+          </li>
+          <!-- Add Product -->
+          <li class="menu-item">
+            <a href="promo_codes.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-collection"></i>
+              <div data-i18n="Basic">Promo Codes Request</div>
+            </a>
+          </li>
+
           <!-- -------------- -->
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Returns</span>

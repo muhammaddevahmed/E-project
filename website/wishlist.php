@@ -565,21 +565,24 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
           setTimeout(() => {
             item.remove();
 
-            // If no items left, show empty state
+            // If no items left, show empty state and reload the page
             if (document.querySelectorAll('.wishlist-item').length === 0) {
               document.querySelector('.wishlist-container').innerHTML = `
-                                <div class="empty-wishlist">
-                                    <i class="fa fa-heart"></i>
-                                    <h3>Your Wishlist is Empty</h3>
-                                    <p>You haven't added any items to your wishlist yet. Start browsing our collection and add your favorite products.</p>
-                                    <a href="shop-grid.php" class="btn">
-                                        <i class="fa fa-shopping-bag mr-2"></i> Start Shopping
-                                    </a>
-                                </div>
-                            `;
+                        <div class="empty-wishlist">
+                            <i class="fa fa-heart"></i>
+                            <h3>Your Wishlist is Empty</h3>
+                            <p>You haven't added any items to your wishlist yet. Start browsing our collection and add your favorite products.</p>
+                            <a href="shop-grid.php" class="btn">
+                                <i class="fa fa-shopping-bag mr-2"></i> Start Shopping
+                            </a>
+                        </div>
+                    `;
+              setTimeout(() => {
+                location.reload();
+              }, 500);
+            } else {
+              showToast('Product removed from wishlist');
             }
-
-            showToast('Product removed from wishlist');
           }, 300);
         } else {
           alert(data.message || 'An error occurred');

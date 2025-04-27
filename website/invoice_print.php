@@ -38,23 +38,33 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $subtotal = array_sum(array_map(function($p) { 
     return $p['p_price'] * $p['p_qty']; 
 }, $products));
-$tax_rate = 0.10;
-$tax = $subtotal * $tax_rate;
-$total = $subtotal + $tax;
 
-// If no products found, use payment amount as total
+// Derive discount from payments table amount
+$payment_amount = $invoice['amount']; // Amount from payments table (discounted if applicable)
+$discount_amount = 0;
+
+// If payment_amount is less than subtotal, a discount was applied
+if ($payment_amount < $subtotal) {
+    $discount_amount = $subtotal - $payment_amount;
+}
+$total = $payment_amount; // Total is the payment amount (discounted or not)
+
+// If no products found, use payment amount as subtotal and total
 if (empty($products)) {
-    $subtotal = $invoice['amount'] / 1.10;
-    $tax = $subtotal * $tax_rate;
-    $total = $invoice['amount'];
+    $subtotal = $payment_amount;
+    $total = $payment_amount;
+    $discount_amount = 0; // No discount if no products
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice #<?= htmlspecialchars($invoice['payment_id']) ?></title>
+  <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
   <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -65,8 +75,6 @@ if (empty($products)) {
     color: #333;
     background-color: #f5f5f5;
   }
-
-
 
   .invoice-container {
     max-width: 800px;
@@ -86,14 +94,24 @@ if (empty($products)) {
   }
 
   .logo {
+    display: flex;
+    align-items: center;
     font-size: 24px;
     font-weight: 700;
     color: #000;
   }
 
+  .logo-img {
+    height: 60px;
+    width: 180px;
+    object-fit: contain;
+    margin-right: 15px;
+  }
+
   .logo span {
     color: #666;
     font-weight: 400;
+    margin-left: 10px;
   }
 
   .invoice-title h1 {
@@ -158,6 +176,11 @@ if (empty($products)) {
     border-bottom: none;
     background: #f9f9f9;
     font-size: 15px;
+  }
+
+  .discount-row td {
+    color: #7fad39;
+    font-weight: 500;
   }
 
   .footer {
@@ -260,49 +283,17 @@ if (empty($products)) {
   .print-btn:hover {
     background: #6a9a2b;
   }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    font-size: 24px;
-    font-weight: 700;
-    color: #000;
-  }
-
-  .logo-img {
-    height: 60px;
-    /* Your desired height */
-    width: 180px;
-    /* Your desired width */
-    object-fit: contain;
-    /* Prevents distortion */
-    margin-right: 15px;
-  }
-
-  .logo span {
-    color: #666;
-    font-weight: 400;
-    margin-left: 10px;
-  }
   </style>
-  <!DOCTYPE html>
-  <html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Crafty Corner</title>
-    <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
-  </head>
+</head>
 
 <body>
   <div class="invoice-container">
     <div class="header">
       <div class="logo">
-        <img src="images/logo.png" alt="The Crafty Corner Logo" style="height: 70px; margin-right: 10px;">
+        <img src="images/logo.png" alt="The Crafty Corner Logo" class="logo-img">
         <span class="name">INVOICE</span>
       </div>
-      <div class=" invoice-title">
+      <div class="invoice-title">
         <h1>#<?= htmlspecialchars($invoice['payment_id']) ?></h1>
         <div class="number">Issued: <?= date('F j, Y', strtotime($invoice['payment_date'])) ?></div>
       </div>
@@ -366,14 +357,19 @@ if (empty($products)) {
         <?php endif; ?>
       </tbody>
       <tfoot>
-
         <tr>
           <td colspan="3" class="text-right">Subtotal</td>
           <td class="text-right">Rs <?= number_format($subtotal, 2) ?></td>
         </tr>
+        <?php if ($discount_amount > 0): ?>
+        <tr class="discount-row">
+          <td colspan="3" class="text-right">Discount</td>
+          <td class="text-right">- Rs <?= number_format($discount_amount, 2) ?></td>
+        </tr>
+        <?php endif; ?>
         <tr class="total-row">
           <td colspan="3" class="text-right">TOTAL</td>
-          <td class="text-right">Rs <?= number_format($subtotal, 2) ?></td>
+          <td class="text-right">Rs <?= number_format($total, 2) ?></td>
         </tr>
       </tfoot>
     </table>

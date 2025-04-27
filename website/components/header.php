@@ -40,6 +40,7 @@ $_SESSION['notifications'] = $notification_count;
   <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
   <link rel="stylesheet" href="css/style.css" type="text/css">
   <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
   .header__menu ul li a {
@@ -200,10 +201,10 @@ $_SESSION['notifications'] = $notification_count;
     </nav>
     <div id="mobile-menu-wrap"></div>
     <div class="header__top__right__social">
-      <a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a>
-      <a href="https://twitter.com/"><i class="fa fa-twitter"></i></a>
-      <a href="https://www.linkedin.com"><i class="fa fa-linkedin"></i></a>
-      <a href="https://www.pinterest.com/"><i class="fa fa-pinterest-p"></i></a>
+      <a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://twitter.com/"><i class="fa-brands fa-twitter"></i></a>
+      <a href="https://www.linkedin.com"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.pinterest.com/"><i class="fab fa-pinterest-p"></i></a>
     </div>
     <div class="humberger__menu__contact">
       <ul>
@@ -230,10 +231,10 @@ $_SESSION['notifications'] = $notification_count;
           <div class="col-lg-6 col-md-6">
             <div class="header__top__right">
               <div class="header__top__right__social">
-                <a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a>
-                <a href="https://twitter.com/"><i class="fa fa-twitter"></i></a>
-                <a href="https://www.linkedin.com"><i class="fa fa-linkedin"></i></a>
-                <a href="https://www.pinterest.com/"><i class="fa fa-pinterest-p"></i></a>
+                <a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://twitter.com/"><i class="fa-brands fa-twitter"></i></a>
+                <a href="https://www.linkedin.com"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.pinterest.com/"><i class="fab fa-pinterest-p"></i></a>
               </div>
               <?php if ($is_logged_in): ?>
               <div class="header__top__right__language">

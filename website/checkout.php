@@ -57,10 +57,30 @@ $bankName = $sessionFormData['bank_name'] ?? '';
 // Initialize error array
 $errors = [];
 
+// Calculate subtotal, discount, and total
+$subtotal = 0;
+$discount_amount = 0;
+$cart_empty = true;
+
+if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+    $cart_empty = false;
+    foreach ($_SESSION['cart'] as $id => $item) {
+        if (isset($item['price']) && isset($item['quantity'])) {
+            $subtotal += $item['price'] * $item['quantity'];
+        }
+    }
+}
+
+// Apply discount if promo code is active
+if (isset($_SESSION['promo_applied']) && $_SESSION['promo_applied'] === true && isset($_SESSION['promo_discount'])) {
+    $discount_amount = $subtotal * ($_SESSION['promo_discount'] / 100);
+}
+$total = $subtotal - $discount_amount;
+
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if cart is empty
-    if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+    if ($cart_empty) {
         $errors['cart'] = "Your cart is empty. Please add products before checkout.";
     }
     
@@ -108,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($paymentMethod === 'credit_card') {
         $cardNumber = validateInput('card_number', "/^[0-9\s]{16,19}$/", "Card number should be 16-19 digits", $errors);
         $expiryDate = validateInput('expiry_date', "/^(0[1-9]|1[0-2])\/?([0-9]{2})$/", "Expiry date should be in MM/YY format", $errors);
-        $cvv = validateInput('cvv', "/^[0-9]{3,4}$/", "CVV should be 3 or 4 digits", $errors);
+        $cvv = validateInput('391', "/^[0-9]{3,4}$/", "CVV should be 3 or 4 digits", $errors);
     } elseif ($paymentMethod === 'check_payment') {
         $checkNumber = validateInput('check_number', "/^[a-zA-Z0-9]{5,20}$/", "Check number should be 5-20 alphanumeric characters", $errors);
         $bankName = validateInput('bank_name', "/^[a-zA-Z ]{2,50}$/", "Bank name should contain only letters and spaces (2-50 characters)", $errors);
@@ -118,13 +138,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($errors)) {
         // Generate a unique order ID
         $orderId = uniqid();
-
-        // Calculate the total amount from the cart
-        $subtotal = 0;
-        foreach ($_SESSION['cart'] as $id => $item) {
-            $subtotal += $item['price'] * $item['quantity'];
-        }
-        $total = $subtotal;
 
         try {
             // Begin transaction
@@ -145,7 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Bind payment parameters
             $paymentStmt->bindParam(':payment_method', $paymentMethod);
-            $paymentStmt->bindParam(':amount', $total);
+            $paymentStmt->bindParam(':amount', $total); // Use discounted total
             $paymentStmt->bindParam(':first_name', $firstName);
             $paymentStmt->bindParam(':last_name', $lastName);
             $paymentStmt->bindParam(':country', $country);
@@ -235,9 +248,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Commit the transaction
             $pdo->commit();
 
-            // Clear the cart and form data after successful order
+            // Clear the cart, form data, and promo session after successful order
             unset($_SESSION['cart']);
             unset($_SESSION['checkout_form_data']);
+            unset($_SESSION['promo_applied']);
+            unset($_SESSION['promo_code']);
+            unset($_SESSION['promo_discount']);
 
             // Redirect to confirmation page
             echo "<script>
@@ -278,25 +294,21 @@ function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
     // Return sanitized value
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
-
-// Calculate subtotal and total for display
-$subtotal = 0;
-if (isset($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $id => $item) {
-        if (isset($item['price']) && isset($item['quantity'])) {
-            $subtotal += $item['price'] * $item['quantity'];
-        }
-    }
-}
-$total = $subtotal; // Assuming no tax or shipping for now
 ?>
+
 <style>
 .site-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   background-color: #cccccc;
 }
+
+.discount-row {
+  color: #7fad39;
+  font-weight: bold;
+}
 </style>
+
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
   data-setbg="https://i.pinimg.com/736x/72/e6/21/72e62198095a1c36038869ddf05481f7.jpg">
@@ -437,6 +449,11 @@ $total = $subtotal; // Assuming no tax or shipping for now
               </ul>
               <div class="checkout__order__subtotal">Subtotal <span>Rs <?php echo number_format($subtotal, 2); ?></span>
               </div>
+              <?php if (isset($_SESSION['promo_applied']) && $_SESSION['promo_applied']): ?>
+              <div class="discount-row">Discount (<?php echo $_SESSION['promo_discount']; ?>%) <span>- Rs
+                  <?php echo number_format($discount_amount, 2); ?></span></div>
+              <div>Promo Code: <strong><?php echo htmlspecialchars($_SESSION['promo_code']); ?></strong></div>
+              <?php endif; ?>
               <div class="checkout__order__total">Total <span>Rs <?php echo number_format($total, 2); ?></span></div>
 
               <!-- Payment Methods -->
@@ -631,7 +648,7 @@ function validateAndSubmit() {
   let isValid = true;
 
   <?php if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])): ?>
-  showError('cart', 'Your cart is empty. Please add products before checkout.');
+  showError('cart', 'Your cart is empty. Please  Please add products before checkout.');
   isValid = false;
   <?php endif; ?>
 
@@ -726,7 +743,7 @@ function validateAndSubmit() {
       const checkNumber = document.querySelector('input[name="check_number"]')?.value.trim();
       const bankName = document.querySelector('input[name="bank_name"]')?.value.trim();
 
-      if (!checkNumber || !/^[a-zA-Z0-9]{5,20}$/.test(checkNumber)) {
+      if (!GELcheckNumber || !/^[a-zA-Z0-9]{5,20}$/.test(checkNumber)) {
         showError('check_number', 'Check number should be 5-20 alphanumeric characters');
         isValid = false;
       }

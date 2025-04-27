@@ -1,6 +1,32 @@
 <?php
 include("components/header.php");
 
+// Check user type
+$user_type = $_SESSION['user_type'] ?? '';
+
+// Load cart for logged-in users
+if (isset($_SESSION['user_id']) && !isset($_SESSION['cart'])) {
+    try {
+        $stmt = $pdo->prepare("SELECT c.product_id, c.quantity, c.price, c.product_name, c.image_path 
+                              FROM cart c 
+                              WHERE c.user_id = :user_id");
+        $stmt->execute(['user_id' => $_SESSION['user_id']]);
+        $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $_SESSION['cart'] = [];
+        foreach ($cart_items as $item) {
+            $_SESSION['cart'][$item['product_id']] = [
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'product_name' => $item['product_name'],
+                'image_path' => $item['image_path']
+            ];
+        }
+    } catch (PDOException $e) {
+        // Silently handle error
+    }
+}
+
 // Handle stock check via AJAX
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'check_stock') {
     $product_id = $_POST['product_id'];
@@ -14,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         if ($row) {
             echo json_encode(['stock_quantity' => (int)$row['stock_quantity']]);
         } else {
-            echo json_encode(['stock_quantity' => 0]); // Product not found
+            echo json_encode(['stock_quantity' => 0]);
         }
     } catch (PDOException $e) {
         echo json_encode(['error' => 'Database error']);
@@ -28,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     $quantity = (int)$_POST['quantity'];
 
     try {
-        $query = "SELECT stock_quantity FROM products WHERE product_id = :product_id";
+        $query = "SELECT stock_quantity, price, product_name, image_path FROM products WHERE product_id = :product_id";
         $stmt = $pdo->prepare($query);
         $stmt->execute(['product_id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -43,6 +69,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             $_SESSION['cart'] = [];
         }
         $_SESSION['cart'][$id]['quantity'] = $quantity;
+        $_SESSION['cart'][$id]['price'] = $row['price'];
+        $_SESSION['cart'][$id]['product_name'] = $row['product_name'];
+        $_SESSION['cart'][$id]['image_path'] = $row['image_path'];
+
+        // Update cart in database for logged-in users
+        if (isset($_SESSION['user_id'])) {
+            $stmt = $pdo->prepare("
+                INSERT INTO cart (user_id, product_id, quantity, price, product_name, image_path) 
+                VALUES (:user_id, :product_id, :quantity, :price, :product_name, :image_path) 
+                ON DUPLICATE KEY UPDATE 
+                    quantity = :quantity, 
+                    price = :price, 
+                    product_name = :product_name, 
+                    image_path = :image_path
+            ");
+            $stmt->execute([
+                'user_id' => $_SESSION['user_id'],
+                'product_id' => $id,
+                'quantity' => $quantity,
+                'price' => $row['price'],
+                'product_name' => $row['product_name'],
+                'image_path' => $row['image_path']
+            ]);
+        }
 
         echo json_encode(['success' => 'Cart updated successfully']);
     } catch (PDOException $e) {
@@ -51,14 +101,127 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     exit();
 }
 
+// Handle promo code request
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'request_promo') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['error' => 'You must be logged in to request a promo code']);
+        exit();
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM promo_code_requests WHERE user_id = :user_id AND status = 'pending'");
+        $stmt->execute(['user_id' => $_SESSION['user_id']]);
+        
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['error' => 'You already have a pending promo code request']);
+            exit();
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO promo_code_requests (user_id) VALUES (:user_id)");
+        $stmt->execute(['user_id' => $_SESSION['user_id']]);
+
+        echo json_encode(['success' => 'Promo code request submitted. Admin will review your request.']);
+    } catch (PDOException $e) {
+        echo json_encode(['error' => 'Database error']);
+    }
+    exit();
+}
+
+// Handle promo code application
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'apply_promo') {
+    $promo_code = trim($_POST['promo_code']);
+    
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['error' => 'You must be logged in to use promo codes']);
+        exit();
+    }
+
+    try {
+        // Check if the promo code exists and is already used
+        $query = "SELECT * FROM promo_codes 
+                 WHERE code = :code 
+                 AND user_id = :user_id";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([
+            'code' => $promo_code,
+            'user_id' => $_SESSION['user_id']
+        ]);
+        $promo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($promo && $promo['is_used'] === true) {
+            echo json_encode(['error' => 'Promo code is already used. Please request a new one.']);
+            exit();
+        }
+
+        // Check if the promo code is valid and not expired
+        $query = "SELECT * FROM promo_codes 
+                 WHERE code = :code 
+                 AND user_id = :user_id 
+                 AND is_used = FALSE 
+                 AND (expires_at IS NULL OR expires_at > NOW())";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([
+            'code' => $promo_code,
+            'user_id' => $_SESSION['user_id']
+        ]);
+        
+        $promo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($promo) {
+            $_SESSION['promo_applied'] = true;
+            $_SESSION['promo_code'] = $promo['code'];
+            $_SESSION['promo_discount'] = $promo['discount_percent'];
+            
+            $stmt = $pdo->prepare("UPDATE promo_codes SET is_used = TRUE WHERE code_id = :code_id");
+            $stmt->execute(['code_id' => $promo['code_id']]);
+            
+            echo json_encode([
+                'success' => 'Promo code applied successfully! ' . $promo['discount_percent'] . '% discount added.',
+                'discount_percent' => $promo['discount_percent']
+            ]);
+        } else {
+            echo json_encode(['error' => 'Invalid or expired promo code. Please try again.']);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['error' => 'Database error']);
+    }
+    exit();
+}
+
+// Handle promo code removal
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'remove_promo') {
+    unset($_SESSION['promo_applied']);
+    unset($_SESSION['promo_code']);
+    unset($_SESSION['promo_discount']);
+    echo json_encode(['success' => 'Promo code removed successfully.']);
+    exit();
+}
+
 // Clear cart if requested
 if (isset($_GET['ch'])) {
     unset($_SESSION['cart']);
+    unset($_SESSION['promo_applied']);
+    unset($_SESSION['promo_code']);
+    unset($_SESSION['promo_discount']);
+    
+    // Clear cart from database for logged-in users
+    if (isset($_SESSION['user_id'])) {
+        try {
+            $stmt = $pdo->prepare("DELETE FROM cart WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $_SESSION['user_id']]);
+        } catch (PDOException $e) {
+            // Silently handle error
+        }
+    }
 }
 
 // Calculate subtotal and total
 $subtotal = 0;
 $cart_empty = true;
+$discount_amount = 0;
+$has_promo_request = false;
+$has_available_promo = false;
+$latest_request_status = null;
 
 if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
     $cart_empty = false;
@@ -68,7 +231,55 @@ if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
         }
     }
 }
-$total = $subtotal;
+
+// Check for promo request or available promo codes
+if (isset($_SESSION['user_id'])) {
+    try {
+        // Check for the latest promo code request status
+        $stmt = $pdo->prepare("SELECT status FROM promo_code_requests WHERE user_id = :user_id ORDER BY request_date DESC LIMIT 1");
+        $stmt->execute(['user_id' => $_SESSION['user_id']]);
+        $latest_request = $stmt->fetch(PDO::FETCH_ASSOC);
+        $latest_request_status = $latest_request ? $latest_request['status'] : null;
+
+        // Check for pending promo code request
+        $stmt = $pdo->prepare("SELECT * FROM promo_code_requests WHERE user_id = :user_id AND status = 'pending'");
+        $stmt->execute(['user_id' => $_SESSION['user_id']]);
+        $has_promo_request = $stmt->rowCount() > 0;
+
+        // Check for available promo codes
+        $stmt = $pdo->prepare("SELECT * FROM promo_codes 
+                              WHERE user_id = :user_id 
+                              AND is_used = FALSE 
+                              AND (expires_at IS NULL OR expires_at > NOW())");
+        $stmt->execute(['user_id' => $_SESSION['user_id']]);
+        $available_promos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $has_available_promo = count($available_promos) > 0;
+        
+        // If there's exactly one available promo code, apply it automatically
+        if (count($available_promos) === 1 && !isset($_SESSION['promo_applied'])) {
+            $_SESSION['promo_applied'] = true;
+            $_SESSION['promo_code'] = $available_promos[0]['code'];
+            $_SESSION['promo_discount'] = $available_promos[0]['discount_percent'];
+            
+            // Mark the promo code as used
+            $stmt = $pdo->prepare("UPDATE promo_codes SET is_used = TRUE WHERE code_id = :code_id");
+            $stmt->execute(['code_id' => $available_promos[0]['code_id']]);
+            
+            // Recalculate totals
+            $discount_amount = $subtotal * ($_SESSION['promo_discount'] / 100);
+            $total = $subtotal - $discount_amount;
+        }
+    } catch (PDOException $e) {
+        // Silently handle error
+    }
+}
+
+// Apply discount if promo code is active
+if (isset($_SESSION['promo_applied']) && $_SESSION['promo_applied'] === true) {
+    $discount_amount = $subtotal * ($_SESSION['promo_discount'] / 100);
+}
+
+$total = $subtotal - $discount_amount;
 ?>
 
 <style>
@@ -84,7 +295,7 @@ $total = $subtotal;
 }
 
 .qty-btn {
-  background: rgb(10, 162, 51);
+  background: rgb(10, 162, 51 51);
   color: white;
   border: none;
   padding: 5px 10px;
@@ -103,6 +314,16 @@ $total = $subtotal;
   font-size: 16px;
 }
 
+.inc {
+  background: #7fad39;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 16px;
+}
+
 .qty-input {
   width: 50px;
   text-align: center;
@@ -111,6 +332,45 @@ $total = $subtotal;
   margin: 0 5px;
   padding: 3px;
   border-radius: 3px;
+}
+
+.promo-section {
+  margin-top: 15px;
+}
+
+.promo-section input {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  width: 150px;
+  margin-right: 5px;
+}
+
+.promo-section button {
+  padding: 5px 10px;
+  background: #7fad39;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.promo-section button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.promo-message {
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+#remove_promo {
+  background: rgb(208, 35, 35);
+}
+
+.primary-btn {
+  margin-top: 16px
 }
 </style>
 
@@ -138,7 +398,6 @@ $total = $subtotal;
               <?php if (!$cart_empty): ?>
               <?php foreach ($_SESSION['cart'] as $product_id => $item): ?>
               <?php 
-                // Fetch stock quantity for each product
                 try {
                     $query = "SELECT stock_quantity FROM products WHERE product_id = :product_id";
                     $stmt = $pdo->prepare($query);
@@ -197,8 +456,35 @@ $total = $subtotal;
           <h5>Cart Total</h5>
           <ul>
             <li>Subtotal <span id="subtotal">Rs <?php echo number_format($subtotal, 2); ?></span></li>
+            <?php if (isset($_SESSION['promo_applied']) && $_SESSION['promo_applied']): ?>
+            <li>Discount (<?php echo $_SESSION['promo_discount']; ?>%) <span id="discount">- Rs
+                <?php echo number_format($discount_amount, 2); ?></span></li>
+            <?php endif; ?>
             <li>Total <span id="total">Rs <?php echo number_format($total, 2); ?></span></li>
           </ul>
+          <?php if (isset($_SESSION['user_id'])): ?>
+          <div class="promo-section">
+            <?php if (isset($_SESSION['promo_applied']) && $_SESSION['promo_applied']): ?>
+            <p>Promo code <strong><?php echo htmlspecialchars($_SESSION['promo_code']); ?></strong> applied
+              (<?php echo $_SESSION['promo_discount']; ?>%)</p>
+
+            <?php else: ?>
+
+            <?php if ($has_promo_request): ?>
+            <p class="promo-message">Your promo code request is pending.</p>
+            <?php elseif ($latest_request_status === 'approved'): ?>
+            <p class="promo-message" style="color: green;">Your promo code request was accepted.</p>
+            <?php elseif ($latest_request_status === 'rejected'): ?>
+            <p class="promo-message" style="color: red;">Your promo code request was rejected.</p>
+            <?php elseif (!$has_available_promo && !$latest_request_status): ?>
+            <button id="request_promo" style="margin-top: 5px;">Request Promo Code</button>
+            <?php endif; ?>
+            <div id="promo_message" class="promo-message"></div>
+            <?php endif; ?>
+          </div>
+          <?php else: ?>
+          <p class="promo-section">Please <a href="login.php">login</a> to use promo codes.</p>
+          <?php endif; ?>
           <?php if (!$cart_empty): ?>
           <a href="checkout.php" class="primary-btn">PROCEED TO CHECKOUT</a>
           <?php else: ?>
@@ -216,6 +502,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const decButtons = document.querySelectorAll('.dec');
   const incButtons = document.querySelectorAll('.inc');
   const qtyInputs = document.querySelectorAll('.qty-input');
+  const applyPromoBtn = document.getElementById('apply_promo');
+  const requestPromoBtn = document.getElementById('request_promo');
+  const removePromoBtn = document.getElementById('remove_promo');
+  const promoMessage = document.getElementById('promo_message');
 
   decButtons.forEach(button => {
     button.addEventListener('click', function() {
@@ -268,16 +558,76 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  if (applyPromoBtn) {
+    applyPromoBtn.addEventListener('click', function() {
+      const promoCode = document.getElementById('promo_code').value.trim();
+
+      if (!promoCode) {
+        promoMessage.innerHTML = '<span style="color: red;">Please enter a promo code</span>';
+        return;
+      }
+
+      applyPromoBtn.disabled = true;
+      promoMessage.innerHTML = '<span style="color: blue;">Applying promo code...</span>';
+
+      fetch('shoping-cart.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `action=apply_promo&promo_code=${encodeURIComponent(promoCode)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            promoMessage.innerHTML = `<span style="color: red;">${data.error}</span>`;
+            applyPromoBtn.disabled = false;
+          } else if (data.success) {
+            promoMessage.innerHTML = `<span style="color: green;">${data.success}</span>`;
+            // Refresh the page to show updated totals and promo status
+            location.reload();
+          }
+        });
+    });
+  }
+
+  if (requestPromoBtn) {
+    requestPromoBtn.addEventListener('click', function() {
+      requestPromoBtn.disabled = true;
+      promoMessage.innerHTML = '<span style="color: blue;">Processing your request...</span>';
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+
+      fetch('shoping-cart.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: 'action=request_promo'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Refresh the page to show updated request status
+            location.reload();
+          } else if (data.error) {
+            promoMessage.innerHTML = `<span style="color: red;">${data.error}</span>`;
+            requestPromoBtn.disabled = false;
+          }
+        });
+    });
+  }
+
+
+
   function updateCartItem(id, quantity) {
-    // Update total price for the item
     const price = parseFloat(document.querySelector(`.price[data-id='${id}']`).getAttribute('data-price'));
     const totalPrice = (price * quantity).toFixed(2);
     document.querySelector(`.total-price[data-id='${id}']`).textContent = totalPrice;
 
-    // Update totals in UI
     updateTotals();
 
-    // Send AJAX request to update cart
     fetch('shoping-cart.php', {
         method: 'POST',
         headers: {
@@ -289,17 +639,13 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(data => {
         if (data.error) {
           alert(data.error);
-          // Revert quantity if stock is exceeded
           const input = document.querySelector(`.qty-input[data-id='${id}']`);
           input.value = Math.min(quantity, parseInt(input.getAttribute('data-max')));
-          updateCartItem(id, parseInt(input.value)); // Recalculate with valid quantity
-        } else if (data.success) {
-          // Optionally show a success message
-          // alert(data.success);
+          updateCartItem(id, parseInt(input.value));
         }
       })
       .catch(error => {
-
+        console.error('Error:', error);
       });
   }
 
@@ -312,9 +658,19 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Update DOM with Rs prefix
+    const discountApplied =
+      <?php echo isset($_SESSION['promo_applied']) && $_SESSION['promo_applied'] ? 'true' : 'false'; ?>;
+    const discountPercent = <?php echo isset($_SESSION['promo_discount']) ? $_SESSION['promo_discount'] : 0; ?>;
+
     document.getElementById('subtotal').textContent = `Rs ${subtotal.toFixed(2)}`;
-    document.getElementById('total').textContent = `Rs ${subtotal.toFixed(2)}`;
+
+    if (discountApplied) {
+      const discountAmount = subtotal * (discountPercent / 100);
+      document.getElementById('discount').textContent = `- Rs ${discountAmount.toFixed(2)}`;
+      document.getElementById('total').textContent = `Rs ${(subtotal - discountAmount).toFixed(2)}`;
+    } else {
+      document.getElementById('total').textContent = `Rs ${subtotal.toFixed(2)}`;
+    }
   }
 });
 </script>
