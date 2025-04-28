@@ -16,56 +16,59 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
     echo "<script>alert('Payment status updated successfully!');</script>";
 }
 ?>
+
 <style>
-/* Maintain original color scheme with layout adjustments */
+/* Maintain original color scheme with responsive adjustments */
 .container-fluid {
-  padding: 2rem 1.5rem;
+  padding: clamp(0.75rem, 2vw, 1.5rem) clamp(0.5rem, 1.5vw, 1rem);
 }
 
 .heading {
-  font-size: 2.5rem;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
   font-weight: 700;
   color: #7fad39;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   text-align: center;
 }
 
 .bg-light {
   background: #f8f9fa;
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: clamp(0.75rem, 1.5vw, 1.25rem);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
-
 
 .table-responsive {
   background: white;
   border-radius: 0.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   margin-bottom: 0;
+  min-width: 700px;
+  /* Adjusted to fit all columns */
 }
 
 .table thead th {
   background: #343a40;
-  /* Original table-dark background */
   color: white;
   font-weight: 600;
   text-transform: uppercase;
-  font-size: 0.9rem;
-  padding: 1rem;
+  font-size: clamp(0.7rem, 1vw, 0.8rem);
+  padding: clamp(0.4rem, 1vw, 0.6rem);
   border: none;
+  white-space: nowrap;
 }
 
 .table td {
   vertical-align: middle;
-  padding: 1rem;
-  font-size: 0.95rem;
+  padding: clamp(0.3rem, 0.8vw, 0.5rem);
+  font-size: clamp(0.7rem, 1vw, 0.8rem);
   color: #333;
+  white-space: nowrap;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
@@ -73,15 +76,15 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
 }
 
 .badge {
-  padding: 0.5em 1em;
-  font-size: 0.85rem;
+  padding: 0.3em 0.6em;
+  font-size: clamp(0.65rem, 0.9vw, 0.75rem);
   border-radius: 0.25rem;
 }
 
 .btn-sm {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.85rem;
-  border-radius: 0.25rem;
+  padding: clamp(0.15rem, 0.6vw, 0.25rem) clamp(0.3rem, 0.8vw, 0.5rem);
+  font-size: clamp(0.65rem, 0.9vw, 0.75rem);
+  border-radius: 0.2rem;
   transition: all 0.2s ease;
 }
 
@@ -116,9 +119,10 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
   background: #fff3cd;
   border: none;
   border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+  padding: clamp(0.5rem, 1vw, 0.75rem);
+  margin-bottom: 1rem;
   color: #856404;
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
 }
 
 .modal-content {
@@ -136,21 +140,23 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
 
 .modal-title {
   font-weight: 600;
+  font-size: clamp(0.85rem, 1.2vw, 1rem);
 }
 
 .modal-body {
-  padding: 2rem;
+  padding: clamp(0.5rem, 1.5vw, 1rem);
 }
 
 .modal-body h6 {
   color: #7fad39;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: clamp(0.8rem, 1vw, 0.9rem);
 }
 
 .modal-footer {
   border-top: none;
-  padding: 1rem 2rem;
+  padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.5rem, 1.5vw, 1rem);
 }
 
 .btn-secondary {
@@ -162,16 +168,83 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
   background: #5a6268;
 }
 
-/* Adjusted layout for action buttons */
 .action-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem;
   align-items: center;
 }
 
 .table tbody tr:hover {
   background-color: #f1f5f9;
   transition: background-color 0.2s ease;
+}
+
+/* Scrollbar styling for better visibility */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #7fad39;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .heading {
+    font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+  }
+
+  .table {
+    min-width: 600px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .btn-sm {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .container-fluid {
+    padding: clamp(0.4rem, 1vw, 0.6rem);
+  }
+
+  .table {
+    min-width: 500px;
+  }
+
+  .table td,
+  .table th {
+    font-size: clamp(0.65rem, 0.9vw, 0.7rem);
+    padding: clamp(0.2rem, 0.6vw, 0.3rem);
+  }
+
+  .badge {
+    font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+  }
+
+  .btn-sm {
+    font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+    padding: clamp(0.1rem, 0.5vw, 0.2rem) clamp(0.2rem, 0.6vw, 0.4rem);
+  }
+
+  .modal-dialog {
+    margin: 0.4rem;
+  }
+
+  .modal-body {
+    font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+  }
 }
 </style>
 
@@ -184,7 +257,7 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
   <?php endif; ?>
 
   <div class="row bg-light rounded mx-0">
-    <div class="col-md-12">
+    <div class="col-12">
       <h3 class="heading">Payment Invoices</h3>
       <div class="table-responsive">
         <table class="table table-striped">
@@ -262,16 +335,17 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
 
             <!-- Details Modal -->
             <div class="modal fade" id="detailsModal<?php echo $payment['payment_id'] ?>" tabindex="-1"
-              aria-labelledby="detailsModalLabel" aria-hidden="true">
-              <div class="modal-dialog modal-lg">
+              aria-labelledby="detailsModalLabel<?php echo $payment['payment_id'] ?>" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="detailsModalLabel">Invoice #<?php echo $payment['payment_id'] ?></h5>
+                    <h5 class="modal-title" id="detailsModalLabel<?php echo $payment['payment_id'] ?>">Invoice
+                      #<?php echo $payment['payment_id'] ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
                     <div class="row">
-                      <div class="col-md-6">
+                      <div class="col-md-6 col-12">
                         <h6>Customer Information</h6>
                         <p>
                           <strong>Name:</strong>
@@ -284,7 +358,7 @@ if (isset($_POST['update_status']) && $user_type !== 'employee') {
                           <?php echo htmlspecialchars($payment['postcode'] . ', ' . $payment['country']) ?>
                         </p>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-md-6 col-12">
                         <h6>Payment Details</h6>
                         <p>
                           <strong>Method:</strong> <?php echo htmlspecialchars($payment['payment_method']) ?><br>

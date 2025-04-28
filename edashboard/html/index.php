@@ -2,8 +2,6 @@
 include("components/header.php");
 ?>
 
-
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,8 +62,6 @@ include("components/header.php");
 </head>
 
 <body class="bg-gray-100 font-sans">
-
-
   <!-- Full Width Wrapper -->
   <div class="w-full py-6 px-4 sm:px-6 lg:px-8">
     <!-- Centered Content Container -->
@@ -92,50 +88,7 @@ include("components/header.php");
         </div>
       </div>
 
-      <!-- Metrics Section -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Art Supplies Sold -->
-        <div class="bg-white shadow-lg rounded-lg p-6 glass fade-in hover-scale">
-          <div class="flex items-center justify-between">
-            <div>
-              <span class="block text-sm text-gray-500">Art Supplies Sold</span>
-              <h3 class="text-2xl font-bold text-gray-800">1,428</h3>
-              <span class="text-green-500 text-sm"><i class="fas fa-arrow-up"></i> +28.14%</span>
-            </div>
-            <span class="bg-blue-100 text-blue-600 p-3 rounded-full">
-              <i class="fas fa-paint-brush"></i>
-            </span>
-          </div>
-        </div>
-        <!-- Stationery Items -->
-        <div class="bg-white shadow-lg rounded-lg p-6 glass fade-in hover-scale">
-          <div class="flex items-center justify-between">
-            <div>
-              <span class="block text-sm text-gray-500">Stationery Items</span>
-              <h3 class="text-2xl font-bold text-gray-800">3,287</h3>
-              <span class="text-green-500 text-sm"><i class="fas fa-arrow-up"></i> +18.42%</span>
-            </div>
-            <span class="bg-green-100 text-green-600 p-3 rounded-full">
-              <i class="fas fa-sticky-note"></i>
-            </span>
-          </div>
-        </div>
-        <!-- Total Revenue -->
-        <div class="bg-white shadow-lg rounded-lg p-6 glass fade-in hover-scale">
-          <div class="flex items-center justify-between">
-            <div>
-              <span class="block text-sm text-gray-500">Total Revenue</span>
-              <h3 class="text-2xl font-bold text-gray-800">Rs 150,000</h3>
-              <span class="text-green-500 text-sm"><i class="fas fa-arrow-up"></i> +22.63%</span>
-            </div>
-            <span class="bg-teal-100 text-teal-600 p-3 rounded-full">
-
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Category Revenue Section -->
+      <!-- Category Revenue Section (Now directly after Welcome Section) -->
       <div class="bg-white shadow-lg rounded-lg p-6 mb-8 glass fade-in">
         <h3 class="text-xl font-bold text-gray-800 mb-4">Revenue by Category</h3>
         <div id="category-revenue-container">
@@ -146,7 +99,7 @@ include("components/header.php");
 
       <!-- Popular Products Section -->
       <div class="bg-white shadow-lg rounded-lg p-6 glass fade-in">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">Popular Products (Rated 3+ Stars)</h3>
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Popular Products</h3>
         <?php
         require_once 'php/connection.php';
         try {
@@ -202,23 +155,23 @@ include("components/header.php");
       // Update revenue container
       const container = document.getElementById('category-revenue-container');
       container.innerHTML = `
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            ${data.map(category => `
-              <div class="bg-gray-50 p-4 rounded-lg shadow flex items-center">
-                <span class="text-2xl text-green-600 mr-4"><i class="${category.icon}"></i></span>
-                <div>
-                  <h4 class="font-bold text-gray-800">${category.category_name}</h4>
-                  <p class="text-gray-600">Revenue: Rs ${category.revenue.toLocaleString()}</p>
-                  <p class="text-gray-600">Orders: ${category.order_count}</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              ${data.map(category => `
+                <div class="bg-gray-50 p-4 rounded-lg shadow flex items-center">
+                  <span class="text-2xl text-green-600 mr-4"><i class="${category.icon}"></i></span>
+                  <div>
+                    <h4 class="font-bold text-gray-800">${category.category_name}</h4>
+                    <p class="text-gray-600">Revenue: Rs ${category.revenue.toLocaleString()}</p>
+                    <p class="text-gray-600">Orders: ${category.order_count}</p>
+                  </div>
                 </div>
-              </div>
-            `).join('')}
-          </div>
-          <div class="bg-teal-50 p-4 rounded-lg shadow">
-            <h4 class="font-bold text-gray-800">Top Category</h4>
-            <p class="text-gray-600">${data[0]?.category_name || 'N/A'}: Rs ${data[0]?.revenue.toLocaleString() || '0'}</p>
-          </div>
-        `;
+              `).join('')}
+            </div>
+            <div class="bg-teal-50 p-4 rounded-lg shadow">
+              <h4 class="font-bold text-gray-800">Top Category</h4>
+              <p class="text-gray-600">${data[0]?.category_name || 'N/A'}: Rs ${data[0]?.revenue.toLocaleString() || '0'}</p>
+            </div>
+          `;
 
       // Update chart
       const ctx = document.getElementById('categoryRevenueChart').getContext('2d');
@@ -263,6 +216,6 @@ include("components/header.php");
     }
   }
 
-  // Initial fetch and periodic updates
+  // Initial fetch
   fetchCategoryRevenue();
   </script>

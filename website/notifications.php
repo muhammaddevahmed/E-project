@@ -6,8 +6,8 @@ ob_start(); // Start output buffering to catch stray output
 include 'components/header.php';
 
 if (!isset($_SESSION['user_id'])) {
-  echo "<script>alert('You must be logged in to see your notifications.'); window.location.href='login.php';</script>";
-  exit();
+    echo "<script>alert('You must be logged in to see your notifications.'); window.location.href='login.php';</script>";
+    exit();
 }
 
 // Handle notification deletion via AJAX
@@ -41,63 +41,81 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ob_end_flush(); // Flush the output buffer for normal page rendering
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
 
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-
-
-<style>
-.notification-item {
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.notification-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
-
-.fade-out {
-  animation: fadeOut 0.5s ease forwards;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    height: auto;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+  .notification-item {
+    transition: all 0.3s ease;
+    position: relative;
   }
 
-  to {
-    opacity: 0;
-    height: 0;
-    margin-bottom: 0;
-    padding: 0;
+  .notification-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .fade-out {
+    animation: fadeOut 0.5s ease forwards;
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+      height: auto;
+    }
+
+    to {
+      opacity: 0;
+      height: 0;
+      margin-bottom: 0;
+      padding: 0;
+      border: none;
+    }
+  }
+
+  .delete-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: #ef4444;
+    background: none;
     border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.7;
   }
-}
 
-.delete-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  color: #ef4444;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0.7;
-}
+  .delete-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 
-.delete-btn:hover {
-  opacity: 1;
-  transform: scale(1.1);
-}
+  .delete-btn:active {
+    transform: scale(0.95);
+  }
 
-.delete-btn:active {
-  transform: scale(0.95);
-}
-</style>
+  .promo-accepted {
+    background-color: #d1fae5;
+    border-left: 4px solid #10b981;
+  }
+
+  .promo-rejected {
+    background-color: #fee2e2;
+    border-left: 4px solid #ef4444;
+  }
+
+  .promo-code {
+    font-weight: bold;
+    color: #10b981;
+  }
+  </style>
+</head>
 
 <body class="bg-gray-100 font-sans">
   <div class="min-h-screen flex justify-center items-start py-12">
@@ -115,9 +133,13 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
       <?php if (count($notifications) > 0): ?>
       <div id="notifications-list">
         <?php foreach ($notifications as $notification): ?>
-        <div
-          class="notification-item relative flex justify-between items-start p-6 mb-4 rounded-lg <?php echo $notification['is_read'] ? 'bg-gray-50' : 'bg-blue-50 border-l-4 border-blue-500'; ?>"
-          data-notification-id="<?php echo $notification['notification_id']; ?>">
+        <div class="notification-item relative flex justify-between items-start p-6 mb-4 rounded-lg 
+                    <?php
+                        echo $notification['is_read'] ? 'bg-gray-50' : (
+                            $notification['title'] === 'Promo Code Request Approved' ? 'promo-accepted' :
+                            ($notification['title'] === 'Promo Code Request Rejected' ? 'promo-rejected' : 'bg-blue-50 border-l-4 border-blue-500')
+                        );
+                    ?>" data-notification-id="<?php echo $notification['notification_id']; ?>">
 
           <!-- Delete Button -->
           <button class="delete-btn" data-notification-id="<?php echo $notification['notification_id']; ?>">
@@ -125,12 +147,26 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
           </button>
 
           <div class="pr-8">
-            <!-- Added padding to prevent text overlap with delete button -->
             <div class="text-lg font-semibold text-gray-800"><?php echo htmlspecialchars($notification['title']); ?>
             </div>
-            <div class="text-gray-600 mt-1"><?php echo htmlspecialchars($notification['message']); ?></div>
+            <div class="text-gray-600 mt-1">
+              <?php 
+                            $message = htmlspecialchars($notification['message']);
+                            // Highlight promo code in the message
+                            if ($notification['title'] === 'Promo Code Request Approved') {
+                                preg_match("/code '([^']+)'/", $message, $matches);
+                                if ($matches[1]) {
+                                    $message = str_replace($matches[0], "code '<span class='promo-code'>{$matches[1]}</span>'", $message);
+                                }
+                            }
+                            echo $message;
+                            ?>
+            </div>
             <div class="text-sm text-gray-500 mt-2">
               <?php echo date('M j, Y g:i a', strtotime($notification['created_at'])); ?>
+              <?php if ($notification['related_table'] === 'promo_codes' && !$notification['is_read']): ?>
+
+              <?php endif; ?>
             </div>
           </div>
         </div>
@@ -190,11 +226,11 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
               if (!document.querySelector('.notification-item')) {
                 const list = document.getElementById('notifications-list');
                 list.innerHTML = `
-                  <div class="text-center py-12">
-                    <i class="fas fa-bell-slash text-gray-400 text-6xl mb-4"></i>
-                    <p class="text-gray-500 text-lg">You don't have any notifications yet.</p>
-                  </div>
-                `;
+                                    <div class="text-center py-12">
+                                        <i class="fas fa-bell-slash text-gray-400 text-6xl mb-4"></i>
+                                        <p class="text-gray-500 text-lg">You don't have any notifications yet.</p>
+                                    </div>
+                                `;
               }
             }, 500);
           } else {
@@ -212,3 +248,6 @@ ob_end_flush(); // Flush the output buffer for normal page rendering
   </script>
 
   <?php include 'components/footer.php'; ?>
+</body>
+
+</html>

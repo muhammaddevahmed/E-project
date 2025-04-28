@@ -37,10 +37,10 @@
             </div>
           </form>
           <div class="footer__widget__social">
-            <a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a>
-            <a href="https://twitter.com/"><i class="fa fa-twitter"></i></a>
-            <a href="https://www.linkedin.com"><i class="fa fa-linkedin"></i></a>
-            <a href="https://www.pinterest.com/"><i class="fa fa-pinterest-p"></i></a>
+            <a href="https://www.facebook.com/"><i class="fa-brands fa-facebook"></i></a>
+            <a href="https://twitter.com/"><i class="fa-brands fa-twitter"></i></a>
+            <a href="https://www.linkedin.com"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://www.pinterest.com/"><i class="fa-brands fa-pinterest"></i></a>
           </div>
         </div>
       </div>

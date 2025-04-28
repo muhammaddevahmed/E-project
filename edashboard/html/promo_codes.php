@@ -14,24 +14,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     $expiry_days = 7; // Code expires in 7 days
     
     try {
+        $pdo->beginTransaction();
+
         // Get request details
         $stmt = $pdo->prepare("SELECT * FROM promo_code_requests WHERE request_id = :request_id AND status = 'pending'");
         $stmt->execute(['request_id' => $request_id]);
         $request = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$request) {
-            $_SESSION['error'] = 'Invalid or already processed request';
-            header("Location: promo_codes.php");
-            exit();
+            throw new Exception('Invalid or already processed request');
         }
         
         // Generate unique promo code
         $promo_code = 'PROMO' . strtoupper(substr(md5(uniqid()), 0, 8));
         
         // Create promo code
-        $stmt = $pdo->prepare("INSERT INTO promo_codes 
-                             (code, discount_percent, request_id, user_id, created_by, created_at, expires_at) 
-                             VALUES (:code, :discount, :request_id, :user_id, :created_by, CURRENT_TIMESTAMP, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL :expiry_days DAY))");
+        $stmt = $pdo->prepare("
+            INSERT INTO promo_codes 
+            (code, discount_percent, request_id, user_id, created_by, created_at, expires_at, is_used) 
+            VALUES (:code, :discount, :request_id, :user_id, :created_by, CURRENT_TIMESTAMP, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL :expiry_days DAY), 0)
+        ");
         $stmt->execute([
             'code' => $promo_code,
             'discount' => $discount_percent,
@@ -40,13 +42,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             'created_by' => $logged_in_admin_id,
             'expiry_days' => $expiry_days
         ]);
+
+        $promo_code_id = $pdo->lastInsertId();
         
         // Update request status
         $stmt = $pdo->prepare("UPDATE promo_code_requests SET status = 'approved' WHERE request_id = :request_id");
         $stmt->execute(['request_id' => $request_id]);
         
+        // Insert notification for approved promo code
+        $title = "Promo Code Request Approved";
+        $message = "Your promo code request has been approved! Use code '$promo_code' for a $discount_percent% discount. Expires on " . date('M d, Y', strtotime("+$expiry_days days")) . ".";
+        $stmt = $pdo->prepare("
+            INSERT INTO notifications 
+            (user_id, title, message, related_table, related_id, is_read, created_at)
+            VALUES (:user_id, :title, :message, 'promo_codes', :related_id, 0, CURRENT_TIMESTAMP)
+        ");
+        $stmt->execute([
+            'user_id' => $request['user_id'],
+            'title' => $title,
+            'message' => $message,
+            'related_id' => $promo_code_id
+        ]);
+
+        $pdo->commit();
         $_SESSION['message'] = 'Promo code generated successfully: ' . $promo_code;
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
+        $pdo->rollBack();
         $_SESSION['error'] = 'Database error: ' . $e->getMessage();
     }
     
@@ -59,10 +80,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     $request_id = $_POST['request_id'];
     
     try {
+        $pdo->beginTransaction();
+
+        // Get request details for user_id
+        $stmt = $pdo->prepare("SELECT user_id FROM promo_code_requests WHERE request_id = :request_id AND status = 'pending'");
+        $stmt->execute(['request_id' => $request_id]);
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$request) {
+            throw new Exception('Invalid or already processed request');
+        }
+
+        // Update request status
         $stmt = $pdo->prepare("UPDATE promo_code_requests SET status = 'rejected' WHERE request_id = :request_id");
         $stmt->execute(['request_id' => $request_id]);
+        
+        // Insert notification for rejected promo code
+        $title = "Promo Code Request Rejected";
+        $message = "Your promo code request was rejected. Please contact support for more details.";
+        $stmt = $pdo->prepare("
+            INSERT INTO notifications 
+            (user_id, title, message, related_table, related_id, is_read, created_at)
+            VALUES (:user_id, :title, :message, 'promo_code_requests', :related_id, 0, CURRENT_TIMESTAMP)
+        ");
+        $stmt->execute([
+            'user_id' => $request['user_id'],
+            'title' => $title,
+            'message' => $message,
+            'related_id' => $request_id
+        ]);
+
+        $pdo->commit();
         $_SESSION['message'] = 'Request rejected successfully';
     } catch (PDOException $e) {
+        $pdo->rollBack();
         $_SESSION['error'] = 'Database error: ' . $e->getMessage();
     }
     
@@ -73,11 +124,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 // Get all pending requests
 $pending_requests = [];
 try {
-    $stmt = $pdo->query("SELECT r.*, u.username, u.email 
-                        FROM promo_code_requests r
-                        JOIN users u ON r.user_id = u.user_id
-                        WHERE r.status = 'pending'
-                        ORDER BY r.request_date DESC");
+    $stmt = $pdo->query("
+        SELECT r.*, u.username, u.email 
+        FROM promo_code_requests r
+        JOIN users u ON r.user_id = u.user_id
+        WHERE r.status = 'pending'
+        ORDER BY r.request_date DESC
+    ");
     $pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $_SESSION['error'] = 'Database error: ' . $e->getMessage();
@@ -86,11 +139,13 @@ try {
 // Get all generated promo codes
 $promo_codes = [];
 try {
-    $stmt = $pdo->query("SELECT p.*, u.username AS user_name, a.username AS admin_name
-                        FROM promo_codes p
-                        JOIN users u ON p.user_id = u.user_id
-                        JOIN users a ON p.created_by = a.user_id
-                        ORDER BY p.created_at DESC");
+    $stmt = $pdo->query("
+        SELECT p.*, u.username AS user_name, a.username AS admin_name
+        FROM promo_codes p
+        JOIN users u ON p.user_id = u.user_id
+        JOIN users a ON p.created_by = a.user_id
+        ORDER BY p.created_at DESC
+    ");
     $promo_codes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $_SESSION['error'] = 'Database error: ' . $e->getMessage();
@@ -110,11 +165,13 @@ try {
 
       <?php if (isset($_SESSION['message'])): ?>
       <div class="alert alert-success">
-        <?php echo htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?></div>
+        <?php echo htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?>
+      </div>
       <?php endif; ?>
 
       <?php if (isset($_SESSION['error'])): ?>
-      <div class="alert alert-danger"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+      <div class="alert alert-danger">
+        <?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
       </div>
       <?php endif; ?>
 
@@ -185,6 +242,7 @@ try {
                   <th>Generated By</th>
                   <th>Created</th>
                   <th>Expires</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -196,6 +254,7 @@ try {
                   <td><?php echo htmlspecialchars($code['admin_name']); ?></td>
                   <td><?php echo date('M d, Y', strtotime($code['created_at'])); ?></td>
                   <td><?php echo $code['expires_at'] ? date('M d, Y', strtotime($code['expires_at'])) : 'Never'; ?></td>
+                  <td><?php echo $code['is_used'] ? 'Used' : 'Active'; ?></td>
                 </tr>
                 <?php endforeach; ?>
               </tbody>

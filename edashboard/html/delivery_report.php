@@ -14,38 +14,64 @@ $orders = $stmt->fetchAll();
 ?>
 
 <style>
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+/* Responsive styling with original color scheme */
+.container-fluid {
+  padding: clamp(1rem, 3vw, 2rem) clamp(0.75rem, 2vw, 1.5rem);
 }
 
 .heading {
-  font-size: 2.5rem;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
   font-weight: 700;
   color: #7fad39;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   text-align: center;
 }
 
-th,
-td {
-  padding: 12px;
-  border: 1px solid #ddd;
-  text-align: left;
+.bg-light {
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-th {
+.table-responsive {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  min-width: 700px;
+  /* Ensures all columns are accessible via scroll */
+}
+
+.table th,
+.table td {
+  padding: clamp(0.5rem, 1vw, 0.75rem);
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
+  vertical-align: middle;
+}
+
+.table th {
   background-color: #f2f2f2;
   position: sticky;
   top: 0;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-tr:nth-child(even) {
+.table tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-tr:hover {
+.table tr:hover {
   background-color: #f1f1f1;
 }
 
@@ -65,19 +91,15 @@ tr:hover {
   background-color: #d1e7dd;
 }
 
-.form-control {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-}
-
 .btn {
-  padding: 8px 12px;
+  padding: clamp(0.3rem, 0.8vw, 0.5rem) clamp(0.5rem, 1vw, 0.75rem);
+  font-size: clamp(0.7rem, 1vw, 0.8rem);
   cursor: pointer;
   background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
 }
 
 .btn:hover {
@@ -88,6 +110,15 @@ tr:hover {
   background-color: #cccccc;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+.form-control {
+  width: 100%;
+  padding: clamp(0.4rem, 1vw, 0.6rem);
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
 }
 
 .modal {
@@ -104,18 +135,19 @@ tr:hover {
 
 .modal-content {
   background-color: #fefefe;
-  margin: 10% auto;
-  padding: 20px;
+  margin: clamp(5%, 10vw, 10%) auto;
+  padding: clamp(1rem, 2vw, 1.5rem);
   border: 1px solid #888;
-  width: 50%;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  width: clamp(90%, 95vw, 50%);
+  max-width: 600px;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .close {
   color: #aaa;
   float: right;
-  font-size: 28px;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
   font-weight: bold;
   cursor: pointer;
 }
@@ -125,81 +157,172 @@ tr:hover {
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 0.3rem;
   font-weight: bold;
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
 }
 
 .success-message {
   color: green;
-  margin: 10px 0;
+  margin: clamp(0.5rem, 1vw, 0.75rem) 0;
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
 }
 
 .error-message {
   color: red;
-  margin: 10px 0;
+  margin: clamp(0.5rem, 1vw, 0.75rem) 0;
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
+}
+
+/* Scrollbar styling */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #7fad39;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .heading {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+  }
+
+  .table {
+    min-width: 600px;
+  }
+
+  .table th,
+  .table td {
+    padding: clamp(0.4rem, 0.8vw, 0.6rem);
+    font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+  }
+
+  .btn {
+    padding: clamp(0.25rem, 0.6vw, 0.4rem) clamp(0.4rem, 0.8vw, 0.6rem);
+    font-size: clamp(0.65rem, 0.9vw, 0.75rem);
+  }
+}
+
+@media (max-width: 576px) {
+  .container-fluid {
+    padding: clamp(0.5rem, 1.5vw, 0.75rem);
+  }
+
+  .table {
+    min-width: 500px;
+  }
+
+  .table th,
+  .table td {
+    padding: clamp(0.3rem, 0.6vw, 0.4rem);
+    font-size: clamp(0.65rem, 0.8vw, 0.7rem);
+  }
+
+  .btn {
+    padding: clamp(0.2rem, 0.5vw, 0.3rem) clamp(0.3rem, 0.6vw, 0.5rem);
+    font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+  }
+
+  .form-control {
+    font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+  }
+
+  .modal-content {
+    width: clamp(95%, 98vw, 98%);
+    margin: clamp(2%, 5vw, 5%) auto;
+  }
+
+  .close {
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+  }
 }
 </style>
 
-<h1 class="heading">Delivery Report</h1>
+<!-- Delivery Report Start -->
+<div class="container-fluid pt-4 px-4">
+  <div class="row bg-light rounded mx-0">
+    <div class="col-12">
+      <h1 class="heading">Delivery Report</h1>
 
-<?php if (isset($_GET['success'])): ?>
-<div class="success-message">Delivery information updated successfully!</div>
-<?php elseif (isset($_GET['error'])): ?>
-<div class="error-message">Error: <?= htmlspecialchars($_GET['error']) ?></div>
-<?php endif; ?>
+      <?php if (isset($_GET['success'])): ?>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Delivery information updated successfully!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <?php elseif (isset($_GET['error'])): ?>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        Error: <?= htmlspecialchars($_GET['error']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <?php endif; ?>
 
-<table>
-  <thead>
-    <tr>
-      <th>Order ID</th>
-      <th>Customer</th>
-      <th>Product</th>
-      <th>Qty</th>
-      <th>Order Date</th>
-      <th>Status</th>
-      <th>Est. Delivery</th>
-      <th>Actual Delivery</th>
-      <th>Notes</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php foreach ($orders as $order): ?>
-    <tr class="status-<?= htmlspecialchars($order['delivery_status']) ?>">
-      <td><?= htmlspecialchars($order['order_id']) ?></td>
-      <td><?= htmlspecialchars($order['u_name']) ?></td>
-      <td><?= htmlspecialchars($order['p_name']) ?></td>
-      <td><?= htmlspecialchars($order['p_qty']) ?></td>
-      <td><?= htmlspecialchars($order['date_time']) ?></td>
-      <td><?= htmlspecialchars($order['delivery_status']) ?></td>
-      <td><?= $order['estimated_delivery_date'] ? htmlspecialchars($order['estimated_delivery_date']) : 'Not set' ?>
-      </td>
-      <td><?= $order['actual_delivery_date'] ? htmlspecialchars($order['actual_delivery_date']) : 'Not delivered' ?>
-      </td>
-      <td>
-        <?= htmlspecialchars(substr($order['delivery_notes'] ?? '', 0, 30)) ?><?= (strlen($order['delivery_notes'] ?? '') > 30 ? '...' : '') ?>
-      </td>
-      <td>
-        <button onclick="openModal('<?= htmlspecialchars($order['order_id']) ?>')" class="btn"
-          <?php echo ($order['delivery_status'] === 'delivered') ? 'disabled' : ''; ?>>
-          Update
-        </button>
-      </td>
-    </tr>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Order Date</th>
+              <th>Status</th>
+              <th>Est. Delivery</th>
+              <th>Actual Delivery</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($orders as $order): ?>
+            <tr class="status-<?= htmlspecialchars($order['delivery_status']) ?>">
+              <td><?= htmlspecialchars($order['order_id']) ?></td>
+              <td><?= htmlspecialchars($order['u_name']) ?></td>
+              <td><?= htmlspecialchars($order['p_name']) ?></td>
+              <td><?= htmlspecialchars($order['p_qty']) ?></td>
+              <td><?= htmlspecialchars($order['date_time']) ?></td>
+              <td><?= htmlspecialchars($order['delivery_status']) ?></td>
+              <td>
+                <?= $order['estimated_delivery_date'] ? htmlspecialchars($order['estimated_delivery_date']) : 'Not set' ?>
+              </td>
+              <td>
+                <?= $order['actual_delivery_date'] ? htmlspecialchars($order['actual_delivery_date']) : 'Not delivered' ?>
+              </td>
+              <td>
+                <?= htmlspecialchars(substr($order['delivery_notes'] ?? '', 0, 30)) ?><?= (strlen($order['delivery_notes'] ?? '') > 30 ? '...' : '') ?>
+              </td>
+              <td>
+                <button onclick="openModal('<?= htmlspecialchars($order['order_id']) ?>')" class="btn"
+                  <?php echo ($order['delivery_status'] === 'delivered') ? 'disabled' : ''; ?>>
+                  Update
+                </button>
+              </td>
+            </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Delivery Report End -->
 
 <!-- Modal for updating delivery info -->
 <div id="deliveryModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">×</span>
-    <h2>Update Delivery Information</h2>
+    <h2 style="font-size: clamp(1.2rem, 2vw, 1.5rem); margin-bottom: 1rem;">Update Delivery Information</h2>
     <form id="deliveryForm" method="post" action="update_delivery.php">
       <input type="hidden" id="order_id" name="order_id">
       <input type="hidden" id="delivery_id" name="delivery_id">
@@ -226,7 +349,7 @@ label {
         <label for="delivery_notes">Notes:</label>
         <textarea id="delivery_notes" name="delivery_notes" class="form-control" rows="3"></textarea>
       </div>
-      <div style="margin-top: 20px;">
+      <div style="margin-top: 1rem;">
         <button type="submit" class="btn">Save Changes</button>
       </div>
     </form>

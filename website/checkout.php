@@ -128,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($paymentMethod === 'credit_card') {
         $cardNumber = validateInput('card_number', "/^[0-9\s]{16,19}$/", "Card number should be 16-19 digits", $errors);
         $expiryDate = validateInput('expiry_date', "/^(0[1-9]|1[0-2])\/?([0-9]{2})$/", "Expiry date should be in MM/YY format", $errors);
-        $cvv = validateInput('391', "/^[0-9]{3,4}$/", "CVV should be 3 or 4 digits", $errors);
+        $cvv = validateInput('cvv', "/^[0-9]{3,4}$/", "CVV should be 3 or 4 digits", $errors); // Fixed field name from '391' to 'cvv'
     } elseif ($paymentMethod === 'check_payment') {
         $checkNumber = validateInput('check_number', "/^[a-zA-Z0-9]{5,20}$/", "Check number should be 5-20 alphanumeric characters", $errors);
         $bankName = validateInput('bank_name', "/^[a-zA-Z ]{2,50}$/", "Bank name should contain only letters and spaces (2-50 characters)", $errors);
@@ -307,6 +307,172 @@ function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
   color: #7fad39;
   font-weight: bold;
 }
+
+/* Adjusted styles for Your Order section */
+.checkout__order {
+  background: #f8f9fa;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.checkout__order h4 {
+  font-size: clamp(1.2rem, 1.8vw, 1.4rem);
+  color: #333;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #7fad39;
+  padding-bottom: 0.5rem;
+}
+
+.checkout__order__products {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: clamp(0.9rem, 1.2vw, 1rem);
+  color: #555;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.checkout__order__products span {
+  color: #333;
+}
+
+/* Product list styling */
+.order__products__list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.order__products__list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.order__products__list::-webkit-scrollbar-thumb {
+  background: #7fad39;
+  border-radius: 3px;
+}
+
+.order__products__list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.order__products__list li {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+  font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+  color: #444;
+}
+
+.order__products__list li:last-child {
+  border-bottom: none;
+}
+
+.order__products__list li .product__name {
+  font-weight: 500;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.order__products__list li .product__quantity {
+  color: #666;
+  text-align: center;
+}
+
+.order__products__list li .product__total {
+  font-weight: 600;
+  color: #7fad39;
+  text-align: right;
+}
+
+.order__products__list li.empty {
+  grid-template-columns: 1fr;
+  text-align: center;
+  color: #888;
+  padding: 1rem 0;
+  font-style: italic;
+}
+
+/* Subtotal, Discount, and Total */
+.checkout__order__subtotal,
+.checkout__order__total,
+.discount-row,
+.promo-code {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: clamp(0.9rem, 1.2vw, 1rem);
+  border-top: 1px solid #e0e0e0;
+}
+
+.checkout__order__subtotal {
+  color: #555;
+}
+
+.checkout__order__total {
+  font-weight: 700;
+  font-size: clamp(1rem, 1.4vw, 1.1rem);
+  color: #333;
+}
+
+.promo-code {
+  color: #7fad39;
+  font-style: italic;
+}
+
+.checkout__order__subtotal span,
+.checkout__order__total span,
+.discount-row span,
+.promo-code strong {
+  color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .checkout__order {
+    padding: clamp(0.75rem, 1.5vw, 1rem);
+  }
+
+  .order__products__list li {
+    grid-template-columns: 3fr 1fr 1fr;
+    font-size: clamp(0.8rem, 1vw, 0.9rem);
+    padding: 0.5rem 0;
+  }
+
+  .checkout__order__subtotal,
+  .checkout__order__total,
+  .discount-row,
+  .promo-code {
+    font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+  }
+}
+
+@media (max-width: 576px) {
+  .order__products__list li {
+    grid-template-columns: 2fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .order__products__list li .product__quantity {
+    grid-row: 2;
+    grid-column: 1;
+    text-align: left;
+  }
+
+  .order__products__list li .product__total {
+    grid-row: 2;
+    grid-column: 2;
+    text-align: right;
+  }
+}
 </style>
 
 <!-- Breadcrumb Section Begin -->
@@ -433,18 +599,20 @@ function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
             <div class="checkout__order">
               <h4>Your Order</h4>
               <div class="checkout__order__products">Products <span>Total</span></div>
-              <ul>
+              <ul class="order__products__list">
                 <?php if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])): ?>
                 <?php foreach ($_SESSION['cart'] as $product_id => $item): ?>
                 <?php if (isset($item['product_name']) && isset($item['price']) && isset($item['quantity'])): ?>
                 <li>
-                  <?php echo htmlspecialchars($item['product_name']); ?> (Qty: <?php echo $item['quantity']; ?>)
-                  <span>Rs <?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
+                  <span class="product__name"><?php echo htmlspecialchars($item['product_name']); ?></span>
+                  <span class="product__quantity">Qty: <?php echo $item['quantity']; ?></span>
+                  <span class="product__total">Rs
+                    <?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
                 </li>
                 <?php endif; ?>
                 <?php endforeach; ?>
                 <?php else: ?>
-                <li>Your cart is empty.</li>
+                <li class="empty">Your cart is empty.</li>
                 <?php endif; ?>
               </ul>
               <div class="checkout__order__subtotal">Subtotal <span>Rs <?php echo number_format($subtotal, 2); ?></span>
@@ -452,7 +620,8 @@ function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
               <?php if (isset($_SESSION['promo_applied']) && $_SESSION['promo_applied']): ?>
               <div class="discount-row">Discount (<?php echo $_SESSION['promo_discount']; ?>%) <span>- Rs
                   <?php echo number_format($discount_amount, 2); ?></span></div>
-              <div>Promo Code: <strong><?php echo htmlspecialchars($_SESSION['promo_code']); ?></strong></div>
+              <div class="promo-code">Promo Code:
+                <strong><?php echo htmlspecialchars($_SESSION['promo_code']); ?></strong></div>
               <?php endif; ?>
               <div class="checkout__order__total">Total <span>Rs <?php echo number_format($total, 2); ?></span></div>
 
@@ -465,7 +634,7 @@ function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
 
                 <div class="checkout__input__checkbox">
                   <label for="cash-on-delivery">
-                    <i class="fa fa-money-bill-wave"></i> Cash on Delivery
+                    <i class="fa-solid fa-wallet"></i> Cash on Delivery
                     <input type="radio" id="cash-on-delivery" name="payment_method" value="cash_on_delivery"
                       <?php echo ($paymentMethod == 'cash_on_delivery') ? 'checked' : ''; ?> required>
                     <span class="checkmark"></span>
@@ -489,7 +658,7 @@ function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
                 </div>
                 <div class="checkout__input__checkbox">
                   <label for="paypal">
-                    <i class="fa fa-paypal"></i> PayPal
+                    <i class="fa-brands fa-paypal"></i> PayPal
                     <input type="radio" id="paypal" name="payment_method" value="paypal"
                       <?php echo ($paymentMethod == 'paypal') ? 'checked' : ''; ?>>
                     <span class="checkmark"></span>
@@ -648,7 +817,7 @@ function validateAndSubmit() {
   let isValid = true;
 
   <?php if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])): ?>
-  showError('cart', 'Your cart is empty. Please  Please add products before checkout.');
+  showError('cart', 'Your cart is empty. Please add products before checkout.');
   isValid = false;
   <?php endif; ?>
 
@@ -743,7 +912,7 @@ function validateAndSubmit() {
       const checkNumber = document.querySelector('input[name="check_number"]')?.value.trim();
       const bankName = document.querySelector('input[name="bank_name"]')?.value.trim();
 
-      if (!GELcheckNumber || !/^[a-zA-Z0-9]{5,20}$/.test(checkNumber)) {
+      if (!checkNumber || !/^[a-zA-Z0-9]{5,20}$/.test(checkNumber)) { // Fixed typo 'GELcheckNumber' to 'checkNumber'
         showError('check_number', 'Check number should be 5-20 alphanumeric characters');
         isValid = false;
       }

@@ -242,10 +242,10 @@ $total_reviews = $stmt->fetch(PDO::FETCH_ASSOC)['total_reviews'];
             <li><b>Warranty</b> <span><?php echo $warranty_period; ?> months</span></li>
             <li><b>Share on</b>
               <div class="share">
-                <a href="#"><i class="fa fa-facebook"></i></a>
-                <a href="#"><i class="fa fa-twitter"></i></a>
-                <a href="#"><i class="fa fa-instagram"></i></a>
-                <a href="#"><i class="fa fa-pinterest"></i></a>
+                <a href="https://www.facebook.com/"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://twitter.com/"><i class="fa-brands fa-twitter"></i></a>
+                <a href="https://www.linkedin.com"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="https://www.pinterest.com/"><i class="fa-brands fa-pinterest"></i></a>
               </div>
             </li>
           </ul>

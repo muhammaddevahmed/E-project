@@ -47,36 +47,33 @@ try {
     die("Database error: " . $e->getMessage());
 }
 ?>
+
 <style>
-/* Maintain original color scheme with layout adjustments */
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+/* Responsive styling with original color scheme */
+.container-fluid {
+  padding: clamp(1rem, 3vw, 2rem) clamp(0.75rem, 2vw, 1.5rem);
 }
 
-.container-fluid {
-  padding: 2rem 1.5rem;
+.heading {
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 700;
+  color: #7fad39;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .bg-light {
   background: #f8f9fa;
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.heading {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #7fad39;
-  margin-bottom: 1.5rem;
-  text-align: left;
-}
-
 .alert {
-  padding: 10px 15px;
-  margin-bottom: 20px;
-  border-radius: 4px;
+  padding: clamp(0.5rem, 1vw, 0.75rem) clamp(0.75rem, 1.5vw, 1rem);
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -96,35 +93,37 @@ body {
   background: white;
   border-radius: 0.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-table {
+.table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 1rem;
+  min-width: 700px;
+  /* Ensures all columns are accessible */
 }
 
-th,
-td {
-  padding: 12px;
+.table th,
+.table td {
+  padding: clamp(0.5rem, 1vw, 0.75rem);
   text-align: left;
   border-bottom: 1px solid #ddd;
   vertical-align: middle;
-  font-size: 0.95rem;
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
   color: #333;
 }
 
-th {
+.table th {
   background-color: #343a40;
-  /* Changed to match invoice_management.php table-dark */
   color: white;
   font-weight: 600;
   text-transform: uppercase;
-  font-size: 0.9rem;
+  font-size: clamp(0.7rem, 0.9vw, 0.8rem);
 }
 
-tr:hover {
+.table tr:hover {
   background-color: #f1f5f9;
   transition: background-color 0.2s ease;
 }
@@ -151,10 +150,10 @@ tr:hover {
 }
 
 .btn {
-  padding: 5px 10px;
+  padding: clamp(0.3rem, 0.8vw, 0.5rem) clamp(0.5rem, 1vw, 0.75rem);
+  font-size: clamp(0.7rem, 1vw, 0.8rem);
   text-decoration: none;
-  border-radius: 3px;
-  font-size: 14px;
+  border-radius: 0.25rem;
   cursor: pointer;
   border: none;
   transition: background-color 0.3s ease, transform 0.2s ease;
@@ -184,33 +183,98 @@ tr:hover {
   background-color: #cccccc;
   color: #666666;
   cursor: not-allowed;
+  transform: none;
 }
 
-.heading {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #7fad39;
-  margin-bottom: 1rem;
-  text-align: center;
+/* Scrollbar styling */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #7fad39;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .heading {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+  }
+
+  .table {
+    min-width: 600px;
+  }
+
+  .table th,
+  .table td {
+    padding: clamp(0.4rem, 0.8vw, 0.6rem);
+    font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+    padding: clamp(0.25rem, 0.6vw, 0.4rem) clamp(0.4rem, 0.8vw, 0.6rem);
+    font-size: clamp(0.65rem, 0.9vw, 0.75rem);
+  }
+}
+
+@media (max-width: 576px) {
+  .container-fluid {
+    padding: clamp(0.5rem, 1.5vw, 0.75rem);
+  }
+
+  .table {
+    min-width: 500px;
+  }
+
+  .table th,
+  .table td {
+    padding: clamp(0.3rem, 0.6vw, 0.4rem);
+    font-size: clamp(0.65rem, 0.8vw, 0.7rem);
+  }
+
+  .btn {
+    padding: clamp(0.2rem, 0.5vw, 0.3rem) clamp(0.3rem, 0.6vw, 0.5rem);
+    font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+  }
+
+  .alert {
+    font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+  }
 }
 </style>
 
 <!-- Order Management Start -->
 <div class="container-fluid pt-4 px-4">
   <div class="row bg-light rounded mx-0">
-    <div class="col-md-12">
+    <div class="col-12">
       <h1 class="heading">Order Management</h1>
 
       <?php if (isset($_SESSION['message'])): ?>
-      <div class="alert alert-success"><?php echo htmlspecialchars($_SESSION['message']); 
-                    unset($_SESSION['message']); ?></div>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?php echo htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
       <?php elseif (isset($_SESSION['error'])): ?>
-      <div class="alert alert-error"><?php echo htmlspecialchars($_SESSION['error']); 
-                    unset($_SESSION['error']); ?></div>
+      <div class="alert alert-error alert-dismissible fade show" role="alert">
+        <?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
       <?php endif; ?>
 
       <div class="table-responsive">
-        <table>
+        <table class="table">
           <thead>
             <tr>
               <th>Order ID</th>
@@ -230,10 +294,10 @@ tr:hover {
               <td><?php echo htmlspecialchars(substr($order['order_id'], -6)); ?></td>
               <td>
                 <?php echo htmlspecialchars($order['u_name']); ?><br>
-                <?php echo htmlspecialchars($order['u_email']); ?>
+                <small><?php echo htmlspecialchars($order['u_email']); ?></small>
               </td>
               <td><?php echo htmlspecialchars($order['p_name']); ?></td>
-              <td>RS <?php echo number_format($order['p_price'], 2); ?></td>
+              <td>Rs <?php echo number_format($order['p_price'], 2); ?></td>
               <td><?php echo htmlspecialchars($order['p_qty']); ?></td>
               <td>Rs <?php echo number_format($order['p_price'] * $order['p_qty'], 2); ?></td>
               <td><?php echo date('M j, Y H:i', strtotime($order['date_time'])); ?></td>
@@ -241,14 +305,14 @@ tr:hover {
                 <?php echo ucfirst(htmlspecialchars($order['status'])); ?>
               </td>
               <td class="action-buttons">
-                <form method="POST" style="display: inline;">
+                <form method="POST" class="d-inline">
                   <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order['order_id']); ?>">
                   <button type="submit" name="action" value="accept" class="btn btn-accept"
                     <?php echo ($order['status'] !== 'pending') ? 'disabled' : ''; ?>>
                     Accept
                   </button>
                 </form>
-                <form method="POST" style="display: inline;">
+                <form method="POST" class="d-inline">
                   <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order['order_id']); ?>">
                   <button type="submit" name="action" value="decline" class="btn btn-decline"
                     <?php echo ($order['status'] !== 'pending') ? 'disabled' : ''; ?>>
