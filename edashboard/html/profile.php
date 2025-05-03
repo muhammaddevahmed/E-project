@@ -97,10 +97,7 @@ body {
   outline: none;
 }
 
-
-
 .btn1-block {
-
   display: inline-block;
   padding: 4px 8px;
   border-radius: 4px;
@@ -109,11 +106,11 @@ body {
   text-transform: capitalize;
   background-color: #28a745;
   color: white;
-  border: none
+  border: none;
 }
 
 .btn1-block:hover {
-  background-color: rgb(86, 183, 108)
+  background-color: rgb(86, 183, 108);
 }
 
 .alert {
@@ -177,7 +174,32 @@ body {
     flex-direction: column;
   }
 }
+
+/* Ensure toggle button is visible */
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  padding: 0;
+}
+
+.toggle-password svg {
+  width: 20px;
+  height: 20px;
+  stroke: #666;
+}
+
+.form-group .relative {
+  position: relative;
+  width: 100%;
+}
 </style>
+
 <?php
 include("components/header.php");
 
@@ -266,20 +288,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
                     $updateStmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 
                     if ($updateStmt->execute()) {
-                      $success = "Profile updated successfully!";
-                      // Refresh user data
-                      $stmt = $pdo->prepare("SELECT * FROM Users WHERE user_id = :user_id");
-                      $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-                      $stmt->execute();
-                      $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                      
-                      // Update the session if username changed - FIXED THIS LINE
-                      if (isset($_SESSION['username'])) {
-                          $_SESSION['username'] = $username;
-                      }
-                  } else {
-                      $error = "Error updating profile.";
-                  }
+                        $success = "Profile updated successfully!";
+                        // Refresh user data
+                        $stmt = $pdo->prepare("SELECT * FROM Users WHERE user_id = :user_id");
+                        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                        $stmt->execute();
+                        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        // Update the session if username changed
+                        if (isset($_SESSION['username'])) {
+                            $_SESSION['username'] = $username;
+                        }
+                    } else {
+                        $error = "Error updating profile.";
+                    }
                 }
             }
         } catch (PDOException $e) {
@@ -314,12 +336,6 @@ if (isset($_POST['change_password'])) {
     }
 }
 ?>
-
-
-
-
-
-
 
 <div class="container">
   <div class="profile-header">
@@ -386,7 +402,7 @@ if (isset($_POST['change_password'])) {
             rows="3"><?php echo htmlspecialchars($user['address']); ?></textarea>
         </div>
 
-        <button type="submit" class=" btn1-block">Update Profile</button>
+        <button type="submit" class="btn1-block">Update Profile</button>
       </form>
     </div>
 
@@ -408,20 +424,50 @@ if (isset($_POST['change_password'])) {
       <form method="POST">
         <div class="form-group">
           <label for="current_password">Current Password</label>
-          <input type="password" id="current_password" name="current_password" class="form-control" required>
+          <div class="relative">
+            <input type="password" id="current_password" name="current_password" class="form-control" required>
+            <button type="button" class="toggle-password" data-target="current_password">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="eyeIcon_current_password">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="form-group">
           <label for="new_password">New Password</label>
-          <input type="password" id="new_password" name="new_password" class="form-control" required>
+          <div class="relative">
+            <input type="password" id="new_password" name="new_password" class="form-control" required>
+            <button type="button" class="toggle-password" data-target="new_password">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="eyeIcon_new_password">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="form-group">
           <label for="confirm_password">Confirm New Password</label>
-          <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+          <div class="relative">
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+            <button type="button" class="toggle-password" data-target="confirm_password">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="eyeIcon_confirm_password">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <button type="submit" name="change_password" class=" btn1-block">Change Password</button>
+        <button type="submit" name="change_password" class="btn1-block">Change Password</button>
       </form>
     </div>
   </div>
@@ -429,7 +475,7 @@ if (isset($_POST['change_password'])) {
 
 <?php
 include("components/footer.php");
-  ?>
+?>
 
 <script>
 function validateProfileForm() {
@@ -458,4 +504,32 @@ function validateProfileForm() {
 
   return true;
 }
+
+// Show/Hide Password functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const toggleButtons = document.querySelectorAll('.toggle-password');
+
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-target');
+      const passwordInput = document.getElementById(targetId);
+      const eyeIcon = document.getElementById(`eyeIcon_${targetId}`);
+
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+
+      // Toggle eye icon
+      if (type === 'text') {
+        eyeIcon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+        `;
+      } else {
+        eyeIcon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        `;
+      }
+    });
+  });
+});
 </script>

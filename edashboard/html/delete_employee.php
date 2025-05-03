@@ -56,53 +56,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm']) && $_POST[
 
 <!-- ✅ HTML confirmation -->
 <style>
-    .confirm-box {
-        max-width: 500px;
-        margin: 60px auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        text-align: center;
-        font-family: Arial, sans-serif;
-    }
-    .confirm-box h2 {
-        margin-bottom: 20px;
-    }
-    .confirm-box form {
-        display: inline-block;
-    }
-    .btn {
-        padding: 10px 15px;
-        text-decoration: none;
-        border-radius: 3px;
-        font-size: 14px;
-        margin: 0 5px;
-        border: none;
-        cursor: pointer;
-    }
-    .btn-cancel {
-        background-color: #777;
-        color: white;
-    }
-    .btn-delete {
-        background-color: #f44336;
-        color: white;
-    }
+.confirm-box {
+  max-width: 500px;
+  margin: 60px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.confirm-box h2 {
+  margin-bottom: 20px;
+}
+
+.confirm-box form {
+  display: inline-block;
+}
+
+.btn {
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 3px;
+  font-size: 14px;
+  margin: 0 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background-color: #777;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #f44336;
+  color: white;
+}
 </style>
 
 <div class="confirm-box">
-    <h2>Delete Employee</h2>
-    <p>
-        Are you sure you want to delete 
-        <strong><?php echo htmlspecialchars($employee['full_name']); ?></strong> 
-        (Role: <?php echo htmlspecialchars($employee['role']); ?>)?
-    </p>
+  <h2>Delete Employee</h2>
+  <p>
+    Are you sure you want to delete
+    <strong><?php echo htmlspecialchars($employee['full_name']); ?></strong>
+    (Role: <?php echo htmlspecialchars($employee['role']); ?>)?
+  </p>
 
-    <form method="POST">
-        <input type="hidden" name="confirm" value="yes">
-        <button type="submit" class="btn btn-delete">Yes, Delete</button>
-        <a href="employees.php" class="btn btn-cancel">Cancel</a>
-    </form>
+  <form method="POST">
+    <input type="hidden" name="confirm" value="yes">
+    <button type="submit" class="btn btn-delete">Yes, Delete</button>
+    <a href="allemployees.php" class="btn btn-cancel">Cancel</a>
+  </form>
 </div>
 
 <?php include("components/footer.php"); ?>

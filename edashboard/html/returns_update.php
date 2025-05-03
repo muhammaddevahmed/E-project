@@ -2,8 +2,8 @@
 include("components/header.php");
 $user_type = $_SESSION['user_type'] ?? '';
 
-// Handle action updates
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// Handle action updates (only if the user is not an employee)
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
     if (isset($_POST['action']) && isset($_POST['return_id'])) {
         try {
             $return_id = $_POST['return_id'];
@@ -36,17 +36,14 @@ try {
 }
 ?>
 
-
 <style>
 h1 {
-
   font-size: 2.5rem;
   font-weight: 700;
   color: #7fad39;
   margin-bottom: 1rem;
   text-align: center;
 }
-
 
 /* Alert Messages */
 .alert {
@@ -66,6 +63,16 @@ h1 {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+  background: #fff3cd;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  color: #856404;
+  font-size: 0.85rem;
 }
 
 /* Table Styles */
@@ -195,66 +202,80 @@ tr:hover {
 }
 </style>
 
+<div class="container-fluid pt-4 px-4">
+  <?php if ($user_type === 'employee'): ?>
+  <div class="alert alert-warning" role="alert">
+    You do not have permission to approve or decline returns. All actions are disabled.
+  </div>
+  <?php endif; ?>
 
+  <h1>Returns Management</h1>
 
-<h1>Returns Management</h1>
+  <?php if (isset($_SESSION['message'])): ?>
+  <div class="alert alert-success"><?php echo htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?>
+  </div>
+  <?php elseif (isset($_SESSION['error'])): ?>
+  <div class="alert alert-error"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
+  <?php endif; ?>
 
-<?php if (isset($_SESSION['message'])): ?>
-<div class="alert alert-success"><?php echo htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?>
+  <div class="row bg-light rounded mx-0">
+    <div class="col-12">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Return ID</th>
+              <th>Order ID</th>
+              <th>Product ID</th>
+              <th>Reason</th>
+              <th>Return Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (!empty($returns)): ?>
+            <?php foreach ($returns as $return): ?>
+            <tr>
+              <td><?php echo htmlspecialchars($return['return_id']); ?></td>
+              <td><?php echo htmlspecialchars($return['order_id']); ?></td>
+              <td><?php echo htmlspecialchars($return['product_id']); ?></td>
+              <td><?php echo nl2br(htmlspecialchars($return['reason'])); ?></td>
+              <td><?php echo date('M j, Y H:i', strtotime($return['return_date'])); ?></td>
+              <td>
+                <span class="status-<?php echo htmlspecialchars($return['return_status']); ?>">
+                  <?php echo ucfirst(htmlspecialchars($return['return_status'])); ?>
+                </span>
+              </td>
+              <td class="action-buttons">
+                <?php if ($return['return_status'] === 'pending'): ?>
+                <form method="POST" style="display: inline;">
+                  <input type="hidden" name="return_id" value="<?php echo htmlspecialchars($return['return_id']); ?>">
+                  <button type="submit" name="action" value="approve" class="btn-accept"
+                    <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Approve</button>
+                </form>
+                <form method="POST" style="display: inline;">
+                  <input type="hidden" name="return_id" value="<?php echo htmlspecialchars($return['return_id']); ?>">
+                  <button type="submit" name="action" value="reject" class="btn-decline"
+                    <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>Reject</button>
+                </form>
+                <?php else: ?>
+                <span class="text-muted">Action completed</span>
+                <?php endif; ?>
+              </td>
+            </tr>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <tr>
+              <td colspan="7" style="text-align: center;">No records found.</td>
+            </tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
-<?php elseif (isset($_SESSION['error'])): ?>
-<div class="alert alert-error"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
-<?php endif; ?>
-
-<table>
-  <thead>
-    <tr>
-      <th>Return ID</th>
-      <th>Order ID</th>
-      <th>Product ID</th>
-      <th>Reason</th>
-      <th>Return Date</th>
-      <th>Status</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php if (!empty($returns)): ?>
-    <?php foreach ($returns as $return): ?>
-    <tr>
-      <td><?php echo htmlspecialchars($return['return_id']); ?></td>
-      <td><?php echo htmlspecialchars($return['order_id']); ?></td>
-      <td><?php echo htmlspecialchars($return['product_id']); ?></td>
-      <td><?php echo nl2br(htmlspecialchars($return['reason'])); ?></td>
-      <td><?php echo date('M j, Y H:i', strtotime($return['return_date'])); ?></td>
-      <td>
-        <span class="status-<?php echo htmlspecialchars($return['return_status']); ?>">
-          <?php echo ucfirst(htmlspecialchars($return['return_status'])); ?>
-        </span>
-      </td>
-      <td class="action-buttons">
-        <?php if ($return['return_status'] === 'pending'): ?>
-        <form method="POST" style="display: inline;">
-          <input type="hidden" name="return_id" value="<?php echo htmlspecialchars($return['return_id']); ?>">
-          <button type="submit" name="action" value="approve" class="btn-accept">Approve</button>
-        </form>
-        <form method="POST" style="display: inline;">
-          <input type="hidden" name="return_id" value="<?php echo htmlspecialchars($return['return_id']); ?>">
-          <button type="submit" name="action" value="reject" class="btn-decline">Reject</button>
-        </form>
-        <?php else: ?>
-        <span class="text-muted">Action completed</span>
-        <?php endif; ?>
-      </td>
-    </tr>
-    <?php endforeach; ?>
-    <?php else: ?>
-    <tr>
-      <td colspan="7" style="text-align: center;">No records found.</td>
-    </tr>
-    <?php endif; ?>
-  </tbody>
-</table>
 
 <?php
 include("components/footer.php");

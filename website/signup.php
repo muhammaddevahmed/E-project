@@ -36,8 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<script>alert('Phone number must be 7-15 digits and can start with +.');</script>";
         exit();
     }
-    if (!preg_match("/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/", $password)) {
-        echo "<script>alert('Password must be at least 6 characters, with at least one letter and one number.');</script>";
+    if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/", $password)) {
+        echo "<script>alert('Password must be at least 8 characters with at least one uppercase letter, one lowercase letter, one number and one special character (@$!%*?&).');</script>";
         exit();
     }
 
@@ -87,6 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Crafty Corner - Sign Up</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
   <script>
   tailwind.config = {
@@ -153,20 +154,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <!-- Password Field -->
         <div class="mb-4">
           <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-          <input type="password" name="password" id="password"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-            placeholder="6+ chars with letter & number" required>
-          <div class="text-xs text-gray-500 mt-1">
-            Password must contain at least 6 characters with at least one letter and one number.
+          <div class="relative">
+            <input type="password" name="password" id="password"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition pr-10"
+              placeholder="8+ chars with A-Z, a-z, 0-9, and special" required>
+            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onclick="togglePassword('password')">
+              <i class="far fa-eye text-gray-500 hover:text-primary"></i>
+            </button>
+          </div>
+          <div id="passwordRequirements" class="text-xs mt-2 hidden">
+            <ul>
+              <li class="flex items-center" id="reqLength"><span class="mr-1">✓</span> At least 8 characters</li>
+              <li class="flex items-center" id="reqLower"><span class="mr-1">✓</span> Contains a lowercase letter</li>
+              <li class="flex items-center" id="reqUpper"><span class="mr-1">✓</span> Contains an uppercase letter</li>
+              <li class="flex items-center" id="reqNumber"><span class="mr-1">✓</span> Contains a number</li>
+              <li class="flex items-center" id="reqSpecial"><span class="mr-1">✓</span> Contains a special character
+                (@$!%*?&)</li>
+            </ul>
           </div>
         </div>
 
         <!-- Confirm Password Field -->
         <div class="mb-6">
           <label for="confirm_password" class="block text-gray-700 text-sm font-medium mb-2">Confirm Password</label>
-          <input type="password" name="confirm_password" id="confirm_password"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-            placeholder="Re-enter your password" required>
+          <div class="relative">
+            <input type="password" name="confirm_password" id="confirm_password"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition pr-10"
+              placeholder="Re-enter your password" required>
+            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onclick="togglePassword('confirm_password')">
+              <i class="far fa-eye text-gray-500 hover:text-primary"></i>
+            </button>
+          </div>
           <div id="passwordMatch" class="text-xs mt-1 hidden"></div>
         </div>
 
@@ -210,7 +230,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{4,19}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\+?[0-9]{7,15}$/;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     if (!usernameRegex.test(username)) {
       alert(
@@ -227,7 +247,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       return false;
     }
     if (!passwordRegex.test(password)) {
-      alert("Password must be at least 6 characters with at least one letter and one number.");
+      alert(
+        "Password must be:\n- At least 8 characters\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least one special character (@$!%*?&)"
+        );
       return false;
     }
     if (password !== confirmPassword) {
@@ -236,6 +258,78 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     return true;
   }
+
+  // Toggle password visibility
+  function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = field.nextElementSibling.querySelector('i');
+    if (field.type === "password") {
+      field.type = "text";
+      icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+      field.type = "password";
+      icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+  }
+
+  // Real-time password validation
+  document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const requirements = document.getElementById('passwordRequirements');
+    const reqLength = document.getElementById('reqLength');
+    const reqLower = document.getElementById('reqLower');
+    const reqUpper = document.getElementById('reqUpper');
+    const reqNumber = document.getElementById('reqNumber');
+    const reqSpecial = document.getElementById('reqSpecial');
+
+    // Show requirements when typing
+    if (password.length > 0) {
+      requirements.classList.remove('hidden');
+    } else {
+      requirements.classList.add('hidden');
+    }
+
+    // Check each requirement
+    if (password.length >= 8) {
+      reqLength.querySelector('span').textContent = '✓';
+      reqLength.querySelector('span').className = 'mr-1 text-green-600';
+    } else {
+      reqLength.querySelector('span').textContent = '✗';
+      reqLength.querySelector('span').className = 'mr-1 text-red-600';
+    }
+
+    if (/[a-z]/.test(password)) {
+      reqLower.querySelector('span').textContent = '✓';
+      reqLower.querySelector('span').className = 'mr-1 text-green-600';
+    } else {
+      reqLower.querySelector('span').textContent = '✗';
+      reqLower.querySelector('span').className = 'mr-1 text-red-600';
+    }
+
+    if (/[A-Z]/.test(password)) {
+      reqUpper.querySelector('span').textContent = '✓';
+      reqUpper.querySelector('span').className = 'mr-1 text-green-600';
+    } else {
+      reqUpper.querySelector('span').textContent = '✗';
+      reqUpper.querySelector('span').className = 'mr-1 text-red-600';
+    }
+
+    if (/\d/.test(password)) {
+      reqNumber.querySelector('span').textContent = '✓';
+      reqNumber.querySelector('span').className = 'mr-1 text-green-600';
+    } else {
+      reqNumber.querySelector('span').textContent = '✗';
+      reqNumber.querySelector('span').className = 'mr-1 text-red-600';
+    }
+
+    if (/[@$!%*?&]/.test(password)) {
+      reqSpecial.querySelector('span').textContent = '✓';
+      reqSpecial.querySelector('span').className = 'mr-1 text-green-600';
+    } else {
+      reqSpecial.querySelector('span').textContent = '✗';
+      reqSpecial.querySelector('span').className = 'mr-1 text-red-600';
+    }
+  });
 
   // Real-time password match validation
   document.getElementById('confirm_password').addEventListener('input', function() {
@@ -254,29 +348,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       }
     } else {
       matchDiv.classList.add('hidden');
-    }
-  });
-
-  // Show password requirements when password field is focused
-  document.getElementById('password').addEventListener('focus', function() {
-    const requirementsDiv = document.createElement('div');
-    requirementsDiv.className = 'text-xs text-gray-500 mt-1';
-    requirementsDiv.innerHTML = `
-      <p>Password must:</p>
-      <ul class="list-disc pl-5">
-        <li>Be at least 6 characters long</li>
-        <li>Contain at least one letter</li>
-        <li>Contain at least one number</li>
-      </ul>
-    `;
-    this.parentNode.appendChild(requirementsDiv);
-  });
-
-  // Hide requirements when password field loses focus (if they're not already in the DOM)
-  document.getElementById('password').addEventListener('blur', function() {
-    const requirementsDiv = this.parentNode.querySelector('.text-xs.text-gray-500.mt-1:not(:first-child)');
-    if (requirementsDiv) {
-      requirementsDiv.remove();
     }
   });
   </script>

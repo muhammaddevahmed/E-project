@@ -151,10 +151,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
                     <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
                     <option value="" selected disabled>Select Role</option>
                     <option value="manager">Manager</option>
-                    <option value="sales">Shop Keeper</option>
-                    <option value="support">Call Support</option>
-                    <option value="developer">Sales Man</option>
-                    <option value="designer">Cashier</option>
+                    <option value="Shop Keeper">Shop Keeper</option>
+                    <option value="Call support">Call Support</option>
+                    <option value="Sales man">Sales Man</option>
+                    <option value="Cashier">Cashier</option>
                   </select>
                   <div class="invalid-feedback">Please select a role.</div>
                 </div>
