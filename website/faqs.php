@@ -261,7 +261,7 @@ include("components/header.php");
           <h2>Contact Us</h2>
           <div class="breadcrumb__option">
             <a href="./index.php">Home</a>
-            <span>Contact Us</span>
+            <span>Faqs</span>
           </div>
         </div>
       </div>

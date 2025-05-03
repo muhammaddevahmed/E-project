@@ -28,14 +28,16 @@
       </div>
       <div class="col-lg-5 col-md-12 col-sm-12">
         <div class="footer__widget">
-          <h6>Join Our Newsletter</h6>
-          <p>Stay updated with our latest products and exclusive offers.</p>
-          <form action="#" class="newsletter-form">
-            <div class="newsletter-input-group">
-              <input type="email" placeholder="Enter your email" required>
-              <button type="submit" class="site-btn">Subscribe</button>
-            </div>
-          </form>
+          <h6>Creative Spotlight</h6>
+          <p>Explore the artistry behind our handcrafted treasures.</p>
+          <div class="spotlight-banner">
+            <a href="article.php">
+              <div class="spotlight-content">
+                <i class="fa fa-star"></i>
+                <span>Discover the Craft!</span>
+              </div>
+            </a>
+          </div>
           <div class="footer__widget__social">
             <a href="https://www.facebook.com/"><i class="fa-brands fa-facebook"></i></a>
             <a href="https://twitter.com/"><i class="fa-brands fa-twitter"></i></a>
@@ -175,54 +177,36 @@
   line-height: 1.6;
 }
 
-.footer__widget .newsletter-form {
+.footer__widget .spotlight-banner {
   margin-bottom: 25px;
+  width: 100%;
 }
 
-.footer__widget .newsletter-input-group {
+.footer__widget .spotlight-content {
   display: flex;
-  gap: 10px;
   align-items: center;
-  width: 100%;
-}
-
-.footer__widget input[type="email"] {
-  flex: 1;
-  padding: 12px;
-  font-size: 15px;
-  color: #333;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #fff;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.footer__widget input[type="email"]:focus {
-  border-color: #28a745;
-  box-shadow: 0 0 10px rgba(40, 167, 69, 0.25);
-  outline: none;
-}
-
-.footer__widget .site-btn {
-  padding: 12px 25px;
-  font-size: 16px;
+  justify-content: center;
+  padding: 15px;
+  font-size: 18px;
   font-weight: 600;
   color: #fff;
-  background-color: #28a745;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background: #7fad39;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  text-align: center;
 }
 
-.footer__widget .site-btn:hover {
-  background-color: #218838;
-  transform: scale(1.08);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+.footer__widget .spotlight-content i {
+  font-size: 20px;
+  margin-right: 10px;
+  color: #fff;
+}
+
+.footer__widget .spotlight-content:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 .footer__widget__social {
@@ -296,30 +280,10 @@
     font-size: 15px;
   }
 
-  .footer__widget .newsletter-input-group {
-    flex-direction: row;
-    /* Changed from column to row */
-    gap: 10px;
-    /* Reduced gap */
-    align-items: stretch;
+  .footer__widget .spotlight-content {
+    padding: 12px;
+    font-size: 16px;
   }
-
-  .footer__widget input[type="email"] {
-    width: 70%;
-    /* Give more space to input */
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .footer__widget .site-btn {
-    width: 30%;
-    /* Reduce button width */
-    padding: 10px;
-    font-size: 14px;
-    /* Slightly smaller font */
-  }
-}
-
 }
 
 @media (max-width: 767px) {
@@ -359,23 +323,10 @@
     justify-content: center;
   }
 
-  .footer__widget .newsletter-input-group {
-    flex-direction: row;
-    /* Keep as row */
+  .footer__widget .spotlight-content {
+    padding: 10px;
+    font-size: 14px;
   }
-
-  .footer__widget input[type="email"] {
-    width: 65%;
-    padding: 8px 10px;
-  }
-
-  .footer__widget .site-btn {
-    width: 35%;
-    padding: 8px 5px;
-    font-size: 13px;
-  }
-}
-}
 }
 
 @media (max-width: 576px) {
@@ -395,16 +346,9 @@
     gap: 15px;
   }
 
-  .footer__widget .newsletter-input-group {
-    flex-direction: column;
-    /* Stack vertically on smallest screens */
-    gap: 8px;
-  }
-
-  .footer__widget input[type="email"],
-  .footer__widget .site-btn {
-    width: 100%;
-    /* Full width when stacked */
+  .footer__widget .spotlight-content {
+    padding: 8px;
+    font-size: 13px;
   }
 }
 

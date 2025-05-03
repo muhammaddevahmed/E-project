@@ -274,7 +274,7 @@ include("components/header.php");
       $stmt = $pdo->query("SELECT products.*, categories.category_name 
                           FROM products 
                           JOIN categories ON products.category_id = categories.category_id
-                          LIMIT 10");
+                          LIMIT 9");
       while ($product = $stmt->fetch(PDO::FETCH_ASSOC)):
         $category_class = strtolower(str_replace(' ', '-', $product['category_name']));
         

@@ -198,6 +198,38 @@ body {
   position: relative;
   width: 100%;
 }
+
+.password-requirements {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.requirement {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.requirement-icon {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+}
+
+.requirement.valid .requirement-icon {
+  color: #4bb543;
+}
+
+.requirement.invalid .requirement-icon {
+  color: #ff3333;
+}
+
+.requirement-text {
+  flex: 1;
+}
 </style>
 
 <?php
@@ -436,7 +468,6 @@ if (isset($_POST['change_password'])) {
             </button>
           </div>
         </div>
-
         <div class="form-group">
           <label for="new_password">New Password</label>
           <div class="relative">
@@ -449,6 +480,28 @@ if (isset($_POST['change_password'])) {
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
             </button>
+          </div>
+          <div id="passwordRequirements" class="password-requirements">
+            <div class="requirement" id="reqLength">
+              <span class="requirement-icon">✗</span>
+              <span class="requirement-text">At least 8 characters</span>
+            </div>
+            <div class="requirement" id="reqLower">
+              <span class="requirement-icon">✗</span>
+              <span class="requirement-text">Contains a lowercase letter</span>
+            </div>
+            <div class="requirement" id="reqUpper">
+              <span class="requirement-icon">✗</span>
+              <span class="requirement-text">Contains an uppercase letter</span>
+            </div>
+            <div class="requirement" id="reqNumber">
+              <span class="requirement-icon">✗</span>
+              <span class="requirement-text">Contains a number</span>
+            </div>
+            <div class="requirement" id="reqSpecial">
+              <span class="requirement-icon">✗</span>
+              <span class="requirement-text">Contains a special character (@$!%*?&)</span>
+            </div>
           </div>
         </div>
 
@@ -532,4 +585,73 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+// Password requirement validation
+const newPasswordInput = document.getElementById('new_password');
+const confirmPasswordInput = document.getElementById('confirm_password');
+
+newPasswordInput.addEventListener('input', function() {
+  const password = this.value;
+
+  // Length requirement
+  const lengthValid = password.length >= 8;
+  updateRequirement('reqLength', lengthValid);
+
+  // Lowercase requirement
+  const lowerValid = /[a-z]/.test(password);
+  updateRequirement('reqLower', lowerValid);
+
+  // Uppercase requirement
+  const upperValid = /[A-Z]/.test(password);
+  updateRequirement('reqUpper', upperValid);
+
+  // Number requirement
+  const numberValid = /\d/.test(password);
+  updateRequirement('reqNumber', numberValid);
+
+  // Special character requirement
+  const specialValid = /[@$!%*?&]/.test(password);
+  updateRequirement('reqSpecial', specialValid);
+
+  // Check password match if confirm password has value
+  if (confirmPasswordInput.value.length > 0) {
+    checkPasswordMatch();
+  }
+});
+
+confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+
+function updateRequirement(id, isValid) {
+  const element = document.getElementById(id);
+  const icon = element.querySelector('.requirement-icon');
+
+  if (isValid) {
+    element.classList.add('valid');
+    element.classList.remove('invalid');
+    icon.textContent = '✓';
+  } else {
+    element.classList.add('invalid');
+    element.classList.remove('valid');
+    icon.textContent = '✗';
+  }
+}
+
+function checkPasswordMatch() {
+  const password = newPasswordInput.value;
+  const confirmPassword = confirmPasswordInput.value;
+  const matchDiv = document.getElementById('passwordMatch');
+
+  if (confirmPassword.length > 0) {
+    matchDiv.classList.remove('hidden');
+    if (password === confirmPassword) {
+      matchDiv.textContent = "Passwords match!";
+      matchDiv.className = "text-xs mt-1 text-green-600";
+    } else {
+      matchDiv.textContent = "Passwords do not match!";
+      matchDiv.className = "text-xs mt-1 text-red-600";
+    }
+  } else {
+    matchDiv.classList.add('hidden');
+  }
+}
 </script>
