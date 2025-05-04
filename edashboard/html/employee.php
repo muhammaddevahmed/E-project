@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
     }
 }
 ?>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
 .heading {
   font-size: 2.5rem;
@@ -51,6 +51,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
   color: #7fad39;
   margin-bottom: 1rem;
   text-align: center;
+}
+
+/* Ensure input has padding to avoid overlap with the eye icon */
+.password-input-container {
+  position: relative;
+}
+
+.password-input-container input {
+  padding-right: 2.5rem;
+  /* Space for the eye icon */
+}
+
+.password-input-container button {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.password-input-container i {
+  color: #6b7280;
+  /* Tailwind gray-500 */
+}
+
+.password-input-container i:hover {
+  color: #7fad39;
+  /* Tailwind primary color */
 }
 </style>
 
@@ -133,15 +163,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
 
                 <div class="mb-3">
                   <label for="password" class="form-label">Password</label>
-                  <input type="password" class="form-control" id="password" name="password" required
-                    <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
+                  <div class="password-input-container">
+                    <input type="password" class="form-control" id="password" name="password" required
+                      <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
+                    <button type="button" onclick="togglePassword('password')"
+                      <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
+                      <i class="far fa-eye"></i>
+                    </button>
+                  </div>
+                  <div id="passwordRequirements" class="text-xs mt-2 hidden">
+                    <ul>
+                      <li class="flex items-center" id="reqLength"><span class="mr-1">✓</span> At least 8 characters
+                      </li>
+                      <li class="flex items-center" id="reqLower"><span class="mr-1">✓</span> Contains a lowercase
+                        letter</li>
+                      <li class="flex items-center" id="reqUpper"><span class="mr-1">✓</span> Contains an uppercase
+                        letter</li>
+                      <li class="flex items-center" id="reqNumber"><span class="mr-1">✓</span> Contains a number</li>
+                      <li class="flex items-center" id="reqSpecial"><span class="mr-1">✓</span> Contains a special
+                        character
+                        (@$!%*?&)</li>
+                    </ul>
+                  </div>
                   <div class="invalid-feedback">Please provide a password.</div>
                 </div>
 
                 <div class="mb-3">
                   <label for="confirm_password" class="form-label">Confirm Password</label>
-                  <input type="password" class="form-control" id="confirm_password" name="confirm_password" required
-                    <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
+                  <div class="password-input-container">
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required
+                      <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
+                    <button type="button" onclick="togglePassword('confirm_password')"
+                      <?php echo ($user_type === 'employee') ? 'disabled' : ''; ?>>
+                      <i class="far fa-eye"></i>
+                    </button>
+                  </div>
+                  <div id="passwordMatch" class="text-xs mt-1 hidden"></div>
                   <div class="invalid-feedback">Passwords must match.</div>
                 </div>
 
@@ -172,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
   </div>
 </div>
 
-<!-- Form Validation Script -->
+<!-- Form Validation and Password Functionality Script -->
 <script>
 // Client-side form validation
 (function() {
@@ -196,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
   password.onchange = validatePassword
   confirm_password.onkeyup = validatePassword
 
-  // Loop over them and prevent submission
+  // Loop over forms and prevent submission if invalid
   Array.prototype.slice.call(forms)
     .forEach(function(form) {
       form.addEventListener('submit', function(event) {
@@ -209,6 +266,98 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_type !== 'employee') {
       }, false)
     })
 })()
+
+// Toggle password visibility
+function togglePassword(fieldId) {
+  const field = document.getElementById(fieldId);
+  const icon = field.nextElementSibling.querySelector('i');
+  if (field.type === "password") {
+    field.type = "text";
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    field.type = "password";
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+}
+
+// Real-time password validation
+document.getElementById('password').addEventListener('input', function() {
+  const password = this.value;
+  const requirements = document.getElementById('passwordRequirements');
+  const reqLength = document.getElementById('reqLength');
+  const reqLower = document.getElementById('reqLower');
+  const reqUpper = document.getElementById('reqUpper');
+  const reqNumber = document.getElementById('reqNumber');
+  const reqSpecial = document.getElementById('reqSpecial');
+
+  // Show requirements when typing
+  if (password.length > 0) {
+    requirements.classList.remove('hidden');
+  } else {
+    requirements.classList.add('hidden');
+  }
+
+  // Check each requirement
+  if (password.length >= 8) {
+    reqLength.querySelector('span').textContent = '✓';
+    reqLength.querySelector('span').className = 'mr-1 text-green-600';
+  } else {
+    reqLength.querySelector('span').textContent = '✗';
+    reqLength.querySelector('span').className = 'mr-1 text-red-600';
+  }
+
+  if (/[a-z]/.test(password)) {
+    reqLower.querySelector('span').textContent = '✓';
+    reqLower.querySelector('span').className = 'mr-1 text-green-600';
+  } else {
+    reqLower.querySelector('span').textContent = '✗';
+    reqLower.querySelector('span').className = 'mr-1 text-red-600';
+  }
+
+  if (/[A-Z]/.test(password)) {
+    reqUpper.querySelector('span').textContent = '✓';
+    reqUpper.querySelector('span').className = 'mr-1 text-green-600';
+  } else {
+    reqUpper.querySelector('span').textContent = '✗';
+    reqUpper.querySelector('span').className = 'mr-1 text-red-600';
+  }
+
+  if (/\d/.test(password)) {
+    reqNumber.querySelector('span').textContent = '✓';
+    reqNumber.querySelector('span').className = 'mr-1 text-green-600';
+  } else {
+    reqNumber.querySelector('span').textContent = '✗';
+    reqNumber.querySelector('span').className = 'mr-1 text-red-600';
+  }
+
+  if (/[@$!%*?&]/.test(password)) {
+    reqSpecial.querySelector('span').textContent = '✓';
+    reqSpecial.querySelector('span').className = 'mr-1 text-green-600';
+  } else {
+    reqSpecial.querySelector('span').textContent = '✗';
+    reqSpecial.querySelector('span').className = 'mr-1 text-red-600';
+  }
+});
+
+// Real-time password match validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+  const password = document.getElementById('password').value;
+  const confirmPassword = this.value;
+  const matchDiv = document.getElementById('passwordMatch');
+
+  if (confirmPassword.length > 0) {
+    matchDiv.classList.remove('hidden');
+    if (password === confirmPassword) {
+      matchDiv.textContent = "Passwords match!";
+      matchDiv.className = "text-xs mt-1 text-green-600";
+    } else {
+      matchDiv.textContent = "Passwords do not match!";
+      matchDiv.className = "text-xs mt-1 text-red-600";
+    }
+  } else {
+    matchDiv.classList.add('hidden');
+  }
+});
 </script>
 
 <?php

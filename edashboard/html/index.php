@@ -58,6 +58,17 @@ include("components/header.php");
     background: #7fad39;
     border-radius: 4px;
   }
+
+  /* Ensure product images display fully */
+  .product-image {
+    width: 100%;
+    max-height: 192px;
+    /* Equivalent to h-48 for consistency */
+    object-fit: contain;
+    /* Scale image to fit without cropping */
+    object-position: center;
+    /* Center the image */
+  }
   </style>
 </head>
 
@@ -130,7 +141,7 @@ include("components/header.php");
           <?php foreach ($products as $product): ?>
           <div class="bg-gray-50 rounded-lg overflow-hidden shadow hover-scale">
             <img src="<?php echo htmlspecialchars($product['image_path']); ?>"
-              alt="<?php echo htmlspecialchars($product['product_name']); ?>" class="w-full h-48 object-cover">
+              alt="<?php echo htmlspecialchars($product['product_name']); ?>" class="product-image">
             <div class="p-4">
               <h5 class="text-lg font-bold text-gray-800"><?php echo htmlspecialchars($product['product_name']); ?></h5>
               <span class="font-bold text-green-600">Rs <?php echo number_format($product['price'], 2); ?></span>
