@@ -128,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($paymentMethod === 'credit_card') {
         $cardNumber = validateInput('card_number', "/^[0-9\s]{16,19}$/", "Card number should be 16-19 digits", $errors);
         $expiryDate = validateInput('expiry_date', "/^(0[1-9]|1[0-2])\/?([0-9]{2})$/", "Expiry date should be in MM/YY format", $errors);
-        $cvv = validateInput('cvv', "/^[0-9]{3,4}$/", "CVV should be 3 or 4 digits", $errors); // Fixed field name from '391' to 'cvv'
+        $cvv = validateInput('cvv', "/^[0-9]{3,4}$/", "CVV should be 3 or 4 digits", $errors);
     } elseif ($paymentMethod === 'check_payment') {
         $checkNumber = validateInput('check_number', "/^[a-zA-Z0-9]{5,20}$/", "Check number should be 5-20 alphanumeric characters", $errors);
         $bankName = validateInput('bank_name', "/^[a-zA-Z ]{2,50}$/", "Bank name should contain only letters and spaces (2-50 characters)", $errors);
@@ -158,7 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Bind payment parameters
             $paymentStmt->bindParam(':payment_method', $paymentMethod);
-            $paymentStmt->bindParam(':amount', $total); // Use discounted total
+            $paymentStmt->bindParam(':amount', $total);
             $paymentStmt->bindParam(':first_name', $firstName);
             $paymentStmt->bindParam(':last_name', $lastName);
             $paymentStmt->bindParam(':country', $country);
@@ -212,7 +212,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $updateStock->execute([$quantity, $product_id]);
             }
 
-            // Insert the orders
+            // Insert the orders - CHANGED 'pending' to 'accepted'
             $sql = "INSERT INTO orders (
                 order_id, delivery_type, product_id, order_number, 
                 u_name, u_email, p_name, p_price, p_qty, 
@@ -220,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ) VALUES (
                 :order_id, :delivery_type, :product_id, :order_number, 
                 :u_name, :u_email, :p_name, :p_price, :p_qty, 
-                NOW(), 'pending', :u_id, :payment_id
+                NOW(), 'accepted', :u_id, :payment_id
             )";
 
             $stmt = $pdo->prepare($sql);
@@ -621,7 +621,8 @@ function validateInput($fieldName, $pattern, $errorMessage, &$errors) {
               <div class="discount-row">Discount (<?php echo $_SESSION['promo_discount']; ?>%) <span>- Rs
                   <?php echo number_format($discount_amount, 2); ?></span></div>
               <div class="promo-code">Promo Code:
-                <strong><?php echo htmlspecialchars($_SESSION['promo_code']); ?></strong></div>
+                <strong><?php echo htmlspecialchars($_SESSION['promo_code']); ?></strong>
+              </div>
               <?php endif; ?>
               <div class="checkout__order__total">Total <span>Rs <?php echo number_format($total, 2); ?></span></div>
 
@@ -912,7 +913,7 @@ function validateAndSubmit() {
       const checkNumber = document.querySelector('input[name="check_number"]')?.value.trim();
       const bankName = document.querySelector('input[name="bank_name"]')?.value.trim();
 
-      if (!checkNumber || !/^[a-zA-Z0-9]{5,20}$/.test(checkNumber)) { // Fixed typo 'GELcheckNumber' to 'checkNumber'
+      if (!checkNumber || !/^[a-zA-Z0-9]{5,20}$/.test(checkNumber)) {
         showError('check_number', 'Check number should be 5-20 alphanumeric characters');
         isValid = false;
       }

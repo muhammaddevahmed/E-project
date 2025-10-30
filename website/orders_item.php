@@ -24,6 +24,10 @@
   color: #ffc107;
 }
 
+.status-accepted {
+  color: #28a745;
+}
+
 .status-processing {
   color: #17a2b8;
 }
@@ -34,6 +38,32 @@
 
 .status-delivered {
   color: #28a745;
+}
+
+.status-declined {
+  color: #dc3545;
+}
+
+.status-completed {
+  color: #28a745;
+}
+
+.status-cancelled {
+  color: #dc3545;
+}
+
+.decline-reason {
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #c53030;
+}
+
+.decline-reason strong {
+  color: #9b2c2c;
 }
 
 .delivery-info {
@@ -67,19 +97,18 @@ include("components/header.php");
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
-  echo "<script>alert('You must be logged in to request a return.'); window.location.href='login.php';</script>";
+  echo "<script>alert('You must be logged in to view your orders.'); window.location.href='login.php';</script>";
   exit();
 }
-
 
 $user_id = $_SESSION['user_id'];
 $orders = [];
 
 try {
-    // Get orders with delivery information
+    // Get orders with delivery information and decline reason
     $stmt = $pdo->prepare("
         SELECT o.order_id, o.order_number, o.p_name, o.p_price, o.p_qty, 
-               o.date_time, o.status, o.delivery_status,
+               o.date_time, o.status, o.delivery_status, o.decline_reason,
                d.estimated_delivery_date, d.actual_delivery_date, d.delivery_notes
         FROM orders o
         LEFT JOIN deliveries d ON o.order_id = d.order_id
@@ -116,9 +145,17 @@ try {
       <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <div class="order-status 
                         <?= $order['status'] === 'pending' ? 'status-pending' : 
-                            ($order['status'] === 'completed' ? 'status-completed' : 'status-cancelled') ?>">
+                            ($order['status'] === 'accepted' ? 'status-accepted' :
+                            ($order['status'] === 'completed' ? 'status-completed' : 
+                            ($order['status'] === 'declined' ? 'status-declined' : 'status-cancelled'))) ?>">
           Order Status: <?= ucfirst($order['status']) ?>
         </div>
+
+        <?php if ($order['status'] === 'declined' && !empty($order['decline_reason'])): ?>
+        <div class="decline-reason mt-2">
+          <strong>Reason:</strong> <?= htmlspecialchars($order['decline_reason']) ?>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
 
@@ -128,7 +165,8 @@ try {
         class="order-status 
                       <?= strtolower($order['delivery_status']) === 'pending' ? 'status-pending' : 
                           (strtolower($order['delivery_status']) === 'processing' ? 'status-processing' :
-                          (strtolower($order['delivery_status']) === 'shipped' ? 'status-shipped' : 'status-delivered')) ?>">
+                          (strtolower($order['delivery_status']) === 'shipped' ? 'status-shipped' : 
+                          (strtolower($order['delivery_status']) === 'delivered' ? 'status-delivered' : 'status-pending'))) ?>">
         Delivery Status: <?= ucfirst($order['delivery_status'] ?? 'pending') ?>
       </div>
 

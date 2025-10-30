@@ -7,17 +7,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $order_id = $_POST['order_id'];
             $new_status = '';
+            $decline_reason = '';
             
-            if ($_POST['action'] === 'accept') {
-                $new_status = 'accepted';
-            } elseif ($_POST['action'] === 'decline') {
+            if ($_POST['action'] === 'decline') {
                 $new_status = 'declined';
+                $decline_reason = $_POST['decline_reason'] ?? '';
+                
+                if (empty($decline_reason)) {
+                    $_SESSION['error'] = "Please select a reason for declining the order.";
+                    echo "<script>location.assign('orders.php')</script>";
+                    exit();
+                }
             }
             
             if (!empty($new_status)) {
-                $update_query = "UPDATE orders SET status = :status WHERE order_id = :order_id";
+                // Update order status and decline reason
+                $update_query = "UPDATE orders SET status = :status, decline_reason = :decline_reason WHERE order_id = :order_id";
                 $stmt = $pdo->prepare($update_query);
                 $stmt->bindParam(':status', $new_status, PDO::PARAM_STR);
+                $stmt->bindParam(':decline_reason', $decline_reason, PDO::PARAM_STR);
                 $stmt->bindParam(':order_id', $order_id, PDO::PARAM_STR);
                 $stmt->execute();
                 
@@ -89,6 +97,12 @@ try {
   border: 1px solid #ebccd1;
 }
 
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
 .table-responsive {
   background: white;
   border-radius: 0.5rem;
@@ -102,7 +116,6 @@ try {
   border-collapse: collapse;
   margin-top: 1rem;
   min-width: 700px;
-  /* Ensures all columns are accessible */
 }
 
 .table th,
@@ -147,6 +160,7 @@ try {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .btn {
@@ -157,16 +171,6 @@ try {
   cursor: pointer;
   border: none;
   transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn-accept {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-accept:hover {
-  background-color: #45a049;
-  transform: scale(1.05);
 }
 
 .btn-decline {
@@ -184,6 +188,99 @@ try {
   color: #666666;
   cursor: not-allowed;
   transform: none;
+}
+
+/* Decline Reason Modal */
+.decline-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.decline-modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.decline-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.decline-modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.close-modal:hover {
+  color: #333;
+}
+
+.decline-reason-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.decline-reason-select:focus {
+  outline: none;
+  border-color: #7fad39;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+.btn-confirm-decline {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-confirm-decline:hover {
+  background-color: #e53935;
+}
+
+.decline-reason-display {
+  font-size: 0.85rem;
+  color: #f44336;
+  font-style: italic;
+  margin-top: 5px;
 }
 
 /* Scrollbar styling */
@@ -227,6 +324,11 @@ try {
     padding: clamp(0.25rem, 0.6vw, 0.4rem) clamp(0.4rem, 0.8vw, 0.6rem);
     font-size: clamp(0.65rem, 0.9vw, 0.75rem);
   }
+
+  .decline-modal-content {
+    margin: 20% auto;
+    width: 95%;
+  }
 }
 
 @media (max-width: 576px) {
@@ -255,11 +357,48 @@ try {
 }
 </style>
 
+<!-- Decline Reason Modal -->
+<div id="declineModal" class="decline-modal">
+  <div class="decline-modal-content">
+    <div class="decline-modal-header">
+      <h3>Decline Order</h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <form id="declineForm" method="POST">
+      <input type="hidden" name="order_id" id="declineOrderId">
+      <input type="hidden" name="action" value="decline">
+
+      <label for="declineReason">Select reason for declining:</label>
+      <select name="decline_reason" id="declineReason" class="decline-reason-select" required>
+        <option value="">-- Select a reason --</option>
+        <option value="Out of stock">Out of stock</option>
+        <option value="Invalid address">Invalid address</option>
+        <option value="Payment issue">Payment issue</option>
+        <option value="Suspicious activity">Suspicious activity</option>
+        <option value="Customer request">Customer request</option>
+        <option value="Technical error">Technical error</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-cancel">Cancel</button>
+        <button type="submit" class="btn btn-confirm-decline">Confirm Decline</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Order Management Start -->
 <div class="container-fluid pt-4 px-4">
   <div class="row bg-light rounded mx-0">
     <div class="col-12">
       <h1 class="heading">Order Management</h1>
+
+      <!-- Auto-accept notice -->
+      <div class="alert alert-info">
+        <strong>Note:</strong> All orders are automatically accepted when placed. Use the decline button to reject
+        specific orders if needed.
+      </div>
 
       <?php if (isset($_SESSION['message'])): ?>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -303,19 +442,18 @@ try {
               <td><?php echo date('M j, Y H:i', strtotime($order['date_time'])); ?></td>
               <td class="status-<?php echo htmlspecialchars($order['status']); ?>">
                 <?php echo ucfirst(htmlspecialchars($order['status'])); ?>
+                <?php if ($order['status'] === 'declined' && !empty($order['decline_reason'])): ?>
+                <div class="decline-reason-display">
+                  Reason: <?php echo htmlspecialchars($order['decline_reason']); ?>
+                </div>
+                <?php endif; ?>
               </td>
               <td class="action-buttons">
                 <form method="POST" class="d-inline">
                   <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order['order_id']); ?>">
-                  <button type="submit" name="action" value="accept" class="btn btn-accept"
-                    <?php echo ($order['status'] !== 'pending') ? 'disabled' : ''; ?>>
-                    Accept
-                  </button>
-                </form>
-                <form method="POST" class="d-inline">
-                  <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order['order_id']); ?>">
-                  <button type="submit" name="action" value="decline" class="btn btn-decline"
-                    <?php echo ($order['status'] !== 'pending') ? 'disabled' : ''; ?>>
+                  <button type="button" class="btn btn-decline decline-btn"
+                    <?php echo ($order['status'] !== 'accepted') ? 'disabled' : ''; ?>
+                    data-order-id="<?php echo htmlspecialchars($order['order_id']); ?>">
                     Decline
                   </button>
                 </form>
@@ -329,6 +467,56 @@ try {
   </div>
 </div>
 <!-- Order Management End -->
+
+<script>
+// Modal functionality
+const declineModal = document.getElementById('declineModal');
+const declineForm = document.getElementById('declineForm');
+const declineOrderId = document.getElementById('declineOrderId');
+const declineReason = document.getElementById('declineReason');
+const closeModal = document.querySelector('.close-modal');
+const cancelBtn = document.querySelector('.btn-cancel');
+const declineBtns = document.querySelectorAll('.decline-btn');
+
+// Open modal when decline button is clicked
+declineBtns.forEach(btn => {
+  btn.addEventListener('click', function() {
+    if (!this.disabled) {
+      const orderId = this.getAttribute('data-order-id');
+      declineOrderId.value = orderId;
+      declineModal.style.display = 'block';
+    }
+  });
+});
+
+// Close modal
+closeModal.addEventListener('click', function() {
+  declineModal.style.display = 'none';
+  declineForm.reset();
+});
+
+cancelBtn.addEventListener('click', function() {
+  declineModal.style.display = 'none';
+  declineForm.reset();
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+  if (event.target === declineModal) {
+    declineModal.style.display = 'none';
+    declineForm.reset();
+  }
+});
+
+// Form submission
+declineForm.addEventListener('submit', function(e) {
+  if (!declineReason.value) {
+    e.preventDefault();
+    alert('Please select a reason for declining the order.');
+    declineReason.focus();
+  }
+});
+</script>
 
 <?php
 include("components/footer.php");
